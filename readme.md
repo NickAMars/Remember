@@ -1,1 +1,1 @@
-I'm create a application which will help the user memory process more stable by challenging that user to test himself every day to see how they can advance in there of field having a photographic memory to help them.
+I'm create a application which will help the user memory process more stable by challenging that user to test them self every day to see how they can advance in there of field to having a photographic memory to help them.
