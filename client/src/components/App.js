@@ -1,24 +1,22 @@
 import React, {Component} from  'react';
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
+import Remember from './Remember';
 //TEST
 const test = () =>{
   return (
-    <div className= "test">
-      HELLO {' '}
-      <button className= "test-scss">Testing route</button>
+    <div>
     </div>
   );
 }
 
 
 class App extends Component{
-
-/* switch try to march the first one so do it from top to bottom*/
   render(){
     return(
         <Router>
           <Switch>
-            <Route path='/' component={test} />
+            <Route path='/test' component={test} />
+            <Route path='/' component={Remember} />
           </Switch>
         </Router>
       )

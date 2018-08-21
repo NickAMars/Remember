@@ -1,0 +1,29 @@
+.btn {
+  font-size: 1.4rem;
+  text-transform: uppercase;
+  color: #ccc;
+  &__add{
+    border:none;
+    background-color: #ff4500;
+    position:fixed;
+    bottom: 0;
+    right: 0;
+    font-size: 4rem;
+    margin-right: 1em;
+    margin-bottom: 1em;
+    padding: .25em .5em;
+    font-weight:700;
+    font-style: italic;
+    border-radius: 50%;
+    cursor:pointer;
+    box-shadow: 0 .5rem 1rem rgba(#000, .3);
+    transition: all 2s;
+    &:hover{
+      box-shadow: 0 1rem 2rem rgba(#000, .2);
+    }
+    &:focus,&:active{
+      outline: none;
+      box-shadow: 0 .75rem 1.5rem rgba(#000, .3);
+    }
+  }
+}

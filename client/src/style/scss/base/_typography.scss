@@ -1,0 +1,12 @@
+.heading{
+//heading-primary 
+  &-primary{
+     color: $color-white;
+     text-transform: uppercase;
+     backface-visibility: hidden;
+     display:block;
+     text-align: center;
+     font-size: 4rem;
+  }
+
+}

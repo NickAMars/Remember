@@ -1,0 +1,62 @@
+
+.container-card{
+  width: 30rem;
+}
+.card{
+  height: 30rem;
+  width: 30rem;
+  perspective: 1000px;
+  position: relative;
+  margin-bottom: 2rem;
+  &__side{
+    backface-visibility: hidden;
+    height: 100%;
+    border-radius: 5px;
+    position: absolute;
+    top:0;
+    left:0;
+    transition: all .7s ease;
+
+    &--front{
+      width: 100%;
+      background-color: pink;
+    }
+    &--back{
+      width: 100%;
+      background-color: yellowgreen;
+      transform: rotateY(-180deg);
+    }
+  }
+  &:hover &__side--front{
+    transform: rotateY(180deg);
+  }
+  &:hover &__side--back{
+    transform: rotateY(0deg);
+  }
+
+
+
+  &__title{
+    color: #eee;
+    font-size: 2.4rem;
+    font-weight:  700;
+    text-align: center;
+
+    // center the text on the card front
+    &--center{
+      position: absolute;
+      top: 50%;
+      left:50%;
+      transform: translate(-50%, -50%);
+    }
+    &--border{
+      border-bottom: 1px solid #eee;
+      margin-bottom: 1rem;
+    }
+  }
+  &__description{
+    font-size: 1.4rem;
+    font-weight: 700;
+    padding: .71em 1.42em;
+  }
+}

@@ -1,0 +1,8 @@
+.row{
+  display:flex;
+  flex-wrap: wrap;
+  // margin-bottom: 2rem;
+  & > * {
+    margin-left: 2rem;
+  }
+}

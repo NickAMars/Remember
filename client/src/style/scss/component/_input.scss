@@ -1,0 +1,49 @@
+.input{
+
+  &__box{
+    display:flex;
+    flex-direction: column;
+    align-items: center;
+
+    & > *:not(:last-child) {
+      margin-bottom: 2rem;
+    }
+  }
+  &__field{
+    display:inline-block;
+    width:40%;
+    border: none;
+    background-color: #eee;
+    border-radius: 2px;
+    font-size: 1.4rem;
+    padding: .71em 1.07em;
+    font-family: inherit;
+    color: inherit;
+    box-shadow: 0 1rem 2rem rgba($color-black, .2);
+    transition: all .8s ease-in;
+    &:hover,&:focus{
+    outline:none;
+    width:50%;
+    box-shadow: 0 1.5rem 2.5rem rgba($color-black, .2);
+    }
+  }
+  &__textarea{
+    width: 60%;
+    border: none;
+    background-color: #eee;
+    border-radius: 2px;
+    padding: .71em 1.07em;
+    font-family: inherit;
+    color: inherit;
+    resize: none;
+    box-shadow: 0 1rem 2rem rgba($color-black, .2);
+    transition: all .8s ease-in;
+    &:focus{
+      outline:none;
+    }
+    &:hover{
+    box-shadow: 0 1.5rem 2.5rem rgba($color-black, .2);
+    }
+  }
+
+}
