@@ -3,19 +3,18 @@ import React from  'react';
 /*
   @params key object
 */
-
-export const Card = () => {
-
+// props.card is sent so i just take off a bit of it
+export const Card = ({card}) => {
   return (
     <div className="container-card">
       <div className="card">
         <div className="card__side  card__side--front">
-          <div className="card__title card__title--center">Title...</div>
+          <div className="card__title card__title--center">{card.title}</div>
         </div>
         <div className="card__side card__side--back">
-          <div className="card__title card__title--border">Title...</div>
+          <div className="card__title card__title--border">{card.title}</div>
           <div className="card__description">
-            Description...
+            {card.description}
           </div>
         </div>
       </div>

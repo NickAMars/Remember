@@ -1,0 +1,562 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Card Card render correctly 1`] = `
+ReactWrapper {
+  Symbol(enzyme.__unrendered__): <Unknown
+    card={
+        Object {
+            "description": "The Chicken is so good",
+            "title": "KFC",
+          }
+    }
+/>,
+  Symbol(enzyme.__renderer__): Object {
+    "batchedUpdates": [Function],
+    "getNode": [Function],
+    "render": [Function],
+    "simulateEvent": [Function],
+    "unmount": [Function],
+  },
+  Symbol(enzyme.__root__): [Circular],
+  Symbol(enzyme.__node__): Object {
+    "instance": null,
+    "key": undefined,
+    "nodeType": "function",
+    "props": Object {
+      "card": Object {
+        "description": "The Chicken is so good",
+        "title": "KFC",
+      },
+    },
+    "ref": null,
+    "rendered": Object {
+      "instance": <div
+        class="container-card"
+>
+        <div
+                class="card"
+        >
+                <div
+                        class="card__side  card__side--front"
+                >
+                        <div
+                                class="card__title card__title--center"
+                        >
+                                KFC
+                        </div>
+                </div>
+                <div
+                        class="card__side card__side--back"
+                >
+                        <div
+                                class="card__title card__title--border"
+                        >
+                                KFC
+                        </div>
+                        <div
+                                class="card__description"
+                        >
+                                The Chicken is so good
+                        </div>
+                </div>
+        </div>
+</div>,
+      "key": undefined,
+      "nodeType": "host",
+      "props": Object {
+        "children": <div
+          className="card"
+>
+          <div
+                    className="card__side  card__side--front"
+          >
+                    <div
+                              className="card__title card__title--center"
+                    >
+                              KFC
+                    </div>
+          </div>
+          <div
+                    className="card__side card__side--back"
+          >
+                    <div
+                              className="card__title card__title--border"
+                    >
+                              KFC
+                    </div>
+                    <div
+                              className="card__description"
+                    >
+                              The Chicken is so good
+                    </div>
+          </div>
+</div>,
+        "className": "container-card",
+      },
+      "ref": null,
+      "rendered": Array [
+        Object {
+          "instance": <div
+            class="card"
+>
+            <div
+                        class="card__side  card__side--front"
+            >
+                        <div
+                                    class="card__title card__title--center"
+                        >
+                                    KFC
+                        </div>
+            </div>
+            <div
+                        class="card__side card__side--back"
+            >
+                        <div
+                                    class="card__title card__title--border"
+                        >
+                                    KFC
+                        </div>
+                        <div
+                                    class="card__description"
+                        >
+                                    The Chicken is so good
+                        </div>
+            </div>
+</div>,
+          "key": undefined,
+          "nodeType": "host",
+          "props": Object {
+            "children": Array [
+              <div
+                className="card__side  card__side--front"
+>
+                <div
+                                className="card__title card__title--center"
+                >
+                                KFC
+                </div>
+</div>,
+              <div
+                className="card__side card__side--back"
+>
+                <div
+                                className="card__title card__title--border"
+                >
+                                KFC
+                </div>
+                <div
+                                className="card__description"
+                >
+                                The Chicken is so good
+                </div>
+</div>,
+            ],
+            "className": "card",
+          },
+          "ref": null,
+          "rendered": Array [
+            Object {
+              "instance": <div
+                class="card__side  card__side--front"
+>
+                <div
+                                class="card__title card__title--center"
+                >
+                                KFC
+                </div>
+</div>,
+              "key": undefined,
+              "nodeType": "host",
+              "props": Object {
+                "children": <div
+                  className="card__title card__title--center"
+>
+                  KFC
+</div>,
+                "className": "card__side  card__side--front",
+              },
+              "ref": null,
+              "rendered": Array [
+                Object {
+                  "instance": <div
+                    class="card__title card__title--center"
+>
+                    KFC
+</div>,
+                  "key": undefined,
+                  "nodeType": "host",
+                  "props": Object {
+                    "children": "KFC",
+                    "className": "card__title card__title--center",
+                  },
+                  "ref": null,
+                  "rendered": Array [
+                    "KFC",
+                  ],
+                  "type": "div",
+                },
+              ],
+              "type": "div",
+            },
+            Object {
+              "instance": <div
+                class="card__side card__side--back"
+>
+                <div
+                                class="card__title card__title--border"
+                >
+                                KFC
+                </div>
+                <div
+                                class="card__description"
+                >
+                                The Chicken is so good
+                </div>
+</div>,
+              "key": undefined,
+              "nodeType": "host",
+              "props": Object {
+                "children": Array [
+                  <div
+                    className="card__title card__title--border"
+>
+                    KFC
+</div>,
+                  <div
+                    className="card__description"
+>
+                    The Chicken is so good
+</div>,
+                ],
+                "className": "card__side card__side--back",
+              },
+              "ref": null,
+              "rendered": Array [
+                Object {
+                  "instance": <div
+                    class="card__title card__title--border"
+>
+                    KFC
+</div>,
+                  "key": undefined,
+                  "nodeType": "host",
+                  "props": Object {
+                    "children": "KFC",
+                    "className": "card__title card__title--border",
+                  },
+                  "ref": null,
+                  "rendered": Array [
+                    "KFC",
+                  ],
+                  "type": "div",
+                },
+                Object {
+                  "instance": <div
+                    class="card__description"
+>
+                    The Chicken is so good
+</div>,
+                  "key": undefined,
+                  "nodeType": "host",
+                  "props": Object {
+                    "children": "The Chicken is so good",
+                    "className": "card__description",
+                  },
+                  "ref": null,
+                  "rendered": Array [
+                    "The Chicken is so good",
+                  ],
+                  "type": "div",
+                },
+              ],
+              "type": "div",
+            },
+          ],
+          "type": "div",
+        },
+      ],
+      "type": "div",
+    },
+    "type": [Function],
+  },
+  Symbol(enzyme.__nodes__): Array [
+    Object {
+      "instance": null,
+      "key": undefined,
+      "nodeType": "function",
+      "props": Object {
+        "card": Object {
+          "description": "The Chicken is so good",
+          "title": "KFC",
+        },
+      },
+      "ref": null,
+      "rendered": Object {
+        "instance": <div
+          class="container-card"
+>
+          <div
+                    class="card"
+          >
+                    <div
+                              class="card__side  card__side--front"
+                    >
+                              <div
+                                        class="card__title card__title--center"
+                              >
+                                        KFC
+                              </div>
+                    </div>
+                    <div
+                              class="card__side card__side--back"
+                    >
+                              <div
+                                        class="card__title card__title--border"
+                              >
+                                        KFC
+                              </div>
+                              <div
+                                        class="card__description"
+                              >
+                                        The Chicken is so good
+                              </div>
+                    </div>
+          </div>
+</div>,
+        "key": undefined,
+        "nodeType": "host",
+        "props": Object {
+          "children": <div
+            className="card"
+>
+            <div
+                        className="card__side  card__side--front"
+            >
+                        <div
+                                    className="card__title card__title--center"
+                        >
+                                    KFC
+                        </div>
+            </div>
+            <div
+                        className="card__side card__side--back"
+            >
+                        <div
+                                    className="card__title card__title--border"
+                        >
+                                    KFC
+                        </div>
+                        <div
+                                    className="card__description"
+                        >
+                                    The Chicken is so good
+                        </div>
+            </div>
+</div>,
+          "className": "container-card",
+        },
+        "ref": null,
+        "rendered": Array [
+          Object {
+            "instance": <div
+              class="card"
+>
+              <div
+                            class="card__side  card__side--front"
+              >
+                            <div
+                                          class="card__title card__title--center"
+                            >
+                                          KFC
+                            </div>
+              </div>
+              <div
+                            class="card__side card__side--back"
+              >
+                            <div
+                                          class="card__title card__title--border"
+                            >
+                                          KFC
+                            </div>
+                            <div
+                                          class="card__description"
+                            >
+                                          The Chicken is so good
+                            </div>
+              </div>
+</div>,
+            "key": undefined,
+            "nodeType": "host",
+            "props": Object {
+              "children": Array [
+                <div
+                  className="card__side  card__side--front"
+>
+                  <div
+                                    className="card__title card__title--center"
+                  >
+                                    KFC
+                  </div>
+</div>,
+                <div
+                  className="card__side card__side--back"
+>
+                  <div
+                                    className="card__title card__title--border"
+                  >
+                                    KFC
+                  </div>
+                  <div
+                                    className="card__description"
+                  >
+                                    The Chicken is so good
+                  </div>
+</div>,
+              ],
+              "className": "card",
+            },
+            "ref": null,
+            "rendered": Array [
+              Object {
+                "instance": <div
+                  class="card__side  card__side--front"
+>
+                  <div
+                                    class="card__title card__title--center"
+                  >
+                                    KFC
+                  </div>
+</div>,
+                "key": undefined,
+                "nodeType": "host",
+                "props": Object {
+                  "children": <div
+                    className="card__title card__title--center"
+>
+                    KFC
+</div>,
+                  "className": "card__side  card__side--front",
+                },
+                "ref": null,
+                "rendered": Array [
+                  Object {
+                    "instance": <div
+                      class="card__title card__title--center"
+>
+                      KFC
+</div>,
+                    "key": undefined,
+                    "nodeType": "host",
+                    "props": Object {
+                      "children": "KFC",
+                      "className": "card__title card__title--center",
+                    },
+                    "ref": null,
+                    "rendered": Array [
+                      "KFC",
+                    ],
+                    "type": "div",
+                  },
+                ],
+                "type": "div",
+              },
+              Object {
+                "instance": <div
+                  class="card__side card__side--back"
+>
+                  <div
+                                    class="card__title card__title--border"
+                  >
+                                    KFC
+                  </div>
+                  <div
+                                    class="card__description"
+                  >
+                                    The Chicken is so good
+                  </div>
+</div>,
+                "key": undefined,
+                "nodeType": "host",
+                "props": Object {
+                  "children": Array [
+                    <div
+                      className="card__title card__title--border"
+>
+                      KFC
+</div>,
+                    <div
+                      className="card__description"
+>
+                      The Chicken is so good
+</div>,
+                  ],
+                  "className": "card__side card__side--back",
+                },
+                "ref": null,
+                "rendered": Array [
+                  Object {
+                    "instance": <div
+                      class="card__title card__title--border"
+>
+                      KFC
+</div>,
+                    "key": undefined,
+                    "nodeType": "host",
+                    "props": Object {
+                      "children": "KFC",
+                      "className": "card__title card__title--border",
+                    },
+                    "ref": null,
+                    "rendered": Array [
+                      "KFC",
+                    ],
+                    "type": "div",
+                  },
+                  Object {
+                    "instance": <div
+                      class="card__description"
+>
+                      The Chicken is so good
+</div>,
+                    "key": undefined,
+                    "nodeType": "host",
+                    "props": Object {
+                      "children": "The Chicken is so good",
+                      "className": "card__description",
+                    },
+                    "ref": null,
+                    "rendered": Array [
+                      "The Chicken is so good",
+                    ],
+                    "type": "div",
+                  },
+                ],
+                "type": "div",
+              },
+            ],
+            "type": "div",
+          },
+        ],
+        "type": "div",
+      },
+      "type": [Function],
+    },
+  ],
+  Symbol(enzyme.__options__): Object {
+    "adapter": ReactSixteenAdapter {
+      "options": Object {
+        "enableComponentDidUpdateOnSetState": true,
+        "lifecycles": Object {
+          "componentDidUpdate": Object {
+            "onSetState": true,
+          },
+          "getSnapshotBeforeUpdate": true,
+        },
+      },
+    },
+    "attachTo": undefined,
+    "disableLifecycleMethods": true,
+    "hydrateIn": undefined,
+  },
+}
+`;

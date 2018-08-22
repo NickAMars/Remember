@@ -1,0 +1,307 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Form Form render correctly 1`] = `
+ShallowWrapper {
+  Symbol(enzyme.__root__): [Circular],
+  Symbol(enzyme.__unrendered__): <Form />,
+  Symbol(enzyme.__renderer__): Object {
+    "batchedUpdates": [Function],
+    "getNode": [Function],
+    "render": [Function],
+    "simulateEvent": [Function],
+    "unmount": [Function],
+  },
+  Symbol(enzyme.__node__): Object {
+    "instance": null,
+    "key": undefined,
+    "nodeType": "host",
+    "props": Object {
+      "children": Array [
+        <h1
+          className="heading-primary"
+>
+          Remember
+</h1>,
+        <div
+          className="input__box"
+>
+          <input
+                    autoFocus={true}
+                    className="input__field"
+                    onChange={[Function]}
+                    type="text"
+                    value="TITLE..."
+          />
+          <textarea
+                    className="input__textarea"
+                    cols="50"
+                    maxLength="200"
+                    name="basic"
+                    onChange={[Function]}
+                    rows="5"
+                    value=""
+          />
+          <button
+                    className="btn btn__add"
+                    onClick={[Function]}
+          >
+                    +
+          </button>
+</div>,
+      ],
+    },
+    "ref": null,
+    "rendered": Array [
+      Object {
+        "instance": null,
+        "key": undefined,
+        "nodeType": "host",
+        "props": Object {
+          "children": "Remember",
+          "className": "heading-primary",
+        },
+        "ref": null,
+        "rendered": "Remember",
+        "type": "h1",
+      },
+      Object {
+        "instance": null,
+        "key": undefined,
+        "nodeType": "host",
+        "props": Object {
+          "children": Array [
+            <input
+              autoFocus={true}
+              className="input__field"
+              onChange={[Function]}
+              type="text"
+              value="TITLE..."
+/>,
+            <textarea
+              className="input__textarea"
+              cols="50"
+              maxLength="200"
+              name="basic"
+              onChange={[Function]}
+              rows="5"
+              value=""
+/>,
+            <button
+              className="btn btn__add"
+              onClick={[Function]}
+>
+              +
+</button>,
+          ],
+          "className": "input__box",
+        },
+        "ref": null,
+        "rendered": Array [
+          Object {
+            "instance": null,
+            "key": undefined,
+            "nodeType": "host",
+            "props": Object {
+              "autoFocus": true,
+              "className": "input__field",
+              "onChange": [Function],
+              "type": "text",
+              "value": "TITLE...",
+            },
+            "ref": null,
+            "rendered": null,
+            "type": "input",
+          },
+          Object {
+            "instance": null,
+            "key": undefined,
+            "nodeType": "host",
+            "props": Object {
+              "className": "input__textarea",
+              "cols": "50",
+              "maxLength": "200",
+              "name": "basic",
+              "onChange": [Function],
+              "rows": "5",
+              "value": "",
+            },
+            "ref": null,
+            "rendered": null,
+            "type": "textarea",
+          },
+          Object {
+            "instance": null,
+            "key": undefined,
+            "nodeType": "host",
+            "props": Object {
+              "children": "+",
+              "className": "btn btn__add",
+              "onClick": [Function],
+            },
+            "ref": null,
+            "rendered": "+",
+            "type": "button",
+          },
+        ],
+        "type": "div",
+      },
+    ],
+    "type": "div",
+  },
+  Symbol(enzyme.__nodes__): Array [
+    Object {
+      "instance": null,
+      "key": undefined,
+      "nodeType": "host",
+      "props": Object {
+        "children": Array [
+          <h1
+            className="heading-primary"
+>
+            Remember
+</h1>,
+          <div
+            className="input__box"
+>
+            <input
+                        autoFocus={true}
+                        className="input__field"
+                        onChange={[Function]}
+                        type="text"
+                        value="TITLE..."
+            />
+            <textarea
+                        className="input__textarea"
+                        cols="50"
+                        maxLength="200"
+                        name="basic"
+                        onChange={[Function]}
+                        rows="5"
+                        value=""
+            />
+            <button
+                        className="btn btn__add"
+                        onClick={[Function]}
+            >
+                        +
+            </button>
+</div>,
+        ],
+      },
+      "ref": null,
+      "rendered": Array [
+        Object {
+          "instance": null,
+          "key": undefined,
+          "nodeType": "host",
+          "props": Object {
+            "children": "Remember",
+            "className": "heading-primary",
+          },
+          "ref": null,
+          "rendered": "Remember",
+          "type": "h1",
+        },
+        Object {
+          "instance": null,
+          "key": undefined,
+          "nodeType": "host",
+          "props": Object {
+            "children": Array [
+              <input
+                autoFocus={true}
+                className="input__field"
+                onChange={[Function]}
+                type="text"
+                value="TITLE..."
+/>,
+              <textarea
+                className="input__textarea"
+                cols="50"
+                maxLength="200"
+                name="basic"
+                onChange={[Function]}
+                rows="5"
+                value=""
+/>,
+              <button
+                className="btn btn__add"
+                onClick={[Function]}
+>
+                +
+</button>,
+            ],
+            "className": "input__box",
+          },
+          "ref": null,
+          "rendered": Array [
+            Object {
+              "instance": null,
+              "key": undefined,
+              "nodeType": "host",
+              "props": Object {
+                "autoFocus": true,
+                "className": "input__field",
+                "onChange": [Function],
+                "type": "text",
+                "value": "TITLE...",
+              },
+              "ref": null,
+              "rendered": null,
+              "type": "input",
+            },
+            Object {
+              "instance": null,
+              "key": undefined,
+              "nodeType": "host",
+              "props": Object {
+                "className": "input__textarea",
+                "cols": "50",
+                "maxLength": "200",
+                "name": "basic",
+                "onChange": [Function],
+                "rows": "5",
+                "value": "",
+              },
+              "ref": null,
+              "rendered": null,
+              "type": "textarea",
+            },
+            Object {
+              "instance": null,
+              "key": undefined,
+              "nodeType": "host",
+              "props": Object {
+                "children": "+",
+                "className": "btn btn__add",
+                "onClick": [Function],
+              },
+              "ref": null,
+              "rendered": "+",
+              "type": "button",
+            },
+          ],
+          "type": "div",
+        },
+      ],
+      "type": "div",
+    },
+  ],
+  Symbol(enzyme.__options__): Object {
+    "adapter": ReactSixteenAdapter {
+      "options": Object {
+        "enableComponentDidUpdateOnSetState": true,
+        "lifecycles": Object {
+          "componentDidUpdate": Object {
+            "onSetState": true,
+          },
+          "getSnapshotBeforeUpdate": true,
+        },
+      },
+    },
+    "attachTo": undefined,
+    "disableLifecycleMethods": true,
+    "hydrateIn": undefined,
+  },
+}
+`;
