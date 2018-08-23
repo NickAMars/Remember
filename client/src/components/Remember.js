@@ -7,6 +7,7 @@ export class Remember extends Component{
   render(){
     return (
       <div>
+        <h1 className="heading-primary">Remember</h1>
         <Form />
         <hr className="u-mt-sm u-mb-sm"/>
         <div className="row">

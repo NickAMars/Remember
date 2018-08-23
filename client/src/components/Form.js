@@ -6,8 +6,8 @@ export class Form extends Component{
   constructor(){
     super();
     this.state = {
-          title:'TITLE...',
-          description:''
+      title:'',
+      description:''
     };
   }
 
@@ -15,17 +15,12 @@ export class Form extends Component{
     const {title, description} = this.state;
     if( title !== '' && description !== '')
       this.props.addCard(this.state);
-
-    this.setState({
-        title: '',
-        description: ''
-     });
+      this.setState({  title: '',description: ''});
   }
 
   render(){
     return (
            <div>
-                <h1 className="heading-primary">Remember</h1>
                 <div className="input__box">
                   <input
                     autoFocus
@@ -49,3 +44,5 @@ export class Form extends Component{
   }
 }
 export default connect(null, {addCard})(Form);
+
+//https://medium.com/backticks-tildes/testing-your-react-component-with-jest-and-enzyme-276eef45bea0
