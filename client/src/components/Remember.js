@@ -22,11 +22,10 @@ export class Remember extends Component{
   );
   }
 }
-
-function mapStateToProps(state){
+export const mapStateToProps = (state) => {
   return {
     cards: state.cards
   };
 }
 
-export default connect(mapStateToProps)(Remember);
+export default connect( mapStateToProps)(Remember);

@@ -79,7 +79,7 @@ body {
 
 .input__field {
   display: inline-block;
-  width: 40%;
+  width: 60%;
   border: none;
   background-color: #eee;
   border-radius: 2px;
@@ -91,7 +91,6 @@ body {
   transition: all .8s ease-in; }
   .input__field:hover, .input__field:focus {
     outline: none;
-    width: 50%;
     box-shadow: 0 1.5rem 2.5rem rgba(0, 0, 0, 0.2); }
 
 .input__textarea {

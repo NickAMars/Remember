@@ -1,6 +1,6 @@
 import React from 'react';
 import {  shallow, configure } from 'enzyme';
-import {Form}  from './Form';
+import {Form,validate }  from './Form';
 import {INPUT, TEXT_AREA} from '../data/constance';
 import Adapter from 'enzyme-adapter-react-16';
 configure({ adapter: new Adapter(), disableLifecycleMethods: true });
@@ -15,7 +15,7 @@ describe('Form', ()=>{
   test('render input field',()=>expect(FORM.find('input').exists()).toBe(true));
   test('render textarea field', () => expect(FORM.find('textarea').exists()).toBe(true));
   test('render button element', () => expect(FORM.find('button').exists()).toBe(true));
-
+  test('validate function on initialstate', () => expect(validate(FORM.state())).toBe(false));
   describe('When the text fields are updated', ()=>{
     beforeEach(() => {
       FORM.find('input').simulate('change', {target:{ value: INPUT }});

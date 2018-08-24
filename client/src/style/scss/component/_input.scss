@@ -11,7 +11,7 @@
   }
   &__field{
     display:inline-block;
-    width:40%;
+    width:60%;
     border: none;
     background-color: #eee;
     border-radius: 2px;
@@ -23,7 +23,7 @@
     transition: all .8s ease-in;
     &:hover,&:focus{
     outline:none;
-    width:50%;
+    // width:50%;
     box-shadow: 0 1.5rem 2.5rem rgba($color-black, .2);
     }
   }

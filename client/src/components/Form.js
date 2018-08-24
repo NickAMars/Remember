@@ -3,19 +3,21 @@ import { connect } from 'react-redux';
 import { addCard } from '../actions';
 
 export class Form extends Component{
-  constructor(){
-    super();
+  constructor(props){
+    super(props);
     this.state = {
       title:'',
       description:''
     };
   }
 
-  Add(){
-    const {title, description} = this.state;
-    if( title !== '' && description !== '')
+  Add = () => {
+    if(validate(this.state))
       this.props.addCard(this.state);
-      this.setState({  title: '',description: ''});
+      this.emptyState();
+  }
+  emptyState = () => {
+    this.setState({  title: '',description: ''});
   }
 
   render(){
@@ -29,7 +31,6 @@ export class Form extends Component{
                     onChange={(event)=>{ this.setState({ title: event.target.value}) }}
                     value={this.state.title}
                   />
-
                   <textarea
                     className="input__textarea"
                     name="basic" rows="5" cols="50" maxLength="200"
@@ -37,11 +38,16 @@ export class Form extends Component{
                     value={this.state.description}
                     >
                   </textarea>
-                  <button onClick={this.Add.bind(this)}  className="btn btn__add">+</button>
+                  <button onClick={this.Add}  className="btn btn__add">+</button>
                 </div>
           </div>
         );
   }
+}
+
+export const validate = ({title,description }) => {
+    if( title !== '' && description !== '') return true;
+    return false;
 }
 export default connect(null, {addCard})(Form);
 
