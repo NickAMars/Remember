@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import { connect } from 'react-redux';
 import { addCard } from '../actions';
+import PropTypes from 'prop-types';
 
 export class Form extends Component{
   constructor(props){
@@ -43,6 +44,9 @@ export class Form extends Component{
           </div>
         );
   }
+}
+Form.propTypes ={
+  addCard: PropTypes.func
 }
 
 export const validate = ({title,description }) => {

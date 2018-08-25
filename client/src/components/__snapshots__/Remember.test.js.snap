@@ -43,20 +43,12 @@ ShallowWrapper {
           className="row"
 >
           <Unknown
-                    card={
-                              Object {
-                                        "description": "DESCRIPTION1",
-                                        "title": "TITLE1",
-                                      }
-                    }
+                    description="DESCRIPTION1"
+                    title="TITLE1"
           />
           <Unknown
-                    card={
-                              Object {
-                                        "description": "DESCRIPTION2",
-                                        "title": "TITLE2",
-                                      }
-                    }
+                    description="DESCRIPTION2"
+                    title="TITLE2"
           />
 </div>,
       ],
@@ -102,20 +94,12 @@ ShallowWrapper {
         "props": Object {
           "children": Array [
             <Unknown
-              card={
-                            Object {
-                                          "description": "DESCRIPTION1",
-                                          "title": "TITLE1",
-                                        }
-              }
+              description="DESCRIPTION1"
+              title="TITLE1"
 />,
             <Unknown
-              card={
-                            Object {
-                                          "description": "DESCRIPTION2",
-                                          "title": "TITLE2",
-                                        }
-              }
+              description="DESCRIPTION2"
+              title="TITLE2"
 />,
           ],
           "className": "row",
@@ -127,10 +111,8 @@ ShallowWrapper {
             "key": "0",
             "nodeType": "function",
             "props": Object {
-              "card": Object {
-                "description": "DESCRIPTION1",
-                "title": "TITLE1",
-              },
+              "description": "DESCRIPTION1",
+              "title": "TITLE1",
             },
             "ref": null,
             "rendered": null,
@@ -141,10 +123,8 @@ ShallowWrapper {
             "key": "1",
             "nodeType": "function",
             "props": Object {
-              "card": Object {
-                "description": "DESCRIPTION2",
-                "title": "TITLE2",
-              },
+              "description": "DESCRIPTION2",
+              "title": "TITLE2",
             },
             "ref": null,
             "rendered": null,
@@ -176,20 +156,12 @@ ShallowWrapper {
             className="row"
 >
             <Unknown
-                        card={
-                                    Object {
-                                                "description": "DESCRIPTION1",
-                                                "title": "TITLE1",
-                                              }
-                        }
+                        description="DESCRIPTION1"
+                        title="TITLE1"
             />
             <Unknown
-                        card={
-                                    Object {
-                                                "description": "DESCRIPTION2",
-                                                "title": "TITLE2",
-                                              }
-                        }
+                        description="DESCRIPTION2"
+                        title="TITLE2"
             />
 </div>,
         ],
@@ -235,20 +207,12 @@ ShallowWrapper {
           "props": Object {
             "children": Array [
               <Unknown
-                card={
-                                Object {
-                                                "description": "DESCRIPTION1",
-                                                "title": "TITLE1",
-                                              }
-                }
+                description="DESCRIPTION1"
+                title="TITLE1"
 />,
               <Unknown
-                card={
-                                Object {
-                                                "description": "DESCRIPTION2",
-                                                "title": "TITLE2",
-                                              }
-                }
+                description="DESCRIPTION2"
+                title="TITLE2"
 />,
             ],
             "className": "row",
@@ -260,10 +224,8 @@ ShallowWrapper {
               "key": "0",
               "nodeType": "function",
               "props": Object {
-                "card": Object {
-                  "description": "DESCRIPTION1",
-                  "title": "TITLE1",
-                },
+                "description": "DESCRIPTION1",
+                "title": "TITLE1",
               },
               "ref": null,
               "rendered": null,
@@ -274,10 +236,8 @@ ShallowWrapper {
               "key": "1",
               "nodeType": "function",
               "props": Object {
-                "card": Object {
-                  "description": "DESCRIPTION2",
-                  "title": "TITLE2",
-                },
+                "description": "DESCRIPTION2",
+                "title": "TITLE2",
               },
               "ref": null,
               "rendered": null,

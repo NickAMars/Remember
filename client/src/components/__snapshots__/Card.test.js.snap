@@ -3,12 +3,8 @@
 exports[`Card Card render correctly 1`] = `
 ReactWrapper {
   Symbol(enzyme.__unrendered__): <Unknown
-    card={
-        Object {
-            "description": "The Chicken is so good",
-            "title": "KFC",
-          }
-    }
+    description="The Chicken is so good"
+    title="KFC"
 />,
   Symbol(enzyme.__renderer__): Object {
     "batchedUpdates": [Function],
@@ -23,10 +19,8 @@ ReactWrapper {
     "key": undefined,
     "nodeType": "function",
     "props": Object {
-      "card": Object {
-        "description": "The Chicken is so good",
-        "title": "KFC",
-      },
+      "description": "The Chicken is so good",
+      "title": "KFC",
     },
     "ref": null,
     "rendered": Object {
@@ -285,10 +279,8 @@ ReactWrapper {
       "key": undefined,
       "nodeType": "function",
       "props": Object {
-        "card": Object {
-          "description": "The Chicken is so good",
-          "title": "KFC",
-        },
+        "description": "The Chicken is so good",
+        "title": "KFC",
       },
       "ref": null,
       "rendered": Object {

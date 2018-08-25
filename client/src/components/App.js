@@ -1,6 +1,7 @@
 import React, {Component} from  'react';
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 import Remember from './Remember';
+import SimpleMap from './SimpleMap';
 //TEST
 const test = () =>{
   return (
@@ -9,13 +10,14 @@ const test = () =>{
   );
 }
 
-
+// 'AIzaSyCN1hQ8CDBkQvo7U_hAIf-5BV90hbxkzmg'
 class App extends Component{
   render(){
     return(
         <Router>
           <Switch>
             <Route path='/test' component={test} />
+            <Route path='/map' component={SimpleMap} />
             <Route path='/' component={Remember} />
           </Switch>
         </Router>

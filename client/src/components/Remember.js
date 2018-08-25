@@ -2,6 +2,7 @@ import React, {Component} from 'react';
 import { connect } from 'react-redux';
 import {Card} from './Card';
 import Form from './Form';
+import PropTypes from 'prop-types';
 
 export class Remember extends Component{
   render(){
@@ -14,7 +15,7 @@ export class Remember extends Component{
         {
          /*creating card components*/
          this.props.cards.map((card, index) => {
-           return (<Card key={index}  card={card} />);
+           return (<Card key={index}  {...card} />);
          })
         }
        </div>
@@ -22,6 +23,11 @@ export class Remember extends Component{
   );
   }
 }
+
+Remember.propTypes ={
+  cards: PropTypes.array.isRequired
+}
+
 export const mapStateToProps = (state) => {
   return {
     cards: state.cards
