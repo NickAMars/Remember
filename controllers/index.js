@@ -1,15 +1,23 @@
 const User = require('../models/User');
 const passport        = require('passport');
 module.exports = {
-    signUp(req,res){res.send("Signup");},
-    profile(req,res){res.send("Profile");},
-    logout(req,res){res.send("LogOut");},
-    create(req, res){res.send("CREATE POST");},
-    wildCard(req, res){ res.send('Wild Card');},
-    local: passport.authenticate('local-login', {
-          successRedirect : '/profile',
-          failureRedirect : '/login'
-        })
+    // signUp(req,res){res.send("Signup");},
+    profile : (req,res) => res.send(req.user) ,
+
+    create: (req, res)=>res.send("CREATE POST"),
+    signup:       passport.authenticate('local-login', {
+      successRedirect : '/profile',
+      failureRedirect : '/create',
+    }),
+    login: (req,res)=>{res.send(req.user)},
+    google:       passport.authenticate('google', {scope : ['email']}),
+    googleCB:     (req, res) =>{res.redirect('/profile')},
+    facebook:     passport.authenticate('facebook', {scope : ['email']}),
+    facebookCB:   (req, res) =>{res.redirect('/profile')},
+    logout: (req,res) =>{
+      req.logout();
+      res.send(req.user);
+    }
 }
 
 
