@@ -1,0 +1,15 @@
+.header{
+  height: 60vh;
+  background-image: url(../img/disk.jpg);
+  background-attachment: fixed;
+  // background-color: #000;
+  background-size: cover;
+  background-position: top center;
+  -webkit-clip-path: polygon(0 0, 100% 0, 100% 85%, 0 100%);
+clip-path: polygon(0 0, 100% 0, 100% 85%, 0 100%);
+  // position: relative;
+&-box{
+  text-align: center;
+}
+
+}

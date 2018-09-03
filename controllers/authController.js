@@ -6,7 +6,10 @@ module.exports = {
     successRedirect : '/profile',
     failureRedirect : '/create',
   }),
-  login: (req,res)=>{res.send(req.user)},
+  login: (req,res)=>{
+    console.log(req.user);
+    res.redirect('/profile');
+  },
   google:       passport.authenticate('google', {scope : ['email']}),
   googleCB:     (req, res) =>{res.redirect('/profile')},
   facebook:     passport.authenticate('facebook', {scope : ['email']}),
