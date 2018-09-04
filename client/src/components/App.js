@@ -1,6 +1,7 @@
 import React, {Component} from  'react';
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
-import Remember from './Remember';
+import Remember from './Remember/Remember';
+import {Landing} from './Landing/Landing';
 import SimpleMap from './SimpleMap';
 //TEST
 const test = () =>{
@@ -18,7 +19,8 @@ class App extends Component{
           <Switch>
             <Route path='/test' component={test} />
             <Route path='/map' component={SimpleMap} />
-            <Route path='/' component={Remember} />
+            <Route path='/remember' component={Remember} />
+            <Route path='/' component={Landing} />
           </Switch>
         </Router>
       )

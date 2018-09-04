@@ -1,7 +1,7 @@
 import React from 'react';
 import {shallow, configure } from 'enzyme';
 import Adapter from 'enzyme-adapter-react-16';
-import {Rememberprops as props} from '../data/constance';
+import {Rememberprops as props} from '../../data/constance';
 import {Remember, mapStateToProps} from './Remember';
 configure({ adapter: new Adapter(), disableLifecycleMethods: true });
 

@@ -1,7 +1,7 @@
 import React from 'react';
 import {  shallow, configure } from 'enzyme';
 import {Form,validate }  from './Form';
-import {INPUT, TEXT_AREA} from '../data/constance';
+import {INPUT, TEXT_AREA} from '../../data/constance';
 import Adapter from 'enzyme-adapter-react-16';
 configure({ adapter: new Adapter(), disableLifecycleMethods: true });
 // const INPUT = 'Stay Positive';

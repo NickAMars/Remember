@@ -1,12 +1,19 @@
 .heading{
-//heading-primary 
+//heading-primary
   &-primary{
-     color: $color-white;
+     color:pink;
      text-transform: uppercase;
      backface-visibility: hidden;
      display:block;
      text-align: center;
      font-size: 4rem;
+  }
+  &-secondary{
+    color: #fff;
+    font-size: 4rem;
+    letter-spacing: .7rem;
+    font-weight: 400;
+    text-align: center;
   }
 
 }

@@ -9,16 +9,26 @@ html {
   font-family: 'Titillium Web', sans-serif; }
 
 body {
-  background: orange;
-  color: #ccc; }
+  color: #ccc;
+  padding: 0 2rem; }
 
 .heading-primary {
-  color: #fff;
+  color: pink;
   text-transform: uppercase;
   backface-visibility: hidden;
   display: block;
   text-align: center;
   font-size: 4rem; }
+
+.heading-secondary {
+  color: #fff;
+  font-size: 4rem;
+  letter-spacing: .7rem;
+  font-weight: 400;
+  text-align: center; }
+
+.u-ct {
+  text-align: center; }
 
 .u-mt-sm {
   margin-top: 1.5rem  !important; }
@@ -160,3 +170,18 @@ body {
   flex-wrap: wrap; }
   .row > * {
     margin-left: 2rem; }
+
+.header {
+  height: 60vh;
+  background-image: url(../../img/disk.jpg);
+  background-attachment: fixed;
+  background-size: cover;
+  background-position: top center;
+  -webkit-clip-path: polygon(0 0, 100% 0, 100% 85%, 0 100%);
+  clip-path: polygon(0 0, 100% 0, 100% 85%, 0 100%); }
+  .header-box {
+    text-align: center; }
+
+/*
+Landing page design here
+*/
