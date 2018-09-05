@@ -12,3 +12,10 @@ export default  function (state = [], action) {
     return state;
   }
 }
+
+/*
+need to find a way that i can convert an array
+ to an object which would make it faster to get
+  access to update and delete the card
+
+*/

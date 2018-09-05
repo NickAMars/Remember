@@ -9,6 +9,12 @@ import { createStore } from 'redux';
 import { Provider } from  'react-redux';
 const store = createStore(reducer);
 
+
+/*
+  Going to use redux-thunk for the middleware
+   flag which waits for api request to finish
+*/
+
 ReactDOM.render(
   <Provider store={store}>
     <App />

@@ -3,7 +3,10 @@ import { connect } from 'react-redux';
 import {Card} from './Card';
 import Form from './Form';
 import PropTypes from 'prop-types';
+/*
+Need to Give every card a unique id 
 
+*/
 export class Remember extends Component{
   render(){
     return (

@@ -30,6 +30,9 @@ body {
 .u-ct {
   text-align: center; }
 
+.u-br-bt {
+  border-bottom: 1px solid #eee; }
+
 .u-mt-sm {
   margin-top: 1.5rem  !important; }
 
@@ -54,6 +57,30 @@ body {
 .u-mb-xlg {
   margin-bottom: 10rem  !important; }
 
+.u-ml-sm {
+  margin-left: 1.5rem  !important; }
+
+.u-ml-md {
+  margin-left: 4rem  !important; }
+
+.u-ml-lg {
+  margin-left: 8rem  !important; }
+
+.u-ml-xlg {
+  margin-left: 10rem  !important; }
+
+.u-mr-sm {
+  margin-right: 1.5rem  !important; }
+
+.u-mr-md {
+  margin-right: 4rem  !important; }
+
+.u-mr-lg {
+  margin-right: 8rem  !important; }
+
+.u-mr-xlg {
+  margin-right: 10rem  !important; }
+
 .btn {
   font-size: 1.4rem;
   text-transform: uppercase;
@@ -64,6 +91,7 @@ body {
     position: fixed;
     bottom: 0;
     right: 0;
+    z-index: 10;
     font-size: 4rem;
     margin-right: 1em;
     margin-bottom: 1em;
@@ -147,6 +175,13 @@ body {
     transform: rotateY(180deg); }
   .card:hover .card__side--back {
     transform: rotateY(0deg); }
+  .card__svg {
+    display: flex;
+    justify-content: flex-end; }
+    .card__svg img {
+      margin-right: 2rem;
+      fill: #fff;
+      cursor: pointer; }
   .card__title {
     color: #eee;
     font-size: 2.4rem;
@@ -157,9 +192,6 @@ body {
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%); }
-    .card__title--border {
-      border-bottom: 1px solid #eee;
-      margin-bottom: 1rem; }
   .card__description {
     font-size: 1.4rem;
     font-weight: 700;
