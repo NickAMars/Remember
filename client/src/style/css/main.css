@@ -179,7 +179,7 @@ body {
     display: flex;
     justify-content: flex-end; }
     .card__svg img {
-      margin-right: 2rem;
+      margin-right: 1rem;
       fill: #fff;
       cursor: pointer; }
   .card__title {
