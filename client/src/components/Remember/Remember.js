@@ -1,14 +1,16 @@
 import React, {Component} from 'react';
 import { connect } from 'react-redux';
+import {deleteCard} from '../../actions';
 import {Card} from './Card';
 import Form from './Form';
 import PropTypes from 'prop-types';
 /*
-Need to Give every card a unique id 
+Need to Give every card a unique id
 
 */
 export class Remember extends Component{
   render(){
+    // console.log(this.props);
     return (
       <div>
         <h1 className="heading-primary">Remember</h1>
@@ -18,7 +20,7 @@ export class Remember extends Component{
         {
          /*creating card components*/
          this.props.cards.map((card, index) => {
-           return (<Card key={index}  {...card} />);
+           return (<Card  key={card.id}  {...card} deleteCard={this.props.deleteCard} />);
          })
         }
        </div>
@@ -37,4 +39,5 @@ export const mapStateToProps = (state) => {
   };
 }
 
-export default connect( mapStateToProps)(Remember);
+export default connect(mapStateToProps,{deleteCard})(Remember);
+// export default connect(null, {deleteCard})(Card);
