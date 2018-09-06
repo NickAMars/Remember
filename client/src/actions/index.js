@@ -1,10 +1,24 @@
 export const ADD_CARD= "ADD_CARD", UPDATE_CARD= "UPDATE_CARD", DELETE_CARD="DELETE_CARD";
 
 export function addCard(card){
+  // this process is never to go to the back end
+  // i will use a cookie to store the cards so that when
+  // the user refresh the screen all the cards arnt lost
+  // will apply in the memory section
   return {
     type: ADD_CARD,
     payload: card
   };
+}
+
+export function deleteCard(id){
+  // This process is not to reach the back end
+  // until user has fully submit
+  // all there cards
+  return {
+  type: DELETE_CARD,
+  payload: id
+  }
 }
 
 
