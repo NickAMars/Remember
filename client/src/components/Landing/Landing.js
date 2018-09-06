@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 // import {Description} from './Description';
 // import {SignIn} from './SignIn';
 /*
@@ -17,6 +18,7 @@ export const Landing = () =>{
             <span className="heading-primary">Future Memory</span>
           </div>
         </header>
+        <Link to="/remember">Remember &rarr;</Link>
       </div>
     );
 }
