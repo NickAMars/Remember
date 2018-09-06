@@ -5,30 +5,29 @@ import update from  '../../img/SVG/compose.svg';
 
 
 /*
-  @params key object
-  All state need to have a unique id. for Update and delete.
+  props.deleteCard
+  @params id
+  props.updateCard
+  @params card
 
-  2 action creators
-  switch functional component into a class
+/*
+  Update: want to use the same for on the page to update the information.
+  steps:
+  1. click update button
+  2. update send title and description to form
+  3. a button icon appears close to the form field with the update logo
+  4. click update then icon disappear
+  5. card is updated
 
-  Since update changes one componets title and description
-  I would have to omit that object from the state, then insert a new object with the same id.
-  in order to do that i would have to have another form input of title and description with a subit button.
 
+  needs another reducer that accept card information
 */
-// props.card is sent so i just take off a bit of it
-// export const Card = ({title, description}) => {
-// export class Card extends Component{
-
-  // updateCard= (props) =>{
-  //   console.log(props);
-  // }
-  // removeCard = (id) => {
-  //   // console.log(id);
-  //   // this.props.deleteCard(id);
-  // }
 export const Card  = (props)=>{
   const {id, title,description} = props;
+  // console.log(props);
+//dummy value (works)
+// const  newCard = {show:true ,id, title, description };
+
     return (
       <div className="container-card">
         <div className="card">
@@ -39,7 +38,7 @@ export const Card  = (props)=>{
           <div className="card__side card__side--back">
              <div className=" card__svg u-br-bt">
              {/*for these to happen the card must have an id value which we can pass into the function onclick*/}
-             <img onClick={()=>console.log('hello update')}  src={update} alt='U'/>          {/*update*/}
+             <img onClick={()=>props.updateForm({display:true ,id, title, description })}  src={update} alt='U'/>          {/*update*/}
             <img onClick={()=>props.deleteCard(id)}  src={close} alt='X'/>        {/*delete*/}
             </div>
             <div className="card__description">
@@ -50,6 +49,12 @@ export const Card  = (props)=>{
       </div>
     );
   }
+
+// update methof before refactor
+// <img onClick={()=>props.updateCard(newCard)}  src={update} alt='U'/>          {/*update*/}
+/*props.updateForm*/
+
+
 
 
 
