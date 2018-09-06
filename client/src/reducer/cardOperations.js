@@ -1,4 +1,4 @@
-import { ADD_CARD, DELETE_CARD } from '../actions';
+import { ADD_CARD, DELETE_CARD, UPDATE_CARD } from '../actions';
 // import _ from 'lodash';
 
 /*
@@ -10,6 +10,8 @@ export default  function (state = [], action) {
       return [...state, action.payload];
     case DELETE_CARD:
       return state.filter(obj=> obj.id !== action.payload);
+    case UPDATE_CARD:
+      return [...state.filter(obj=> obj.id !== action.payload.id),action.payload];
     default:
       return state;
   }
