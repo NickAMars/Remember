@@ -81,20 +81,46 @@ body {
 .u-mr-xlg {
   margin-right: 10rem  !important; }
 
+@keyframes fadeIn {
+  0% {
+    opacity: 0; }
+  100% {
+    opacity: 1; } }
+
+@keyframes fadeOut {
+  0% {
+    opacity: 1; }
+  100% {
+    opacity: 0; } }
+
 .btn {
   font-size: 1.4rem;
   text-transform: uppercase;
   color: #ccc; }
   .btn__add {
-    border: none;
-    background-color: #ff4500;
-    position: fixed;
-    bottom: 0;
-    right: 0;
-    z-index: 10;
     font-size: 4rem;
-    margin-right: 1em;
-    margin-bottom: 1em;
+    background-color: #ff4500;
+    bottom: 1rem;
+    right: 1rem;
+    z-index: 10; }
+  .btn__update-show {
+    animation: fadeIn 2s ease-in;
+    visibility: visible; }
+  .btn__update {
+    background-color: yellowgreen;
+    top: 20%;
+    right: 2rem;
+    font-size: 2rem;
+    z-index: 10; }
+    .btn__update-show {
+      animation: fadeIn 2s ease-in;
+      visibility: visible; }
+    .btn__update-hide {
+      visibility: hidden;
+      animation: fadeOut 2s ease-out; }
+  .btn__add, .btn__update {
+    border: none;
+    position: fixed;
     padding: .25em .5em;
     font-weight: 700;
     font-style: italic;
@@ -102,9 +128,9 @@ body {
     cursor: pointer;
     box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.3);
     transition: all 2s; }
-    .btn__add:hover {
+    .btn__add:hover, .btn__update:hover {
       box-shadow: 0 1rem 2rem rgba(0, 0, 0, 0.2); }
-    .btn__add:focus, .btn__add:active {
+    .btn__add:focus, .btn__add:active, .btn__update:focus, .btn__update:active {
       outline: none;
       box-shadow: 0 0.75rem 1.5rem rgba(0, 0, 0, 0.3); }
 
