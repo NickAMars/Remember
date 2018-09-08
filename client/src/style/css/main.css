@@ -212,7 +212,8 @@ body {
     color: #eee;
     font-size: 2.4rem;
     font-weight: 700;
-    text-align: center; }
+    text-align: center;
+    word-wrap: break-word; }
     .card__title--center {
       position: absolute;
       top: 50%;
@@ -221,7 +222,10 @@ body {
   .card__description {
     font-size: 1.4rem;
     font-weight: 700;
-    padding: .71em 1.42em; }
+    padding: .71em 1.42em;
+    max-height: 100%;
+    word-wrap: break-word;
+    width: 100%; }
 
 .row {
   display: flex;

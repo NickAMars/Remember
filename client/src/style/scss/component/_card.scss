@@ -50,7 +50,7 @@
     font-size: 2.4rem;
     font-weight:  700;
     text-align: center;
-
+    word-wrap: break-word;
     // center the text on the card front
     &--center{
       position: absolute;
@@ -63,5 +63,8 @@
     font-size: 1.4rem;
     font-weight: 700;
     padding: .71em 1.42em;
+    max-height: 100%;
+    word-wrap: break-word;
+    width: 100%
   }
 }
