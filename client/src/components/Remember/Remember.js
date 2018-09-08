@@ -4,9 +4,17 @@ import {deleteCard,  updateForm} from '../../actions';
 import {Card} from './Card';
 import Form from './Form';
 import PropTypes from 'prop-types';
+
+/*
+This section in my application is just the sub cards which
+the user have access to from there main cards
+
+  Next Step is to make a section call main cards
+*/
+
 export class Remember extends Component{
   render(){
-    console.log(this.props);
+    // console.log(this.props);
     return (
       <div>
         <h1 className="heading-primary">Remember</h1>
