@@ -1,7 +1,8 @@
 import React, {Component} from  'react';
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
-import Remember from './Remember/Remember';
+import MultipleCards from './MultipleCards/MultipleCards';
 import {Landing} from './Landing/Landing';
+import {MasterCard} from './MasterCard/MasterCard';
 // import SimpleMap from './SimpleMap';
 import anchor from '../img/SVG/anchor.svg';
 //TEST
@@ -12,14 +13,16 @@ const test = () =>{
     </div>
   );
 }
-
+//mastercard goes to the beginning card
+// mastercard/subcards - goes to the sub card field
 class App extends Component{
   render(){
     return(
         <Router>
           <Switch>
             <Route path='/test' component={test} />
-            <Route path='/remember' component={Remember} />
+            <Route path='/mastercard/subcards' component={MultipleCards} />
+            <Route path='/mastercard' component={MasterCard} />
             <Route path='/' component={Landing} />
           </Switch>
         </Router>
@@ -28,14 +31,3 @@ class App extends Component{
 }
 export default App;
     // <Route path='/map' component={SimpleMap} />
-/*
-import PropTypes from 'prop-types';
-class Welcome extends Component{
-  render(){
-  return <h1>Hello , {this.props.name}</h1>;
-  }
-}
-Welcome.propTypes = {
-name: PropTypes.string.isRequired
-}
-*/
