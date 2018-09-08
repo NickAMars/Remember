@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import { connect } from 'react-redux';
-import { addCard } from '../../actions';
+import { addCard, updateForm, updateCard } from '../../actions';
 import  uuidv1 from 'uuid/v1'
 import PropTypes from 'prop-types';
 /*
@@ -13,23 +13,42 @@ export class Form extends Component{
     super(props);
     this.state = {
       title:'',
-      description:''
+      description:'',
+      firstRender: true
     };
   }
-
+  /*
+    Place this.props.updateForm({}); to fix an issue with updating something else after adding
+    problem with deleting a field as well
+  */
+componentWillReceiveProps(nextProps){
+  // console.log("nextProps",nextProps);
+  let {display, title, description} = nextProps.formupdate;
+  if(display && this.state.firstRender){
+    console.log(display,title,description );
+    this.setState({firstRender: false, title, description});
+  }
+}
   Add = () => {
-
     if(validate(this.state))
       this.props.addCard({id:uuidv1() ,...this.state});
       this.emptyState();
+      //fixes a problem after you ad the card of an updated field
+      this.props.updateForm({});
+  }
+  Update = () =>{
+    let {id} = this.props.formupdate;
+    let {title, description} = this.state;
+    this.props.updateCard({id,title,description});
+    this.emptyState();
+    this.props.updateForm({});
   }
   emptyState = () => {
-    this.setState({  title: '',description: ''});
+    this.setState({  title: '',description: '',firstRender: true});
   }
 
   render(){
-    // const {display, id, title, description} = this.props.formupdate;
-    // console.log(this.props.formupdate);
+    let {display} = this.props.formupdate;
     return (
            <div>
                 <div className="input__box">
@@ -47,16 +66,7 @@ export class Form extends Component{
                     value={this.state.description}
                     >
                   </textarea>
-                  {
-                    /*
-                    steps:
-                    1.render button
-                    2. when button is click
-                    3. update forUpdate display: false card to be null
-                    4. use the update card method to remove and add a new card
-                    5. end of update
-                    */
-                  }
+                  <button onClick={this.Update}  className={display?"btn btn__update btn__update-show":"btn btn__update btn__update-hide"}>U</button>
                   <button onClick={this.Add}  className="btn btn__add">+</button>
                 </div>
           </div>
@@ -76,6 +86,9 @@ export const validate = ({title,description }) => {
     if( title !== '' && description !== '') return true;
     return false;
 }
-export default connect(mapStateToProps, {addCard})(Form);
+export default connect(mapStateToProps, {addCard, updateForm, updateCard})(Form);
 
 //https://medium.com/backticks-tildes/testing-your-react-component-with-jest-and-enzyme-276eef45bea0
+
+// for lifecycle methods
+//https://engineering.musefind.com/react-lifecycle-methods-how-and-when-to-use-them-2111a1b692b1
