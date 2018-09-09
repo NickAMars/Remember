@@ -12,6 +12,9 @@ mongoose.connect(keys.mongoURL, { useNewUrlParser: true });
 const app = express();
 
 app.use(bodyParser.json());
+// mongoose database
+require('./models/SubCards');
+require('./models/MasterCards');
 require('./models/User');
 require('./services/passport');
 
