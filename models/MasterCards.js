@@ -13,7 +13,7 @@ time: tracks the time that the user spent on the mastercard
 
 const masterCardSchema = new Schema({
   title: String,
-  url: String,
+  url: {type: String, default: ""},
   timestamp: {type: Date, default: Date.now},
   subcards: [
    {
