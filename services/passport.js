@@ -34,7 +34,7 @@ passport.use('local-login', new LocalStrategy({
           if(existingUser)
             return done(null, existingUser);
           // generate a random id
-          const newUser = new User({Id: uuidv4(), name: name, password: hash });
+          const newUser = new User({code: uuidv4(), name: name, password: hash });
           await newUser.save();
           return done(null, newUser);
     })
@@ -48,10 +48,10 @@ passport.use(
     proxy:true
   },
     async (accessToken, refreshToken, profile, done) => {
-      const existingUser= await  User.findOne({ Id : profile.id });
+      const existingUser= await  User.findOne({ code : profile.id });
       if(existingUser)// does the id already exist
         return done(null, existingUser);
-      const newUser =  new User({ Id: profile.id });
+      const newUser =  new User({ code: profile.id });
       await newUser.save()
       return done(null, newUser);
   })
@@ -64,10 +64,10 @@ passport.use(new FacebookStrategy({
       proxy:true
   },
   async (accessToken, refreshToken, profile, done) => {
-    const existingUser= await  User.findOne({ Id : profile.id });
+    const existingUser= await  User.findOne({ code : profile.id });
     if(existingUser)// does the id already exist
       return done(null, existingUser);
-    const newUser =  new User({ Id: profile.id });
+    const newUser =  new User({ code: profile.id });
     await newUser.save()
     return done(null, newUser);
   })
