@@ -2,12 +2,5 @@ I'm create a application which will help the user memory process more stable by 
 
 
 
-
-Testing backend post request
-// testing post route sending
-
-// {
-//   "Id": "IDSTRINGTEST",
-//   "name": "NAMETEST",
-//   "password": "PASSWORDTEST"
-// }
+// jest setup
+https://medium.com/@art.longbottom.jr/concurrent-testing-with-mongoose-and-jest-83a27ceb87ee
