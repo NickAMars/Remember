@@ -19,7 +19,7 @@ module.exports = {
 }
 
 // test case for seeing people in the database
-// const Nick = new User({ id: '7777', name: "Nick", password:"Marsden"});
+// const Nick = new User({ code: '7777', name: "Nick", password:"Marsden"});
 // await Nick.save();
 // Nick["mastercards"].push({title:"Node.js", url:"Picture here"})
 // await Nick.save();
