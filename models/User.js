@@ -16,6 +16,14 @@ const userSchema = new Schema({
 userSchema.virtual('countCards').get( function(){
   return this.mastercards.length;
 });
+
+userSchema.pre('remove', async function(next){
+  const MasterCards = mongoose.model('mastercards');
+  // remove all the masterCards associated with this user
+  await MasterCards.remove({ _id: { $in : this.mastercards } });
+  next();
+});
+
 module.exports = mongoose.model('users', userSchema);
 
 /*
