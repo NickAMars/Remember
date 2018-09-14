@@ -30,6 +30,13 @@ masterCardSchema.virtual('countCards').get( function(){
   return this.subcards.length;
 });
 
+// delete the master card would trigger this
+/*masterCardSchema.pre('remove', async function(next){
+  const subCards = mongoose.model('subcards');
+  await subCards.remove({ _id: { $in : this.subCards }});
+  next();
+});
+*/
 module.exports = mongoose.model('mastercards', masterCardSchema);
 /*
   The progress will be set every day at 12 midnight
