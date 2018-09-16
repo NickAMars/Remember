@@ -18,23 +18,14 @@ userSchema.virtual('countCards').get( function(){
 });
 
 userSchema.pre('remove', async function(next){
-  const MasterCards = mongoose.model('mastercards');
+  // $in - querys
+  // remove all sub cards related to user
+    // const SubCards = mongoose.model('subcards');
+    await mongoose.model('subcards').remove({ user: { $in : this } });
   // remove all the masterCards associated with this user
-  await MasterCards.remove({ _id: { $in : this.mastercards } });
+  // const MasterCards = mongoose.model('mastercards');
+  await mongoose.model('mastercards').remove({ _id: { $in : this.mastercards } });
   next();
 });
 
 module.exports = mongoose.model('users', userSchema);
-
-/*
-  user should have 5 top cards
-  that show up on the main screen of the user
-
-  // later when i set up everything first
-  topFive: [ // keeps track of the cards with the most
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "mastercards"
-    }
-  ]
-*/
