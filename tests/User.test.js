@@ -1,20 +1,19 @@
 const User = require('../models/User');
 const MasterCards = require('../models/MasterCards');
+const SubCards = require('../models/SubCards');
 /*
-testing the user functionality before using them in my code
+testing Testing all functionallities with User
 */
 describe('User', ()=>{
-let Nick, MasterNick;
-// add user at the begining of every test
+let Nick, MasterNick,SubNick;
   beforeEach(async ()=> {
     Nick = new User({code: "ok", name: "Nick", password: "password"});
-    MasterNick = new MasterCards({title:"title"});
+
     await Nick.save();
-     await Promise.all([Nick.save(), MasterNick.save()]);
   });
   // remove user at the end of each test
   afterEach(async ()=> {
-     await Promise.all([Nick.remove(), MasterNick.remove()]);
+     await Nick.remove();
   });
   test('read  all user successful', async () => {
     const findall = await User.find({code: Nick.code });
@@ -42,10 +41,15 @@ let Nick, MasterNick;
   describe('When user add master',()=>{
     // add master
     beforeEach(async ()=> {
+      // Nick = new User({code: "ok", name: "Nick", password: "password"});
+      MasterNick = new MasterCards({title:"title"});
       Nick.mastercards.push(MasterNick);
-      await Nick.save();
+      await Promise.all([Nick.save(), MasterNick.save()]);
     });
 
+    afterEach(async ()=> {
+      await Promise.all([Nick.remove(), MasterNick.remove()]);
+    });
     // amount of master cards user has
     test('Count the amount of Master Cards a user has', async () => {
         expect(Nick.countCards).toEqual(1);
@@ -58,7 +62,7 @@ let Nick, MasterNick;
 
 
     // test if the master change while in the user model does the user have the upadted master
-    test('change updated to user from master mondel update', async () => {
+    test('update change to master model affect user data', async () =>{
     const findmaster = await MasterCards.findOne({title: "title"});
     await MasterCards.findByIdAndUpdate(findmaster._id,{title: "ok", progress:[ {time: 900} ]});
     const findUser = await User.findOne({code: "ok"}).populate('mastercards');
@@ -67,28 +71,47 @@ let Nick, MasterNick;
 
     test('delete all the master cards from user', async () => {
       await Nick.remove();
-      // counts the amount of master cards
       const count = await MasterCards.count();
       expect(count).toEqual(0);
     });
+
+
+
+      describe('When user add SubCards to master Cards ',()=>{
+        beforeEach(async ()=> {
+          SubNick = new SubCards({title:"subtitle"});
+          //
+          Nick.mastercards.push(MasterNick);
+          MasterNick.subcards.push(SubNick);
+          SubNick.user = Nick;
+          await Promise.all([Nick.save(), MasterNick.save(),SubNick.save()]);
+        });
+        afterEach(async ()=> {
+          await Promise.all([Nick.remove(), MasterNick.remove(), SubNick.remove()]);
+        });
+
+        test("find subcard if succesfully added to Master card which is in the user",async ()=>{
+          const user = await User.findOne({code: 'ok'}).populate({
+              path: 'mastercards',
+              populate: {
+                path: 'subcards',
+                model: 'subcards',
+                populate:{
+                  path: 'user',
+                  model: 'users'
+                }
+              }
+            });
+          expect(user.mastercards[0]["subcards"][0]["title"]).toEqual("subtitle");
+        })
+      });
   });
 });
 
 
 
-/*
-// the user model controls only until the master models
-// The mastercard model controll the progress and the subcard
-// the subcard doesnt have reference to the user yet but i want i to so that people can share cards globally or privatly
-  maybe should let the master card have the privilage of shareing cards
-
-  Then when another user click on a card that is not there. the user has the option of adding that card to there stack
-*/
-
-
 
 /*
-  Laptops down but still want to post something.
-  Thing i want to test.
-  Middleware which takes all the subcard as well as the master card infromation
+Cascade deletion
+  https://stackoverflow.com/questions/14348516/cascade-style-delete-in-mongoose
 */
