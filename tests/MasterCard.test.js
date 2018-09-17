@@ -15,7 +15,7 @@ describe('Master', ()=>{
     await MasterNick.remove();
   });
   test("reading all of master card user", async ()=> {
-      const findall = await MasterCards.find({code: MasterNick.code });
+      const findall = await MasterCards.find({_id: MasterNick._id});
       expect(findall[0]["title"]).toEqual("MasterAbby");
    });
   test("update a master card", async ()=> {
@@ -32,7 +32,9 @@ describe('Master', ()=>{
     test("adding a process",async ()=>{
         MasterNick["progress"].push({  time: 40 });
         await MasterNick.save();
-        // console.log(MasterNick);
+        const find = await MasterCards.findOne();
+        // console.log(find["progress"][0]["time"]);
+        expect(find["progress"][0]["time"]).toEqual(40);
     });
 
   describe("When Master cards has add a process",()=>{
@@ -40,7 +42,7 @@ describe('Master', ()=>{
       MasterNick["progress"].push({  time: 80 });
       await MasterNick.save();
     });
-    // update the process
+
     test("updating a progress",async ()=>{
       const find = await MasterCards.findOne({_id: MasterNick._id});
       find.progress[0]["time"] = find.progress[0]["time"] + 20;
@@ -51,19 +53,13 @@ describe('Master', ()=>{
   })
 
 
-
-
-
-  // describe("When masterCard add subCard", ()=>{
-  //   beforeEach(async ()=> {
-  //     SubNick = new SubCards({title:"subtitle"});
-  //     await Promise.all([MasterNick.save(),SubNick.save()]);
-  //   });
-  //   afterEach(async ()=> {
-  //     await Promise.all([MasterNick.remove(), SubNick.remove()]);
-  //   });
-  //   test("", async ()=>{
-  //
-  //   });
-  // });
 });
+
+/*
+  im only going to do two things with  the progress
+
+  im going to update the time frequently by how much
+  the second the user spends on there alread created master card
+  The date is updated by the sever. You can only have a maximum of 7 days.
+  Then when a new day comes in it pops off the stack.
+*/
