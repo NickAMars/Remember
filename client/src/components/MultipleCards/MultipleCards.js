@@ -17,7 +17,7 @@ export class MultipleCards extends Component{
     // console.log(this.props);
     return (
       <div>
-        <h1 className="heading-primary">Remember</h1>
+        <h1 className="heading__tertiary">Remember</h1>
         <Form />
         <hr className="u-mt-sm u-mb-sm"/>
         <div className="row">
