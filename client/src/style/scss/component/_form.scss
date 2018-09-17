@@ -1,0 +1,36 @@
+.formA{
+  flex:0 1 30%;
+  margin-left: auto;
+  padding: 2rem;
+  text-align: center;
+  @media only screen and (max-width: 600px){
+    margin-top: 4rem;
+   flex:0 1 100%;
+  }
+
+  &__group:not(:last-child){
+     margin-bottom: 2rem;
+   }
+
+   &__input{
+     border: none;
+     border-radius: 2rem;
+    font-size: 1.4;
+    font-family: inherit;
+    color: #777;
+    background-color: #eee;
+    padding: 1.5rem 2rem;
+    border-radius: 2px;
+    width: 100%;
+    // margin: 0 auto;
+    border-bottom: 3px solid transparent;
+    display:block;
+
+    &:focus{
+      outline: none;
+      box-shadow: 0 1rem 2rem rgba(#000, .15);
+      border-bottom: 3px solid green;
+    }
+   }
+
+}
