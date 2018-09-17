@@ -6,11 +6,54 @@
 html{
   box-sizing: border-box;
   font-size: 62.5%;
-  font-family: 'Titillium Web', sans-serif;
-}
+  @media only screen and (max-width: 1200px){
+  font-size: 62.5%;
+  }
+  @media only screen and (max-width: 900px){
+    font-size: 50%;
+  }
+  @media only screen and (max-width: 600px){
+   font-size: 40%;
+  }
+    font-family: 'Titillium Web', sans-serif;
+  }
 
 body{
-  // background: orange;
   color: #ccc;
-  padding:0 2rem;
+}
+
+
+.front-page{
+  height: 100vh;
+  padding: 2rem;
+}
+.font-container{
+  height: 50vh;
+  // width: 100%;
+  margin-top: -10vh;
+  // background-color: orangered;
+  display:flex;
+}
+.app{
+  @media only screen and (max-width: 900px){
+    margin-top: 4rem;
+  }
+  @media only screen and (max-width: 600px){
+   display:none;
+  }
+  flex:0 1 70%;
+  // background-color: purple;
+  padding: 3rem;
+  &__description{
+    font-size: 1.4rem;
+  }
+}
+
+::selection{
+  color: #000;
+  background-color: #fff;
+}
+::-moz-selection{
+  color: #000;
+  background-color: #fff;
 }
