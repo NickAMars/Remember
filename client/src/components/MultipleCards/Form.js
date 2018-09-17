@@ -4,8 +4,8 @@ import { addCard, updateForm, updateCard } from '../../actions';
 import  uuidv1 from 'uuid/v1'
 import PropTypes from 'prop-types';
 /*
-  I want the update method to use the same form.
-   I want to make it obvious that the forms beening use for the update
+    I want the update method to use the same form.
+    I want to make it obvious that the forms beening use for the update
 */
 
 export class Form extends Component{
