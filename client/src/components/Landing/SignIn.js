@@ -26,17 +26,6 @@ export class SignIn extends Component{
 
           <Link to="/mastercard/subcards" className="btnA__svg"> <img src={google} alt='X'/> </Link>
           <Link to="/mastercard/subcards" className="btnA__svg"> <img src={facebook} alt='X'/> </Link>
-      {/*<p>Sign in with</p>
-          <a href="#" className="btnA__svg">
-             <svg>
-                <use href="img/sprite.svg#icon-google-plus3"></use>
-            </svg>
-          </a>
-          <a href="#" className="btnA__svg">
-            <svg>
-                <use href="img/sprite.svg#icon-facebook2"></use>
-            </svg>
-          </a>*/}
       </div>
     );
   }
