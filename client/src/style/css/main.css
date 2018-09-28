@@ -55,13 +55,10 @@ body {
   letter-spacing: 1.2rem;
   font-weight: 400;
   text-transform: uppercase; }
-  @media only screen and (max-width: 900px) {
+  @media only screen and (max-width: 600px) {
     .heading-primary {
-      font-size: 5.8rem; } }
-  @media only screen and (max-width: 500px) {
-    .heading-primary {
-      font-size: 4.5rem;
-      letter-spacing: 0; } }
+      font-size: 4rem;
+      letter-spacing: .5rem; } }
 
 .heading__secondary {
   color: orangered;
@@ -356,8 +353,7 @@ body {
 
 .header {
   height: 60vh;
-  background-image: url(../../img/disk.jpg);
-  background-attachment: fixed;
+  background-image: linear-gradient(to right bottom, rgba(0, 0, 0, 0.8), rgba(238, 238, 238, 0.3)), url(../../img/disk.jpg);
   background-size: cover;
   background-position: top center;
   -webkit-clip-path: polygon(0 0, 100% 0, 100% 85%, 0 100%);
@@ -368,6 +364,81 @@ body {
       clip-path: polygon(0 0, 100% 0, 100% 90%, 0 100%); } }
   .header-box {
     text-align: center; }
+
+.nav {
+  margin-top: 4rem;
+  display: flex;
+  justify-content: space-around; }
+  .nav-list {
+    flex: 0 0 70%;
+    list-style: none;
+    display: flex;
+    justify-content: center; }
+    .nav-list__item {
+      flex: 1;
+      margin-right: .5rem;
+      display: flex; }
+    .nav-list__link:link, .nav-list__link:visited {
+      flex: 1;
+      background-color: yellowgreen;
+      text-decoration: none;
+      padding: 1rem 2rem;
+      position: relative;
+      text-align: center;
+      font-size: 2rem;
+      color: #fff; }
+    .nav-list__link::before {
+      content: "";
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      border-bottom: 5px solid orangered;
+      transition: all .4s; }
+    .nav-list__link:hover::before {
+      transform: scaleX(0.3); }
+  .nav-logout {
+    display: none;
+    position: absolute;
+    top: 100%;
+    width: 100%;
+    list-style: none; }
+    .nav-logout__item {
+      display: flex;
+      margin-bottom: 2px;
+      justify-content: center; }
+    .nav-logout__link-log {
+      width: 70%;
+      background-color: pink;
+      color: white;
+      font-size: 2rem;
+      text-decoration: none;
+      text-align: center;
+      position: relative; }
+    .nav-logout__link-log::before {
+      content: "";
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      border-bottom: 3px solid orangered;
+      transition: all .4s; }
+    .nav-logout__link-log:hover::before {
+      transform: scaleX(0.5); }
+
+.tool-bar {
+  flex: 0 0 30%;
+  display: flex;
+  justify-content: flex-end;
+  position: relative; }
+  .tool-bar__item {
+    background-color: transparent;
+    border: none; }
+  .tool-bar__item:focus {
+    outline: none; }
+
+.tool-bar__item:focus + .nav-logout {
+  display: block; }
 
 /*
 Landing page design here
