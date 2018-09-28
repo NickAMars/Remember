@@ -1,0 +1,108 @@
+.nav{
+  // height:100px;
+  // temporary margin
+  margin-top:4rem;
+  // seperate the important bits
+  display:flex;
+  justify-content:space-around;
+  &-list{
+    // height:45px;
+    // padding: 2rem 4rem;
+    flex: 0 0 70%;
+    list-style: none;
+    display:flex;
+
+    justify-content: center;
+    // margin-top: 4rem;
+    // align-items: center;
+    &__item{
+    flex:1;
+    margin-right: .5rem;
+    display:flex;
+    }
+    &__link:link,&__link:visited{
+      flex:1;
+      background-color: yellowgreen;
+      text-decoration: none;
+      padding:1rem 2rem;
+      position: relative;
+      text-align: center;
+      font-size: 2rem;
+
+      color: #fff;
+    }
+    &__link::before{
+      content: "";
+      position:absolute;
+      bottom:0;
+      left:0;
+      width: 100%;
+      border-bottom: 5px solid orangered;
+      transition: all .4s;
+    }
+    &__link:hover::before{
+      transform: scaleX(.3);
+    }
+  }
+  &-logout{
+    display: none;
+    position: absolute;
+    // put it bellow the bar
+    top: 100%;
+    // increase the width of the bar
+    width:100%;
+    list-style: none;
+      &__item{
+        display:flex;
+        margin-bottom: 2px;
+        justify-content: center;
+      }
+      &__link-log{
+        width:70%;
+
+        background-color: pink;
+        color:white;
+        font-size: 2rem;
+        text-decoration: none;
+        text-align: center;
+        position:relative;
+        // border-bottom: 2px solid orangered;
+        // transition: all .4s;
+      }
+      &__link-log::before{
+        content: "";
+        position: absolute;
+        bottom:0;
+        left:0;
+        width: 100%;
+        border-bottom: 3px solid orangered;
+        transition: all .4s;
+      }
+        &__link-log:hover::before{
+          // width: 100%;
+          transform: scaleX(.5);
+        }
+  }
+}
+.tool-bar{
+  flex: 0 0 30%;
+  // background-color: yellow;
+  display: flex;
+  justify-content: flex-end;
+  position:relative;
+  &__item{
+    // position: absolute;
+    // top:50%;
+    // left:50%;
+    // transform: translate(-50%,-50%);
+    background-color: transparent;
+    border:none;
+  }
+  &__item:focus{
+    outline: none;
+  }
+}
+// need to find some other way i can be interactive with this list other than active
+.tool-bar__item:focus + .nav-logout{
+ display:block;
+}
