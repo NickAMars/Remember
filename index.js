@@ -39,11 +39,11 @@ Getting production ready
 // check if we are in the production envir
 if(process.env.NODE_ENV === 'production'){
 //if cant find route among serverside,
- // looks  to the react routes 
+ // looks  to the react routes
   app.use(express.static('client/build'));
   // getting the absolute path
   const path = require('path');
-  // if we dont recover the route go to the index.html
+  // if we dont recover the route, go to the index.html
   app.get('*', (req, res) => {
     res.sendFile(path.resolve(__dirname, 'client', 'build', 'index.html'));
   });
