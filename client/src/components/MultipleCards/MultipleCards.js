@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import { connect } from 'react-redux';
 import {deleteCard,  updateForm} from '../../actions';
+import {Header} from '../Header';
 import {Card} from './Card';
 import Form from './Form';
 import PropTypes from 'prop-types';
@@ -17,7 +18,9 @@ export class MultipleCards extends Component{
     // console.log(this.props);
     return (
       <div className="remember">
-        <h1 className="heading__tertiary">Remember</h1>
+        < Header />
+        <h1 className="heading__tertiary u-mt-md ">Remember</h1>
+
         <Form />
         <hr className="u-mt-sm u-mb-sm"/>
         <div className="row">
