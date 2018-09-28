@@ -19,15 +19,20 @@ class App extends Component{
   render(){
     return(
         <Router>
+        <div>
           <Switch>
             <Route path='/test' component={test} />
-            <Route path='/mastercard/subcards' component={MultipleCards} />
-            <Route path='/mastercard' component={MasterCard} />
+            <Route path='/main/subcards' component={MultipleCards} />
+            <Route path='/main' component={MasterCard} />
             <Route path='/' component={Landing} />
           </Switch>
+          </div>
         </Router>
       )
     };
 }
 export default App;
-    // <Route path='/map' component={SimpleMap} />
+
+ // <Route path='/nav' component={Header} />
+// <Route path='/map' component={SimpleMap} />
+// <Route path='/map' component={SimpleMap} />

@@ -38,12 +38,12 @@ export class SignIn extends Component{
           </div>
           <div className="formA__group">
 
-            <Link className="btnA btnA--green " to="/mastercard/subcards">Sign in &rarr;</Link>
+            <Link className="btnA btnA--green " to="/main/subcards">Sign in &rarr;</Link>
           </div>
 
 
-          <Link to="/mastercard/subcards" className="btnA__svg"> <img src={google} alt='X'/> </Link>
-          <Link to="/mastercard/subcards" className="btnA__svg"> <img src={facebook} alt='X'/> </Link>
+          <Link to="/main/subcards" className="btnA__svg"> <img src={google} alt='X'/> </Link>
+          <Link to="/main/subcards" className="btnA__svg"> <img src={facebook} alt='X'/> </Link>
 
       </div>
     );
