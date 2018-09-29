@@ -6,13 +6,12 @@ export class Header extends Component{
     return (
       <nav className="nav">
         <ul className="nav-list">
-        {/*main links after user has sign in the can see these*/}
-          <li className="nav-list__item"><Link to="/" className="nav-list__link">Profile</Link></li>
-          <li className="nav-list__item"><Link to="/" className="nav-list__link">Master</Link></li>
+        { /*main links after user has sign in the can see these*/ }
+          <li className="nav-list__item"><Link to="/" className="nav-list__link">Main</Link></li>
           <li className="nav-list__item"><Link  to="/" className="nav-list__link" >Group</Link></li>
         </ul>
         <div className="tool-bar">
-        <button class="tool-bar__item"> <img src={cog} alt='X'/> </button>
+          <img className="tool-bar__item" src={cog} alt='X'/>
           <ul className="nav-logout">
           {/*ask the user if the want log out*/}
             <li className="nav-logout__item"><Link to="/" className="nav-logout__link-log">LogOut</Link></li>
@@ -23,3 +22,4 @@ export class Header extends Component{
     );
   }
 }
+// <li className="nav-list__item"><Link to="/" className="nav-list__link">Profile</Link></li>
