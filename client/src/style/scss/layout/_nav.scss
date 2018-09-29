@@ -6,15 +6,10 @@
   display:flex;
   justify-content:space-around;
   &-list{
-    // height:45px;
-    // padding: 2rem 4rem;
     flex: 0 0 70%;
     list-style: none;
     display:flex;
-
     justify-content: center;
-    // margin-top: 4rem;
-    // align-items: center;
     &__item{
     flex:1;
     margin-right: .5rem;
@@ -54,14 +49,14 @@
     list-style: none;
       &__item{
         display:flex;
-        margin-bottom: 2px;
+        margin-bottom: 1px;
         justify-content: center;
       }
       &__link-log{
-        width:70%;
-
+        // width:70%;
+        padding: .7rem 2.5rem;
         background-color: pink;
-        color:white;
+        color:#777;
         font-size: 2rem;
         text-decoration: none;
         text-align: center;
@@ -74,6 +69,7 @@
         position: absolute;
         bottom:0;
         left:0;
+        z-index:10;
         width: 100%;
         border-bottom: 3px solid orangered;
         transition: all .4s;
@@ -85,16 +81,10 @@
   }
 }
 .tool-bar{
-  flex: 0 0 30%;
-  // background-color: yellow;
   display: flex;
   justify-content: flex-end;
   position:relative;
   &__item{
-    // position: absolute;
-    // top:50%;
-    // left:50%;
-    // transform: translate(-50%,-50%);
     background-color: transparent;
     border:none;
   }
@@ -102,7 +92,15 @@
     outline: none;
   }
 }
-// need to find some other way i can be interactive with this list other than active
-.tool-bar__item:focus + .nav-logout{
- display:block;
+
+.tool-bar:hover > .nav-logout{
+  display:block;
 }
+// need to find some other way i can be interactive with this list other than active
+// .tool-bar__item:focus + .nav-logout{
+//  display:block;
+// }
+
+// .tool-bar__item:active + .nav-logout{
+//  display:block;
+// }
