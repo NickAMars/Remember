@@ -2,11 +2,6 @@
 const User = require('../models/User');
 const passport        = require('passport');
 module.exports = {
-
-  loginForm: (req,res)=>{
-    console.log('login page');
-    res.send('login form page for users');
-  },
   login: (req,res)=>{
     console.log(req.user);
     res.redirect('/api/profile');
@@ -20,6 +15,7 @@ module.exports = {
   facebook:     passport.authenticate('facebook', {scope : ['email']}),
   facebookCB:   (req, res) =>{res.redirect('/profile')},
   logout: (req,res) =>{
+    console.log(req.user)
     req.logout();
     res.send(req.user);
   }
