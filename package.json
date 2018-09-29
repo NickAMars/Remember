@@ -5,10 +5,15 @@
   "license": "MIT",
   "jest": {
     "setupTestFrameworkScriptFile": "./tests/setup.js",
-    "testPathIgnorePatterns": ["client"]
+    "testPathIgnorePatterns": [
+      "client"
+    ]
   },
   "scripts": {
-    "start": "nodemon index.js",
+    "server": "nodemon index.js",
+    "client": "npm start --prefix client",
+    "dev": "concurrently \"yarn server\" \"yarn client\"",
+    "heroku-postbuild": "NPM_CONFIG_PRODUCTION=false npm install --prefix client && npm build --prefix client",
     "test": "jest --watch"
   },
   "dependencies": {
@@ -18,7 +23,7 @@
     "jest": "^23.6.0",
     "lodash": "^4.17.10",
     "mongoose": "^5.2.9",
-    "nodemon": "^1.18.3",
+    "nodemon": "^1.18.4",
     "passport": "^0.4.0",
     "passport-facebook": "^2.1.1",
     "passport-google-oauth20": "^1.0.0",
