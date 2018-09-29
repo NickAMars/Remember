@@ -405,12 +405,12 @@ body {
     list-style: none; }
     .nav-logout__item {
       display: flex;
-      margin-bottom: 2px;
+      margin-bottom: 1px;
       justify-content: center; }
     .nav-logout__link-log {
-      width: 70%;
+      padding: .7rem 2.5rem;
       background-color: pink;
-      color: white;
+      color: #777;
       font-size: 2rem;
       text-decoration: none;
       text-align: center;
@@ -420,6 +420,7 @@ body {
       position: absolute;
       bottom: 0;
       left: 0;
+      z-index: 10;
       width: 100%;
       border-bottom: 3px solid orangered;
       transition: all .4s; }
@@ -427,7 +428,6 @@ body {
       transform: scaleX(0.5); }
 
 .tool-bar {
-  flex: 0 0 30%;
   display: flex;
   justify-content: flex-end;
   position: relative; }
@@ -437,7 +437,7 @@ body {
   .tool-bar__item:focus {
     outline: none; }
 
-.tool-bar__item:focus + .nav-logout {
+.tool-bar:hover > .nav-logout {
   display: block; }
 
 /*
