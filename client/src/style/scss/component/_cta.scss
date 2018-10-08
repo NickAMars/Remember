@@ -1,0 +1,23 @@
+.create__cta{
+  // background-color: purple;
+}
+.create__cta-btn{
+  padding: 2rem;
+  margin: 0 auto;
+  display:block;
+  border-radius: 5px;
+  border:none;
+  cursor: pointer;
+  background-color: rgba(orangered, 0.8);
+  box-shadow: 0 .5rem 1rem rgba(#000, .3);
+  transition: all .5s;
+}
+.create__cta-btn:hover{
+  transform:  translateY(-4px);
+  box-shadow: 0 .8rem 1rem rgba(#000, .2);
+}
+.create__cta-btn:focus, .create__cta-btn:active {
+  outline:none;
+  transform:  translateY(-2px);
+  box-shadow: 0 .3rem .8rem rgba(#000, .4);
+}
