@@ -1,0 +1,54 @@
+// going to get rid of this when the dynamic graph comes into display
+.table{
+  border-collapse: collapse;
+  width: 80%;
+  margin : 2rem auto;
+  border: 1px solid #ddd;
+
+  &__hr{
+    background-color: orange;
+  }
+  &__th{
+    padding: 1.5rem;
+      // text-align: center;
+  }
+  &__hr--sub{
+    border: 1px solid #ddd;
+    padding: 1.5rem;
+  }
+  &__tr{ // rows
+    // border: 1px solid #ddd;
+    text-align: center;
+  }
+  &__tc--1,&__tc--2, &__tc--3 {
+    border: 1px solid #ddd;
+    padding: 1.5rem;
+    position: relative;
+  }
+  &__tc--1, &__tc--3{
+    &:nth-of-type(even){
+      background-color: #aaa;
+    }
+  }
+  &__tc--2{
+    &:nth-of-type(odd){
+      background-color: #aaa;
+    }
+  }
+  &__text-style{
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+  }
+  &__tc--1{
+    // text-decoration: none;
+    // position: absolute;
+    // top:50%;
+    // left: 50%;
+    // transform: translate(-50%, -50%);
+    // writing-mode: vertical-rl;
+    // text-orientation: mixed;
+    // color: white;
+    // font-size: 1.4rem;
+  }
+
+}
