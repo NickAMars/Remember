@@ -39,7 +39,7 @@ passport.use('local-login', new LocalStrategy({
           return done(null, newUser);
     })
   );
-
+// proxy:true tells google to trust the url
 passport.use(
   new GoogleStategy({
     clientID: keys.googleClientID,
@@ -72,3 +72,10 @@ passport.use(new FacebookStrategy({
     return done(null, newUser);
   })
 );
+
+/*
+
+from the bellow function we can access the user email from profile argument
+  async (accessToken, refreshToken, profile, done) => {}
+
+*/
