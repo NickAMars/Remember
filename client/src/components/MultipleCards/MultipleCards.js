@@ -16,10 +16,14 @@ the user have access to from there main cards
 export class MultipleCards extends Component{
   render(){
     // console.log(this.props);
+
     return (
       <div className="remember">
+        <div className="header-box">
+          <h1 className="heading__primary heading__primary--pink u-mt-sm ">Remember</h1>
+        </div>
         < Header />
-        <h1 className="heading__tertiary u-mt-md ">Remember</h1>
+        <h4 className="heading__tertiary u-mt-sm ">Create</h4>
 
         <Form />
         <hr className="u-mt-sm u-mb-sm"/>
