@@ -31,6 +31,8 @@ class App extends Component{
       )
     };
 }
+// use redux methods to get all the master cards for the  OwnMasterCards and Group
+// these two field are identical because the only show the mainCard which are 200px width and 100px hight
 export default App;
 
  // <Route path='/nav' component={Header} />
