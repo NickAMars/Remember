@@ -20,3 +20,7 @@ module.exports = {
     res.send(req.user);
   }
 }
+/*
+ makes it possible to access the user email information
+scope :['email']
+*/
