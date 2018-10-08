@@ -1,0 +1,81 @@
+.create{
+  // display:flex;
+  // justify-content: flex-end;
+  // margin-right:2rem;
+}
+
+.create__show{
+  // position:relative;
+  padding: 2rem;
+  // background-color: purple;
+}
+.create__contrainer{
+  display:flex;
+    flex-direction: column;
+
+}
+.create__cards{
+  display:flex;
+  justify-content: space-between;
+  // background-color: pink;
+  @media only screen and (max-width: 900px){
+    flex-direction: column;
+  }
+}
+
+.create__field{
+  padding: 1rem;
+  // background-color: orange;
+  flex:0 0 40%;
+  display:flex;
+  flex-direction: column; // so that i can use align-self to position it in the center
+}
+
+.create__view{
+  flex:0 0 40%;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+}
+
+
+
+.card__view{
+  width: 250px;
+  align-self: center;
+  background-color: #eee;
+  padding: 3rem 2.5rem;
+  border-radius: 5px;
+  position: relative;
+  box-shadow: 0 .8rem 1.2rem rgba(#000, .3);
+  // some reason my padding changes so this is a temporary fix till i find a better solution
+  @media only screen and (max-width: 600px){
+      padding: 4rem 2.5rem;
+  }
+}
+
+.card__view-title{
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 1.5rem;
+  color: #aaa;
+}
+
+.input__master-title{
+  color: #aaa;
+  font-family: inherit;
+  align-self: center;
+  padding: 1.5em 2.5em;
+  width: 250px;
+  border-radius: 5px;
+  border:none;
+  box-shadow: 0 .8rem 1.2rem rgba(#000, .3);
+  transition: width .3s;
+  background: #eee;
+}
+.input__master-title:focus{
+  outline:none;
+  width:280px;
+}
