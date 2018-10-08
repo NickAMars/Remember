@@ -9,7 +9,7 @@ export const Landing = () =>{
       <div className="front-page">
         <header className="header">
           <div className="header-box">
-            <span className="heading-primary">Future Memory</span>
+            <span className="heading__primary heading__primary--white">Future Memory</span>
           </div>
         </header>
         <div className="font-container">
