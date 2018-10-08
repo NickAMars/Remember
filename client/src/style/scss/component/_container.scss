@@ -1,0 +1,13 @@
+.xcontainer-main{
+  display: flex;
+  justify-content: space-around;
+  font-weight: 400;
+  @media only screen and (max-width: 900px){
+   flex-direction: column;
+   justify-content: flex-start;
+
+  }
+  // @media only screen and (max-width: 600px){
+  //  flex-direction: column;
+  // }
+}
