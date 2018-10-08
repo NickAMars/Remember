@@ -1,16 +1,24 @@
 .heading{
-  &-primary{
+  &__primary{
     color: #fff;
-    font-size: 4rem;
     letter-spacing: 1.2rem;
-    font-weight: 400;
     text-transform: uppercase;
 
     @media only screen and (max-width: 600px){
-     font-size: 4rem;
      letter-spacing: .5rem;
     }
   }
+  &__primary--white{
+    color: #fff;
+    font-size: 4rem;
+    font-weight: 400;
+  }
+  &__primary--pink{
+    color: pink;
+    font-size: 4rem;
+    font-weight: 900;
+  }
+
   &__secondary{
     color: orangered;
     font-size: 4rem;
@@ -27,7 +35,16 @@
     backface-visibility: hidden;
     display:block;
     text-align: center;
+    font-weight: 400;
+    letter-spacing: 1rem;
     font-size: 4rem;
+  }
+  &__quaternary{
+    color: #777;
+    font-size: 2em;
+    letter-spacing: .2em;
+    font-weight: 900;
+    text-align: center;
   }
 
 }
