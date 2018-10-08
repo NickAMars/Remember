@@ -4,7 +4,7 @@ import ReactDOM from 'react-dom';
 import './style/css/main.css';
 import App from './components/App';
 // placing this at the top level
-import axios from 'axios';
+// import axios from 'axios';
 // creating the redux store and listener
 import reducers from './reducer';
 import { createStore, applyMiddleware  } from 'redux';
