@@ -23,7 +23,7 @@ export class MultipleCards extends Component{
           <h1 className="heading__primary heading__primary--pink u-mt-sm ">Remember</h1>
         </div>
         < Header />
-        <h4 className="heading__tertiary u-mt-sm ">Create</h4>
+      {/*<h4 className="heading__tertiary u-mt-sm ">Create</h4>*/}
 
         <Form />
         <hr className="u-mt-sm u-mb-sm"/>

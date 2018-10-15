@@ -476,8 +476,13 @@ body {
   outline: none;
   width: 280px; }
 
-.create__cta-btn {
-  padding: 2rem;
+.create__cta-btn:link, .create__cta-btn:visited {
+  width: 200px;
+  padding: 2rem 3rem;
+  color: white;
+  text-decoration: none;
+  font-size: 1.4rem;
+  text-align: center;
   margin: 0 auto;
   display: block;
   border-radius: 5px;
@@ -576,7 +581,11 @@ body {
 
 .list__date {
   font-size: 1.1rem;
-  align-self: flex-end; }
+  align-self: flex-end;
+  margin-right: -30px; }
+  @media only screen and (max-width: 600px) {
+    .list__date {
+      margin-right: 0; } }
 
 .header {
   height: 60vh;
