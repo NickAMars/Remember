@@ -1,8 +1,13 @@
 .create__cta{
   // background-color: purple;
 }
-.create__cta-btn{
-  padding: 2rem;
+.create__cta-btn:link, .create__cta-btn:visited{
+  width: 200px;
+  padding: 2rem 3rem;
+  color: white;
+  text-decoration: none;
+  font-size: 1.4rem;
+  text-align: center;
   margin: 0 auto;
   display:block;
   border-radius: 5px;

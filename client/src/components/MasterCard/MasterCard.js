@@ -1,5 +1,6 @@
 import React, {Component} from 'react';
 import {Header} from '../Header';
+import { Link } from 'react-router-dom';
 import {SmallCard} from  './smallCard';
 import {Graph} from  './graph';
 // import TopFive from './TopFive';
@@ -13,13 +14,14 @@ export class MasterCard extends Component{
     super(props);
     // wnat to hold 5 cards which are the best of the user
     this.state = {
-      title: "Hello Job",
+      title: "I love what i do",
+      // this is just temporary values
       cards: [
-              {_id: "kiss", title:"title", date:"time create"},
-              {_id: "heaven", title:"title", date:"time create"},
-              {_id: "demons", title:"title", date:"time create"},
-              {_id: "loveones", title:"title", date:"time create"},
-              {_id: "pain", title:"title", date:"time create"}
+              {_id: "kiss", title:"title1", date:"november 4 2018"},
+              {_id: "heaven", title:"title2", date:"december 15 2018"},
+              {_id: "demons", title:"title3", date:"september 30 2018"},
+              {_id: "loveones", title:"title4", date:"september 26 2018"},
+              {_id: "pain", title:"title5", date:"september 1 2018"}
             ]
     };
   }
@@ -39,7 +41,7 @@ export class MasterCard extends Component{
                  {
                     this.state.cards.map( function(master, index){
                       // console.log(master);
-                      return ( <SmallCard key={master._id}/>  );
+                      return ( <SmallCard key={master._id} cards={master}/>  );
                     })
                  }
                </ul>
@@ -62,16 +64,16 @@ export class MasterCard extends Component{
             <div className="create__cards  u-mb-sm">
 
               <div className="create__field">
-                <input onChange={(event) => this.setState( {title:event.target.value} )} type="text" value={this.state.title} id="title" className="input__master-title" maxLength="35" />
+                <input onChange={(event) => this.setState( {title:event.target.value} )} type="text" value={this.state.title} id="title" className="input__master-title" maxLength="32" />
               </div>
               <div className="create__view">
                 <div className="card__view">
-                  <div className="card__view-title">View Card Create</div>
+                  <div className="card__view-title">{this.state.title}</div>
                 </div>
               </div>
             </div>
             <div className="create__cta u-mb-sm">
-              <button className="create__cta-btn "> Create Master Card </button>
+              <Link to="/main/subcards" className="create__cta-btn "> Create Master Card </Link>
             </div>
 
 
