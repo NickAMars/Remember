@@ -47,8 +47,8 @@
   }
 }
 .list__links:link,.list__links:visited{
-  display:flex;
-  flex-direction: column;
+ display:flex;
+ flex-direction: column;
  text-decoration: none;
  border-radius: 1em;
  flex:1;
@@ -56,12 +56,19 @@
  background-color: pink;
  cursor: pointer;
 }
+
 .list__title{
  font-size:1.6rem;
  align-self: center;
  text-transform: uppercase;
 }
+
 .list__date{
  font-size:1.1rem;
  align-self: flex-end;
+ margin-right: -30px;
+ // stops the date from going out of bounds
+ @media only screen and (max-width: 600px){
+   margin-right: 0;
+ }
 }
