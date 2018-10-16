@@ -1,0 +1,38 @@
+.filter__list{
+  position: absolute;
+  top: 60%;
+  background-color: #ccc;
+  list-style: none;
+  margin-top:1rem;
+  max-height: 200px;
+  width: 100px;
+  transform: scaleY(0);
+  transform-origin: top;
+  // display: none;
+  transition: all 1s;
+
+
+  // @media only screen and (max-width: 500px){
+  //  display:flex;
+  // }
+  &-item{
+    margin-bottom: 1rem;
+    display: flex;
+    cursor: pointer;
+  }
+  &-link{
+    // text-decoration: none;
+    border:none;
+    padding: 1rem 2rem;
+    flex:1;
+    background-color: pink;
+    transition: all 2s;
+  }
+  &-link:not(:hover){
+    transform: translateX(-10px);
+  }
+}
+.search__filter:hover  .filter__list{
+  display:block;
+  transform: scaleY(1);
+}
