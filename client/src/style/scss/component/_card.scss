@@ -8,6 +8,8 @@
   perspective: 1000px;
   position: relative;
   margin-bottom: 2rem;
+  // temporary fix for long
+  overflow: hidden;
   &__side{
     backface-visibility: hidden;
     height: 100%;
