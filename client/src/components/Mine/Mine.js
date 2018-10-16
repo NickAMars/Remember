@@ -1,28 +1,47 @@
-import React, {Component} from 'react';
+import React,{Component} from 'react';
+import {Header} from '../Header';
+import {SearchBar} from './SearchBar';
+import {MasterCards} from './MasterCards';
+
+// must keep track of state
 
 
-export class SignIn extends Component{
-  //ComponentDidMount(){}
-  constructor(props){
-    // place for state
-    // place for binding function
-    this.state = {searchbar : "search me"};
-  }
+// dummy date
+const dummy = [ {id:"kiss", title:"Toni", date:"november 2,2017"},
+                {id:"love", title:"Parent", date:"september 4, 2013"},
+                {id:"No", title:"Conflict", date:"september 16, 2018"},
+                {id:"Dreams", title:"Realize", date:"March 14, 2018"}
+            ];
 
-  // re-renders on unMount and updating
-  render(){
-    return(<div>
-            
-          </div>);
-  }
+export class Mine extends Component{
+ComponentDidMount(){
+  // call to get information from the data base
+  // There is also a redux life cycle method that can do this properly
+}
+ render(){
+   return (
+     <div className="remember">
+       <div className="header-box">
+         <h1 className="heading__primary heading__primary--pink u-mt-sm ">Remember</h1>
+       </div>
+       < Header />
+       {/* SearchBar */}
+       <SearchBar/>
+
+       <div className="master">
+         <ul className="master__container">
+           {/* MasterCards */}
+          {
+            dummy.map(elem => <MasterCards key={elem.id} card={elem}/>)
+          }
+         </ul>
+       </div>
+     </div>
+   );
+ }
+}
   /*
     componentDidUpdate(){}
     @params prevProps, prevState, snapshot
   */
-  //ComponentWillUnMount(){}
-}
-
-// going to need some links which makes me to the subset of cards from this link
-// going to need search bar to loop for information in may data set
-// going to need filter tags  which sort by a-z or z-a or date inserted
-// going to
+//ComponentWillUnMount(){}
