@@ -315,7 +315,8 @@ body {
   width: 30rem;
   perspective: 1000px;
   position: relative;
-  margin-bottom: 2rem; }
+  margin-bottom: 2rem;
+  overflow: hidden; }
   .card__side {
     backface-visibility: hidden;
     height: 100%;
@@ -587,6 +588,177 @@ body {
     .list__date {
       margin-right: 0; } }
 
+.search {
+  min-height: 4.5rem;
+  background-color: pink;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  font-size: 1.4rem;
+  border-bottom: 1px solid #eee; }
+  @media only screen and (max-width: 500px) {
+    .search {
+      flex-direction: column; } }
+
+.search__name {
+  flex: 0 0 400px;
+  display: flex;
+  margin: 0 auto;
+  position: relative;
+  justify-content: center; }
+  @media only screen and (max-width: 600px) {
+    .search__name {
+      height: 6rem; } }
+  @media only screen and (max-width: 500px) {
+    .search__name {
+      flex: 0 0 40px;
+      margin: 0;
+      margin-bottom: 5px; } }
+  .search__name--input {
+    padding: .96em 1.5em;
+    width: 80%;
+    border-radius: 50px;
+    border: none;
+    font-size: inherit;
+    color: #aaa;
+    background-color: #eee;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.4);
+    transform: scaleX(1);
+    transition: all 2s; }
+    .search__name--input:hover {
+      transform: scaleX(1.1); }
+    .search__name--input:focus {
+      outline: none; }
+
+.search__name--input:hover + .search__icon-btn {
+  transform: translate(-50%, -50%); }
+
+.search__name--input:focus + .search__icon-btn .search__icon {
+  fill: #ccc; }
+
+.search__name--input:hover + .search__icon-btn .search__icon {
+  fill: #ccc; }
+
+.search__icon-btn {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translate(-80%, -50%);
+  background-color: #eee;
+  border: none;
+  width: 50px;
+  height: 90%;
+  border-radius: 100px;
+  cursor: pointer;
+  transition: all 2s; }
+  .search__icon-btn:focus {
+    outline: none; }
+
+.search__icon {
+  height: 2.5rem;
+  width: 2.5rem;
+  fill: #ddd;
+  transition: 2s fill; }
+
+.search__icon:active {
+  fill: #000; }
+
+.search__filter {
+  width: 100px;
+  display: flex;
+  justify-content: flex-end;
+  position: relative;
+  z-index: 10; }
+  @media only screen and (max-width: 500px) {
+    .search__filter {
+      height: 6em;
+      align-self: flex-end;
+      margin-bottom: 5px; } }
+
+.search__btn {
+  margin-right: 2rem;
+  flex: 0 0 100px;
+  background-color: #eee;
+  border-radius: 3px;
+  border: none;
+  position: relative;
+  box-shadow: 0 0.6rem 1.2rem rgba(0, 0, 0, 0.3);
+  transition: all .2s;
+  color: #999; }
+  .search__btn:focus, .search__btn:active {
+    outline: none;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.4); }
+
+.search__btn::before {
+  content: "";
+  position: absolute;
+  bottom: 50%;
+  right: 0;
+  transform: translate(0, 50%);
+  width: 0;
+  height: 0;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-top: 8px solid #777; }
+
+.filter__list {
+  position: absolute;
+  top: 60%;
+  background-color: #ccc;
+  list-style: none;
+  margin-top: 1rem;
+  max-height: 200px;
+  width: 100px;
+  transform: scaleY(0);
+  transform-origin: top;
+  transition: all 1s; }
+  .filter__list-item {
+    margin-bottom: 1rem;
+    display: flex;
+    cursor: pointer; }
+  .filter__list-link {
+    border: none;
+    padding: 1rem 2rem;
+    flex: 1;
+    background-color: pink;
+    transition: all 2s; }
+  .filter__list-link:not(:hover) {
+    transform: translateX(-10px); }
+
+.search__filter:hover .filter__list {
+  display: block;
+  transform: scaleY(1); }
+
+.master {
+  padding: 2rem; }
+  .master__container {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap; }
+  .master__items {
+    display: flex;
+    flex: 0 0 200px;
+    margin-right: 1rem;
+    margin-bottom: 1rem; }
+  .master__links:link, .master__links:visited {
+    flex: 1;
+    color: #eee;
+    text-decoration: none;
+    background-color: grey;
+    height: 6rem;
+    border-radius: 2px;
+    padding: 1em 2em;
+    display: flex;
+    flex-direction: column;
+    position: relative; }
+  .master__title {
+    align-self: center;
+    font-size: 1.3em; }
+  .master__date {
+    position: absolute;
+    right: 20px;
+    bottom: 0; }
+
 .header {
   height: 60vh;
   background-image: linear-gradient(to right bottom, rgba(0, 0, 0, 0.8), rgba(238, 238, 238, 0.3)), url(../../img/disk.jpg);
@@ -665,7 +837,8 @@ body {
 .tool-bar {
   display: flex;
   justify-content: flex-end;
-  position: relative; }
+  position: relative;
+  z-index: 1000; }
   .tool-bar__item {
     background-color: transparent;
     border: none; }

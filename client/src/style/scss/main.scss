@@ -11,15 +11,17 @@
 @import "component/input";
 @import "component/card";
 @import "component/row";
+// use on main page
 @import "component/checkbox";
 @import "component/container";
 @import "component/create";
 @import "component/cta";
 @import "component/table";
 @import "component/topcards";
-// @import "component/cta";
-
-
+// use for mine page
+@import "component/search";
+@import "component/filter";
+@import "component/master";
 @import "layout/header";
 @import "layout/nav";
 
