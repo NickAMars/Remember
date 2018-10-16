@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 import MultipleCards from './MultipleCards/MultipleCards';
 import {Landing} from './Landing/Landing';
 import {MasterCard} from './MasterCard/MasterCard';
+import {Mine} from './Mine/Mine';
 // import SimpleMap from './SimpleMap';
 import anchor from '../img/SVG/anchor.svg';
 //TEST
@@ -21,8 +22,13 @@ class App extends Component{
         <Router>
         <div>
           <Switch>
+            {/* // test cases*/}
             <Route path='/test' component={test} />
+            {/* // only shows up when user is creating a card*/}
             <Route path='/main/subcards' component={MultipleCards} />
+            {/* // the main card section for the user*/}
+            <Route path='/mine' component={Mine} />
+            {/* // shows the  section where the user can find most progress*/}
             <Route path='/main' component={MasterCard} />
             <Route path='/' component={Landing} />
           </Switch>
