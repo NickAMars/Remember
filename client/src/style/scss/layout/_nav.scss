@@ -84,6 +84,7 @@
   display: flex;
   justify-content: flex-end;
   position:relative;
+  z-index: 1000;
   &__item{
     background-color: transparent;
     border:none;
