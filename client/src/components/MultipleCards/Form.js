@@ -58,6 +58,7 @@ componentWillReceiveProps(nextProps){
                     type="text"
                     onChange={(event)=>{ this.setState({ title: event.target.value}) }}
                     value={this.state.title}
+                    maxLength="32"
                   />
                   <textarea
                     className="input__textarea"
