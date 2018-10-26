@@ -5,6 +5,7 @@ First Fully Own full stack project.
 
 
 
-On data loading for public cards and user cards
-I want to use the react-router onEnter callback to re-use my component instead of
-calling an action creator in the componentDidMount lifecycle method. 
+https://stackoverflow.com/questions/45429963/onenter-prop-in-react-router-v4
+No more onEnter, onChange, onLeave are deprecated in react-router v4
+
+Dream company came to me cant sleep must prepare for it. Cant work on this project until I get what I want most. 
