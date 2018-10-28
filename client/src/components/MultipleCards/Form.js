@@ -25,7 +25,7 @@ componentWillReceiveProps(nextProps){
   // console.log("nextProps",nextProps);
   let {display, title, description} = nextProps.formupdate;
   if(display && this.state.firstRender){
-    console.log(display,title,description );
+    // console.log(display,title,description );
     this.setState({firstRender: false, title, description});
   }
 }
