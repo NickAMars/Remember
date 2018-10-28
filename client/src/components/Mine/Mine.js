@@ -1,4 +1,5 @@
 import React,{Component} from 'react';
+import { connect } from 'react-redux';
 import {Header} from '../Header';
 import {SearchBar} from './SearchBar';
 import {MasterCards} from './MasterCards';
@@ -19,6 +20,7 @@ ComponentDidMount(){
   // There is also a redux life cycle method that can do this properly
 }
  render(){
+   // console.log(this.props);
    return (
      <div className="remember">
        <div className="header-box">
@@ -40,6 +42,14 @@ ComponentDidMount(){
    );
  }
 }
+// export const mapStateToProps = (state) => {
+//   console.log(state);
+//   return {
+//     test: state.test
+//   };
+}
+
+export default connect(mapStateToProps)(Mine);
   /*
     componentDidUpdate(){}
     @params prevProps, prevState, snapshot
