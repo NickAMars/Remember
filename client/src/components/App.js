@@ -6,6 +6,7 @@ import {MasterCard} from './MasterCard/MasterCard';
 import {Mine} from './Mine/Mine';
 // import SimpleMap from './SimpleMap';
 import anchor from '../img/SVG/anchor.svg';
+// import  {TestMasterCards} from './route_callbacks.js';
 //TEST
 const test = () =>{
   return (
@@ -26,8 +27,14 @@ class App extends Component{
             <Route path='/test' component={test} />
             {/* // only shows up when user is creating a card*/}
             <Route path='/main/subcards' component={MultipleCards} />
-            {/* // the main card section for the user*/}
-            <Route path='/mine' component={Mine} />
+            {/* // the main card section for the user
+              onEnter is not working right now need to see what the possible error could be
+              read that it was deprecated and so i found a next solution
+              but the store did updated as needed it to so i have to go to creating a seperate component
+              for the mine group page
+                <Route path='/mine'  render={ ()=>{ TestMasterCards(); return <Mine /> } } />
+              */}
+            <Route path='/mine'  component={Mine} />
             {/* // shows the  section where the user can find most progress*/}
             <Route path='/main' component={MasterCard} />
             <Route path='/' component={Landing} />

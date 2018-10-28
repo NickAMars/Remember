@@ -1,7 +1,8 @@
 export const ADD_CARD= "ADD_CARD",
  UPDATE_CARD= "UPDATE_CARD",
  DELETE_CARD="DELETE_CARD",
- UPDATE_FORM="UPDATE_FORM";
+ UPDATE_FORM="UPDATE_FORM",
+ TEST_CARD = "TEST_CARD";
 
 export function addCard(card){
   // this process is never to go to the back end
@@ -39,3 +40,16 @@ export function updateForm(newCard){
   payload: newCard
   }
 }
+
+/* For onEnter method */
+// const dummy = [ {id:"kiss", title:"Toni", date:"november 2,2017"},
+//                 {id:"love", title:"Parent", date:"september 4, 2013"},
+//                 {id:"No", title:"Conflict", date:"september 16, 2018"},
+//                 {id:"Dreams", title:"Realize", date:"March 14, 2018"}
+//             ];
+// export function testCard(card){
+//   return {
+//     type: TEST_CARD,
+//     payload:  dummy
+//   };
+// }
