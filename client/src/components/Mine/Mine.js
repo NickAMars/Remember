@@ -1,5 +1,5 @@
 import React,{Component} from 'react';
-import { connect } from 'react-redux';
+// import { connect } from 'react-redux';
 import {Header} from '../Header';
 import {SearchBar} from './SearchBar';
 import {MasterCards} from './MasterCards';
@@ -47,9 +47,9 @@ ComponentDidMount(){
 //   return {
 //     test: state.test
 //   };
-}
+// }
 
-export default connect(mapStateToProps)(Mine);
+// export default connect(mapStateToProps)(Mine);
   /*
     componentDidUpdate(){}
     @params prevProps, prevState, snapshot
