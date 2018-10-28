@@ -315,8 +315,7 @@ body {
   width: 30rem;
   perspective: 1000px;
   position: relative;
-  margin-bottom: 2rem;
-  overflow: hidden; }
+  margin-bottom: 2rem; }
   .card__side {
     backface-visibility: hidden;
     height: 100%;
