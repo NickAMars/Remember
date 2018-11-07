@@ -4,6 +4,7 @@ import MultipleCards from './MultipleCards/MultipleCards';
 import {Landing} from './Landing/Landing';
 import {MasterCard} from './MasterCard/MasterCard';
 import {Mine} from './Mine/Mine';
+import {More} from './More/More';
 // import SimpleMap from './SimpleMap';
 import anchor from '../img/SVG/anchor.svg';
 // import  {TestMasterCards} from './route_callbacks.js';
@@ -34,6 +35,7 @@ class App extends Component{
               for the mine group page
                 <Route path='/mine'  render={ ()=>{ TestMasterCards(); return <Mine /> } } />
               */}
+            <Route path='/more'  component={More} />
             <Route path='/mine'  component={Mine} />
             {/* // shows the  section where the user can find most progress*/}
             <Route path='/main' component={MasterCard} />
