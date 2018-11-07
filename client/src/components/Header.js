@@ -9,7 +9,7 @@ export class Header extends Component{
         { /*main links after user has sign in the can see these*/ }
           <li className="nav-list__item"><Link to="/main" className="nav-list__link">Main</Link></li>
           <li className="nav-list__item"><Link  to="/mine" className="nav-list__link" >Mine</Link></li>
-          <li className="nav-list__item"><Link  to="/" className="nav-list__link" >More</Link></li>
+          <li className="nav-list__item"><Link  to="/more" className="nav-list__link" >More</Link></li>
         </ul>
         <div className="tool-bar">
           <img className="tool-bar__item" src={cog} alt='X'/>
