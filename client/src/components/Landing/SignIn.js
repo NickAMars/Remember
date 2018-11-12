@@ -42,8 +42,8 @@ export class SignIn extends Component{
           </div>
 
 
-          <Link to="/main/subcards" className="btnA__svg"> <img src={google} alt='X'/> </Link>
-          <Link to="/main/subcards" className="btnA__svg"> <img src={facebook} alt='X'/> </Link>
+          <a href="/auth/google" className="btnA__svg"> <img src={google} alt='google'/> </a>
+          <a href="/auth/facebook" className="btnA__svg"> <img src={facebook} alt='facebook'/> </a>
 
       </div>
     );

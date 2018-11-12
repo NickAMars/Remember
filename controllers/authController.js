@@ -11,9 +11,9 @@ module.exports = {
     failureRedirect : '/api/login',
   }),
   google:       passport.authenticate('google', {scope : ['email']}),
-  googleCB:     (req, res) =>{res.redirect('/profile')},
+  googleCB:     (req, res) =>{res.redirect('/main')},
   facebook:     passport.authenticate('facebook', {scope : ['email']}),
-  facebookCB:   (req, res) =>{res.redirect('/profile')},
+  facebookCB:   (req, res) =>{res.redirect('/main')},
   logout: (req,res) =>{
     console.log(req.user)
     req.logout();
