@@ -3,11 +3,15 @@ import {Header} from '../Header';
 import { Link } from 'react-router-dom';
 import {SmallCard} from  './smallCard';
 import {Graph} from  './graph';
+import { serverTest } from '../../actions';
+// import {bindActionCreators} from 'redux';
+import { connect } from 'react-redux';
 // import TopFive from './TopFive';
-export class MasterCard extends Component{
+class MasterCard extends Component{
   // when the component has mounted then we are going to get the cards
   // from the database with the top amount result from yesterday
   componentDidMount(){
+    this.props.serverTest();
    // call action creater which places the result into the state
   }
   constructor(props){
@@ -28,19 +32,20 @@ export class MasterCard extends Component{
 
 
   render(){
+    // console.log(this.props.test);
     return (
       <div>
         <div className="header-box">
           <h1 className="heading__primary heading__primary--pink u-mt-sm ">Remember</h1>
         </div>
         < Header />
+
         <div className="xcontainer-main u-mb-md">
             <div className="topcards">
               <h4 className="header__quaternary u-mb-sm">Top Five Cards </h4>
               <ul className="list">
                  {
                     this.state.cards.map( function(master, index){
-                      // console.log(master);
                       return ( <SmallCard key={master._id} cards={master}/>  );
                     })
                  }
@@ -84,24 +89,13 @@ export class MasterCard extends Component{
     );
   }
 }
+const mapStateToProps = (state) => {
+  return {
+    test: state.test
+  };
+}
 
-/*
-  What do i want this field to have?
-  Step 1: Small card element with title size around 80-100px height and 300px width
-  Step 2: Title center ()
-  Step 3: want an image a uploaded image to be under the text.
-  Step 4: I want a overlay over the image to make it not interfair with the text.
-          probably dark with opacity:.3.
-
-  There will be a small navigation layout where users can click between 'title', 'image'
-  Title is not require if user uploads image.
-  Image is not require if user uploads a title.
-
-  Restriction- The title field should only be two row.
-
-
-  General overview:
-  Where is this card going to go in the end?
-  Objectively its going to be stored with other mastercards in a section called Memory
-  and also in a section which shows how long user spend on the card called Statics
-*/
+// const mapDispatchToProps = (dispatch) =>{
+//   return bindActionCreators({testServer: testServer}, dispatch);
+// }
+export default connect(mapStateToProps, {serverTest})(MasterCard);
