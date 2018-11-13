@@ -2,6 +2,14 @@ import React, {Component} from  'react';
 import { Link } from 'react-router-dom';
 import cog from  '../img/SVG/cog.svg';
 export class Header extends Component{
+  componentDidMount(){
+    // the header is to call the server to recieve  the person id one time
+
+    // store that id in the redux store. where i can get it at any time
+
+    //but i also need to stop from call the server all the time 
+  }
+
   render(){
     return (
       <nav className="nav u-mb-sm">
