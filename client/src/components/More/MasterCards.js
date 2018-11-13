@@ -10,7 +10,8 @@ export const MasterCards = (props) =>{
   // each more should have a dynamic router to the subcards associated with it
   return (
         <li className="master__items">
-          <Link  to={`/more/${id}`} className="master__links">
+        {/*route needs an action creater which puts the values into the store for the Small cards component*/}
+          <Link  to={`/smallcards/${id}`} className="master__links">
             <span className="master__title">{title}</span>
             <span className="master__date">{date}</span>
           </Link>

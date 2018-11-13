@@ -8,7 +8,7 @@ export const MasterCards = (props) =>{
   const {title, date,id} = props.card;
   return (
         <li className="master__items">
-          <Link  to={`/mine/${id}`} className="master__links">
+          <Link  to={`/smallcards/${id}`} className="master__links">
             <span className="master__title">{title}</span>
             <span className="master__date">{date}</span>
           </Link>
