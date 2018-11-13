@@ -2,9 +2,10 @@ import React, {Component} from  'react';
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 import MultipleCards from './MultipleCards/MultipleCards';
 import {Landing} from './Landing/Landing';
-import {MasterCard} from './MasterCard/MasterCard';
+import MasterCard from './MasterCard/MasterCard';
 import {Mine} from './Mine/Mine';
 import {More} from './More/More';
+import SmallCards from './SmallCards/SmallCards';
 // import SimpleMap from './SimpleMap';
 import anchor from '../img/SVG/anchor.svg';
 // import  {TestMasterCards} from './route_callbacks.js';
@@ -24,20 +25,12 @@ class App extends Component{
         <Router>
         <div>
           <Switch>
-            {/* // test cases*/}
             <Route path='/test' component={test} />
-            {/* // only shows up when user is creating a card*/}
             <Route path='/main/subcards' component={MultipleCards} />
-            {/* // the main card section for the user
-              onEnter is not working right now need to see what the possible error could be
-              read that it was deprecated and so i found a next solution
-              but the store did updated as needed it to so i have to go to creating a seperate component
-              for the mine group page
-                <Route path='/mine'  render={ ()=>{ TestMasterCards(); return <Mine /> } } />
-              */}
+            {/*SAME COMPONENT NEED TO FIND A WAY TO REUSE COMPONENT ON DIRECT TO ROUTE*/}
+            <Route path='/smallcards/:idMaster'  component={SmallCards} />
             <Route path='/more'  component={More} />
             <Route path='/mine'  component={Mine} />
-            {/* // shows the  section where the user can find most progress*/}
             <Route path='/main' component={MasterCard} />
             <Route path='/' component={Landing} />
           </Switch>
