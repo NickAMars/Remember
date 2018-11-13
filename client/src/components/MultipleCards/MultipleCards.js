@@ -15,7 +15,6 @@ the user have access to from there main cards
 
 export class MultipleCards extends Component{
   render(){
-    // console.log(this.props);
 
     return (
       <div className="remember">
@@ -52,4 +51,3 @@ export const mapStateToProps = (state) => {
 }
 
 export default connect(mapStateToProps,{deleteCard, updateForm})(MultipleCards);
-// export default connect(null, {deleteCard})(Card);
