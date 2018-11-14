@@ -78,7 +78,7 @@ class MasterCard extends Component{
               </div>
             </div>
             <div className="create__cta u-mb-sm">
-              <Link to="/main/subcards" className="create__cta-btn "> Create Master Card </Link>
+              <Link to={`/main/subcards/${this.state.title}`} className="create__cta-btn "> Create Master Card </Link>
             </div>
 
 

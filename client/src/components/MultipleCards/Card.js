@@ -4,29 +4,8 @@ import close from  '../../img/SVG/close-outline.svg';
 import update from  '../../img/SVG/compose.svg';
 
 
-/*
-  props.deleteCard
-  @params id
-  props.updateCard
-  @params card
-
-/*
-  Update: want to use the same for on the page to update the information.
-  steps:
-  1. click update button
-  2. update send title and description to form
-  3. a button icon appears close to the form field with the update logo
-  4. click update then icon disappear
-  5. card is updated
-
-
-  needs another reducer that accept card information
-*/
 export const Card  = (props)=>{
   const {id, title,description} = props;
-  // console.log(props);
-//dummy value (works)
-// const  newCard = {show:true ,id, title, description };
 
     return (
       <div className="container-card">
@@ -49,10 +28,6 @@ export const Card  = (props)=>{
       </div>
     );
   }
-
-// update methof before refactor
-// <img onClick={()=>props.updateCard(newCard)}  src={update} alt='U'/>          {/*update*/}
-/*props.updateForm*/
 
 
 
