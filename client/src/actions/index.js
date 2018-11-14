@@ -3,7 +3,8 @@ export const ADD_CARD= "ADD_CARD",
  UPDATE_CARD= "UPDATE_CARD",
  DELETE_CARD="DELETE_CARD",
  UPDATE_FORM="UPDATE_FORM",
- TEST_CARD = "TEST_CARD";
+ TEST_CARD = "TEST_CARD",
+  SUBMIT_CARD = "SUBMIT_CARD";
 
 
  export const serverTest = (newCard)=>{
@@ -49,6 +50,25 @@ export const updateForm = (newCard)=>{
   payload: newCard
   }
 }
+
+export const submitCard= (allcards, masterTitle)=>{
+  let data = { cards :allcards, title: masterTitle };
+ return async dispatch => {
+    const res = await axios.post('/api/profile/MasterCard',data);
+    dispatch( {type: SUBMIT_CARD, payload: res.data } );
+  }
+}
+
+//  async (allcards, masterTitle)=>{
+//   // have a post request which send
+//   let data = { cards :allcards, title: masterTitle };
+//   const res = await axios.post('/api/profile/MasterCard',data);
+//   console.log(res);
+//   return {
+//   type: SUBMIT_CARD,
+//   payload: res
+//   }
+// }
 
 //Test dispatch method from server
 // export const testServer = () =>
