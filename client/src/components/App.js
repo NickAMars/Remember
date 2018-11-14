@@ -26,7 +26,7 @@ class App extends Component{
         <div>
           <Switch>
             <Route path='/test' component={test} />
-            <Route path='/main/subcards' component={MultipleCards} />
+            <Route path='/main/subcards/:title' component={MultipleCards} />
             {/*SAME COMPONENT NEED TO FIND A WAY TO REUSE COMPONENT ON DIRECT TO ROUTE*/}
             <Route path='/smallcards/:idMaster'  component={SmallCards} />
             <Route path='/more'  component={More} />

@@ -38,7 +38,7 @@ export class SignIn extends Component{
           </div>
           <div className="formA__group">
 
-            <Link className="btnA btnA--green " to="/main/subcards">Sign in &rarr;</Link>
+            <Link className="btnA btnA--green " to="/main">Sign in &rarr;</Link>
           </div>
 
 

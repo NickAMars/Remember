@@ -1,4 +1,4 @@
-import { TEST_CARD } from '../actions';
+import { TEST_CARD, SUBMIT_CARD} from '../actions';
 //
 //
 //
@@ -8,6 +8,8 @@ import { TEST_CARD } from '../actions';
 export default  function (state = "", action) {
   switch(action.type){
     case TEST_CARD:
+      return action.payload;
+    case SUBMIT_CARD:
       return action.payload;
     default:
       return state;
