@@ -13,6 +13,13 @@
     flex: 0 0 200px;
     margin-right: 1rem;
     margin-bottom:1rem;
+    position:relative;
+    .master__svg {
+      position:absolute;
+      z-index: 5;
+      right: 0;
+      top: 0;
+    }
   }
   &__links:link, &__links:visited{
     flex:1;
@@ -36,5 +43,13 @@
     position:absolute;
     right:20px;
     bottom: 0;
+  }
+  &__checkbox{
+    position: absolute;
+    z-index: 5;
+    bottom:0;
+    left:0;
+
+    margin-left:.5rem;
   }
 }

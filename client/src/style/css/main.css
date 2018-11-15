@@ -165,18 +165,24 @@ body {
   text-transform: uppercase;
   color: #ccc; }
   .btn__add {
-    font-size: 4rem;
+    font-size: 3rem;
     background-color: #ff4500;
+    bottom: 8.5rem;
+    right: 2rem;
+    z-index: 10; }
+  .btn__submit {
+    font-size: 4rem;
+    background-color: #003366;
     bottom: 1rem;
     right: 1rem;
-    z-index: 10; }
+    z-index: 5; }
   .btn__update-show {
     animation: fadeIn 2s ease-in;
     visibility: visible; }
   .btn__update {
     background-color: yellowgreen;
-    top: 20%;
-    right: 2rem;
+    bottom: 15rem;
+    right: 2.5rem;
     font-size: 2rem;
     z-index: 10; }
     .btn__update-show {
@@ -185,7 +191,7 @@ body {
     .btn__update-hide {
       visibility: hidden;
       animation: fadeOut 2s ease-out; }
-  .btn__add, .btn__update {
+  .btn__add, .btn__submit, .btn__update {
     border: none;
     position: fixed;
     padding: .25em .5em;
@@ -195,9 +201,9 @@ body {
     cursor: pointer;
     box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.3);
     transition: all 2s; }
-    .btn__add:hover, .btn__update:hover {
+    .btn__add:hover, .btn__submit:hover, .btn__update:hover {
       box-shadow: 0 1rem 2rem rgba(0, 0, 0, 0.2); }
-    .btn__add:focus, .btn__add:active, .btn__update:focus, .btn__update:active {
+    .btn__add:focus, .btn__add:active, .btn__submit:focus, .btn__submit:active, .btn__update:focus, .btn__update:active {
       outline: none;
       box-shadow: 0 0.75rem 1.5rem rgba(0, 0, 0, 0.3); }
 
@@ -311,7 +317,7 @@ body {
   width: 30rem; }
 
 .card {
-  height: 30rem;
+  height: 20rem;
   width: 30rem;
   perspective: 1000px;
   position: relative;
@@ -738,7 +744,13 @@ body {
     display: flex;
     flex: 0 0 200px;
     margin-right: 1rem;
-    margin-bottom: 1rem; }
+    margin-bottom: 1rem;
+    position: relative; }
+    .master__items .master__svg {
+      position: absolute;
+      z-index: 5;
+      right: 0;
+      top: 0; }
   .master__links:link, .master__links:visited {
     flex: 1;
     color: #eee;
@@ -757,6 +769,12 @@ body {
     position: absolute;
     right: 20px;
     bottom: 0; }
+  .master__checkbox {
+    position: absolute;
+    z-index: 5;
+    bottom: 0;
+    left: 0;
+    margin-left: .5rem; }
 
 .header {
   height: 60vh;
