@@ -1,4 +1,4 @@
-import { UPDATE_FORM } from '../actions';
+import { UPDATE_FORM }  from '../actions/types';
 
 
 // send a true value to the form field which  display icon button to update card

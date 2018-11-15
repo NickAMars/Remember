@@ -1,4 +1,4 @@
-import { ADD_CARD, DELETE_CARD, UPDATE_CARD } from '../actions';
+import { ADD_CARD, DELETE_CARD, UPDATE_CARD } from '../actions/types';
 // import _ from 'lodash';
 
 /*

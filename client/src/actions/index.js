@@ -1,16 +1,11 @@
  import axios from 'axios';
-export const ADD_CARD= "ADD_CARD",
- UPDATE_CARD= "UPDATE_CARD",
- DELETE_CARD="DELETE_CARD",
- UPDATE_FORM="UPDATE_FORM",
- TEST_CARD = "TEST_CARD",
-  SUBMIT_CARD = "SUBMIT_CARD";
+import * as type from '../actions/types';
 
 
  export const serverTest = (newCard)=>{
   return async dispatch => {
      const res = await axios.get('/api/profile/MasterCard');
-     dispatch( {type: TEST_CARD, payload: res.data } );
+     dispatch( {type: type.TEST_CARD, payload: res.data } );
    }
  }
 
@@ -20,13 +15,13 @@ export const addCard = (card)=>{
   // the user refresh the screen all the cards arnt lost
   // will apply in the memory section
   return {
-    type: ADD_CARD,
+    type: type.ADD_CARD,
     payload: card
   };
 }
 export const deleteCard = (id)=>{
   return {
-  type: DELETE_CARD,
+  type: type.DELETE_CARD,
   payload: id
   }
 }
@@ -35,7 +30,7 @@ export const deleteCard = (id)=>{
 */
 export const updateCard = (newCard)=>{
   return {
-  type: UPDATE_CARD,
+  type: type.UPDATE_CARD,
   payload: newCard
   }
 }
@@ -46,7 +41,7 @@ export const updateCard = (newCard)=>{
 */
 export const updateForm = (newCard)=>{
   return {
-  type: UPDATE_FORM,
+  type: type.UPDATE_FORM,
   payload: newCard
   }
 }
@@ -55,7 +50,7 @@ export const submitCard= (allcards, masterTitle)=>{
   let data = { cards :allcards, title: masterTitle };
  return async dispatch => {
     const res = await axios.post('/api/profile/MasterCard',data);
-    dispatch( {type: SUBMIT_CARD, payload: res.data } );
+    dispatch( {type: type.SUBMIT_CARD, payload: res.data } );
   }
 }
 

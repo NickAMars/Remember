@@ -1,5 +1,4 @@
-import { TEST_CARD, SUBMIT_CARD} from '../actions';
-//
+import { TEST_CARD, SUBMIT_CARD}  from '../actions/types';
 //
 //
 // // why doesnt this update the store
