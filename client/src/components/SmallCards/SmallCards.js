@@ -32,6 +32,11 @@ class SmallCards extends Component{
       </div>
     );
   }
+
+// so when leaving the page update the database if i made any changes 
+  componentWillUnmount(){
+    console.log("leaving the smallCard");
+  }
 }
 export const mapStateToProps = (state) => {
   return {
