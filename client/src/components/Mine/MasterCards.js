@@ -1,6 +1,8 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-
+import {Buttons} from './Buttons';
+import {CbPublic} from './CbPublic';
+// CbPublic
 // camil case
 // pass keys to this items when mapping over object
 export const MasterCards = (props) =>{
@@ -8,7 +10,11 @@ export const MasterCards = (props) =>{
   const {title, date,id} = props.card;
   return (
         <li className="master__items">
+          <Buttons />
+          {/*checkbox goes here*/}
+          <CbPublic />
           <Link  to={`/smallcards/${id}`} className="master__links">
+
             <span className="master__title">{title}</span>
             <span className="master__date">{date}</span>
           </Link>

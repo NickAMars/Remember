@@ -1,9 +1,9 @@
 import React,{Component} from 'react';
-// import { connect } from 'react-redux';
+import { connect } from 'react-redux';
 import {Header} from '../Header';
 import {SearchBar} from './SearchBar';
 import {MasterCards} from './MasterCards';
-
+import { deleteMaster, updateMaster, publicMaster} from '../../actions';
 // must keep track of state
 
 
@@ -27,12 +27,10 @@ ComponentDidMount(){
          <h1 className="heading__primary heading__primary--pink u-mt-sm ">Remember</h1>
        </div>
        < Header />
-       {/* SearchBar */}
        <SearchBar/>
 
        <div className="master">
          <ul className="master__container">
-           {/* MasterCards */}
           {
             dummy.map(elem => <MasterCards key={elem.id} card={elem}/>)
           }
@@ -42,14 +40,13 @@ ComponentDidMount(){
    );
  }
 }
-// export const mapStateToProps = (state) => {
-//   console.log(state);
-//   return {
-//     test: state.test
-//   };
-// }
+export const mapStateToProps = (state) => {
+  return {
+    test: state.test
+  };
+}
 
-// export default connect(mapStateToProps)(Mine);
+export default connect(mapStateToProps, { deleteMaster, updateMaster, publicMaster} )(Mine);
   /*
     componentDidUpdate(){}
     @params prevProps, prevState, snapshot
