@@ -9,6 +9,32 @@ import * as type from '../actions/types';
    }
  }
 
+// get the id from the master card after submition of the update request
+ export const updateMaster = (id,newCard)=>{
+  return async dispatch => {
+    // update the card in the database, so if the user visits the page again they
+    // get the new information which is in the database
+     await axios.put(`/api/profile/MasterCard/${id}`, newCard);
+     dispatch( {type: type.UPDATE_MASTER, payload: newCard } );
+   }
+ }
+ // get the value from the params
+ export const deleteMaster = (id)=>{
+  return async dispatch => {
+    // remove the card form the database id the easy task
+     await axios.delete(`/api/profile/MasterCard/${id}`);
+     // Then we have to find the id of the card
+     dispatch( {type: type.DELETE_MASTER, payload: id } );
+   }
+ }
+ // put all master cards into a pool to be view by each user
+ // havent created the pool yet in the server side
+ export const publicMaster = (newCard)=>{
+  return async dispatch => {
+     const res = await axios.put('/api/profile/MasterCard', newCard);
+     dispatch( {type: type.PUBLIC_MASTER, payload: res.data } );
+   }
+ }
 export const addCard = (card)=>{
   // this process is never to go to the back end
   // i will use a cookie to store the cards so that when
