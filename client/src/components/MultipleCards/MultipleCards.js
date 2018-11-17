@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import { connect } from 'react-redux';
-import {deleteCard,  updateForm} from '../../actions';
+import {deleteCard,  updateForm, submitCard} from '../../actions';
 import {Header} from '../Header';
 import {Card} from './Card';
 import Form from './Form';
@@ -24,7 +24,7 @@ export class MultipleCards extends Component{
         < Header />
       {/*<h4 className="heading__tertiary u-mt-sm ">Create</h4>*/}
 
-        <Form />
+        <Form Submit ={this.Submit}/>
         <hr className="u-mt-sm u-mb-sm"/>
         <div className="row">
         {
@@ -37,11 +37,22 @@ export class MultipleCards extends Component{
       </div>
     );
   }
+  Submit = async () => {
+    // later find a more immutable way to get the master card title
+     let title = this.props.match.params;
+     console.log(` TTHIS IS IT  ${title}`);
+     let { cards } = this.props;
+     if(cards.length  !== 0)
+       this.props.submitCard(cards, title);
+  }
+
 }
 
 MultipleCards.propTypes ={
     cards: PropTypes.array.isRequired,
-    deleteCard: PropTypes.func
+    deleteCard: PropTypes.func,
+    updateForm: PropTypes.func,
+    submitCard: PropTypes.func
 }
 
 export const mapStateToProps = (state) => {
@@ -50,4 +61,4 @@ export const mapStateToProps = (state) => {
   };
 }
 
-export default connect(mapStateToProps,{deleteCard, updateForm})(MultipleCards);
+export default connect(mapStateToProps,{deleteCard, updateForm, submitCard})(MultipleCards);
