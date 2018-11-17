@@ -9,9 +9,8 @@ https://stackoverflow.com/questions/45429963/onenter-prop-in-react-router-v4
 No more onEnter, onChange, onLeave are deprecated in react-router v4
 
 
-Going to need an submit point for the MultipleCards section to send the master card  and small cards to the server side.
 
-Going to need a delete or update on the main cards. So i user can get ride of the card if they don't want it any more or they made an accident creating it.
+Going to need a delete or update on the main cards. So a user can get ride of the card if they don't want it any more or they made an accident creating it.
 
 Need to add a check box for the main card.
 which is to show the user that they can make their cards public. More the Mine route.
