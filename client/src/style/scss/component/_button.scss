@@ -3,11 +3,18 @@
   text-transform: uppercase;
   color: #ccc;
   &__add{
-    font-size: 4rem;
+    font-size: 3rem;
     background-color: #ff4500;
+    bottom: 8.5rem;
+    right: 2rem;
+    z-index: 10;
+  }
+  &__submit{
+    font-size: 4rem;
+    background-color: #003366;
     bottom: 1rem;
     right: 1rem;
-    z-index: 10;
+    z-index: 5;
   }
     &__update-show{
       animation: fadeIn 2s ease-in;
@@ -15,8 +22,9 @@
     }
   &__update{
     background-color: yellowgreen;
-    top: 20%;
-    right: 2rem;
+    // top: 20%;
+    bottom: 15rem;
+    right: 2.5rem;
     font-size: 2rem;
     z-index: 10;
     &-show{
@@ -31,7 +39,7 @@
     }
   }
 
-  &__add,&__update{
+  &__add, &__submit,&__update{
     border:none;
     position:fixed;
     padding: .25em .5em;
