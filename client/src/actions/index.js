@@ -19,14 +19,13 @@ import * as type from '../actions/types';
    }
  }
  // get the value from the params
- export const deleteMaster = (id)=>{
-  return async dispatch => {
-    // remove the card form the database id the easy task
-     await axios.delete(`/api/profile/MasterCard/${id}`);
+ export const deleteMaster = (id)=> async dispatch => {
+     // console.log(id);
+      await axios.delete( `/api/profile/MasterCard/${id}` );
      // Then we have to find the id of the card
-     dispatch( {type: type.DELETE_MASTER, payload: id } );
-   }
- }
+     dispatch( {type: type.DELETE_MASTER, payload: id} );
+}
+
  // put all master cards into a pool to be view by each user
  // havent created the pool yet in the server side
  export const publicMaster = (newCard)=>{
