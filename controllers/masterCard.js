@@ -14,9 +14,10 @@ module.exports = {
     res.send("update a master card");
   },
   deleteMasterCards : (req,res) =>{
-    console.log("delete a master card");
+    console.log("delete a master card "+ req.params.id);
     res.send("delete a master card");
   }
 };
+
 
 // CRUD

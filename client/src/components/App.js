@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 import MultipleCards from './MultipleCards/MultipleCards';
 import {Landing} from './Landing/Landing';
 import MasterCard from './MasterCard/MasterCard';
-import Mine from './Mine/Mine';
+import {Mine} from './Mine/Mine';
 import {More} from './More/More';
 import SmallCards from './SmallCards/SmallCards';
 // import SimpleMap from './SimpleMap';
