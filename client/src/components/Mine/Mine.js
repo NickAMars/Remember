@@ -1,9 +1,9 @@
 import React,{Component} from 'react';
-import { connect } from 'react-redux';
+// import { connect } from 'react-redux';
 import {Header} from '../Header';
 import {SearchBar} from './SearchBar';
-import {MasterCards} from './MasterCards';
-import { deleteMaster, updateMaster, publicMaster} from '../../actions';
+import MasterCards from './MasterCards';
+//* as actions
 // must keep track of state
 
 
@@ -32,7 +32,11 @@ ComponentDidMount(){
        <div className="master">
          <ul className="master__container">
           {
-            dummy.map(elem => <MasterCards key={elem.id} card={elem}/>)
+            dummy.map(elem =>
+               <MasterCards
+               key={elem.id}
+               masterinfo={elem}
+               />)
           }
          </ul>
        </div>
@@ -40,13 +44,13 @@ ComponentDidMount(){
    );
  }
 }
-export const mapStateToProps = (state) => {
-  return {
-    test: state.test
-  };
-}
+// export const mapStateToProps = (state) => {
+//   return {
+//     test: state.test
+//   };
+// }
 
-export default connect(mapStateToProps, { deleteMaster, updateMaster, publicMaster} )(Mine);
+// export default connect(mapStateToProps)(Mine);
   /*
     componentDidUpdate(){}
     @params prevProps, prevState, snapshot
