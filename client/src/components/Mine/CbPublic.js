@@ -12,7 +12,7 @@ export  const CbPublic  = (props)=>{
     }
   }
   return (
-    <input type="checkbox" id="create" onClick={publicCheckBox} className="master__checkbox"/>
+    <input style={ !props.visible ? { display: 'block'} : {display:'none'} } type="checkbox" id="create" onClick={publicCheckBox} className="master__checkbox"/>
   );
 };
 
