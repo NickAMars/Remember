@@ -59,29 +59,21 @@ class MasterCard extends Component{
         <div className="create">
           <h4 className="heading__quaternary u-mb-md">Create Main Cards</h4>
 
-          <input type="checkbox" id="create" className="checkbox"/>
-          <label htmlFor="create" className="checkbox__label">
+          <input type="checkbox" id="create__checkbox" className="checkbox"/>
+          <label htmlFor="create__checkbox" className="checkbox__label">
             <span className="checkbox__btn">&nbsp;</span>
           </label>
 
 
           <div className="create__contrainer ">
             <div className="create__cards  u-mb-sm">
-
               <div className="create__field">
                 <input onChange={(event) => this.setState( {title:event.target.value} )} type="text" value={this.state.title} id="title" className="input__master-title" maxLength="32" />
               </div>
-              <div className="create__view">
-                <div className="card__view">
-                  <div className="card__view-title">{this.state.title}</div>
-                </div>
+              <div className="create__cta u-mb-sm">
+                <Link to={`/main/subcards/${this.state.title}`} className="create__cta-btn "> Create Master Card </Link>
               </div>
             </div>
-            <div className="create__cta u-mb-sm">
-              <Link to={`/main/subcards/${this.state.title}`} className="create__cta-btn "> Create Master Card </Link>
-            </div>
-
-
           </div>
         </div>
 
@@ -94,8 +86,30 @@ const mapStateToProps = (state) => {
     test: state.test
   };
 }
-
-// const mapDispatchToProps = (dispatch) =>{
-//   return bindActionCreators({testServer: testServer}, dispatch);
-// }
 export default connect(mapStateToProps, {serverTest})(MasterCard);
+
+
+
+/*
+
+<div className="create">
+  <h4 className="heading__quaternary u-mb-md">Create Main Cards</h4>
+
+  <input type="checkbox" id="create__checkbox" className="checkbox"/>
+  <label htmlFor="create__checkbox" className="checkbox__label">
+    <span className="checkbox__btn">&nbsp;</span>
+  </label>
+
+
+  <div className="create__contrainer ">
+    <div className="create__cards  u-mb-sm">
+      <div className="create__field">
+        <input onChange={(event) => this.setState( {title:event.target.value} )} type="text" value={this.state.title} id="title" className="input__master-title" maxLength="32" />
+      </div>
+      <div className="create__cta u-mb-sm">
+        <Link to={`/main/subcards/${this.state.title}`} className="create__cta-btn "> Create Master Card </Link>
+      </div>
+    </div>
+  </div>
+</div>
+*/
