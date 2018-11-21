@@ -1,8 +1,8 @@
 import React,{Component} from 'react';
-// import { connect } from 'react-redux';
 import {Header} from '../Header';
 import {SearchBar} from './SearchBar';
 import MasterCards from './MasterCards';
+import MasterForm from './MasterForm';
 //* as actions
 // must keep track of state
 
@@ -19,6 +19,9 @@ ComponentDidMount(){
   // call to get information from the data base
   // There is also a redux life cycle method that can do this properly
 }
+
+ // update one mastercar
+
  render(){
    // console.log(this.props);
    return (
@@ -28,7 +31,7 @@ ComponentDidMount(){
        </div>
        < Header />
        <SearchBar/>
-
+       <MasterForm/>
        <div className="master">
          <ul className="master__container">
           {
