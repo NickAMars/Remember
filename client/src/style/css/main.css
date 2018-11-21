@@ -379,7 +379,7 @@ body {
 .checkbox__label {
   position: relative;
   left: 50%;
-  top: -2em;
+  top: -4em;
   transform: translateX(-50%); }
 
 .checkbox__btn {
@@ -390,7 +390,6 @@ body {
   display: inline-block;
   position: absolute;
   left: 0;
-  top: -1.5em;
   cursor: pointer; }
 
 .checkbox__btn::after {
@@ -429,13 +428,12 @@ body {
 
 .create__cards {
   display: flex;
-  justify-content: space-between; }
+  justify-content: space-around; }
   @media only screen and (max-width: 900px) {
     .create__cards {
       flex-direction: column; } }
 
 .create__field {
-  padding: 1rem;
   flex: 0 0 40%;
   display: flex;
   flex-direction: column; }
@@ -445,26 +443,6 @@ body {
   padding: 1rem;
   display: flex;
   flex-direction: column; }
-
-.card__view {
-  width: 250px;
-  align-self: center;
-  background-color: #eee;
-  padding: 3rem 2.5rem;
-  border-radius: 5px;
-  position: relative;
-  box-shadow: 0 0.8rem 1.2rem rgba(0, 0, 0, 0.3); }
-  @media only screen and (max-width: 600px) {
-    .card__view {
-      padding: 4rem 2.5rem; } }
-
-.card__view-title {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  font-size: 1.5rem;
-  color: #aaa; }
 
 .input__master-title {
   color: #aaa;
@@ -482,7 +460,7 @@ body {
   outline: none;
   width: 280px; }
 
-.create__cta-btn:link, .create__cta-btn:visited {
+.create__cta-btn, .create__cta-btn:link, .create__cta-btn:visited {
   width: 200px;
   padding: 2rem 3rem;
   color: white;
@@ -499,12 +477,12 @@ body {
   transition: all .5s; }
 
 .create__cta-btn:hover {
-  transform: translateY(-4px);
+  transform: translateY(-3px);
   box-shadow: 0 0.8rem 1rem rgba(0, 0, 0, 0.2); }
 
 .create__cta-btn:focus, .create__cta-btn:active {
   outline: none;
-  transform: translateY(-2px);
+  transform: translateY(-1px);
   box-shadow: 0 0.3rem 0.8rem rgba(0, 0, 0, 0.4); }
 
 .table {

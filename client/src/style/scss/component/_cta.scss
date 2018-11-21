@@ -1,7 +1,7 @@
 .create__cta{
   // background-color: purple;
 }
-.create__cta-btn:link, .create__cta-btn:visited{
+.create__cta-btn, .create__cta-btn:link, .create__cta-btn:visited{
   width: 200px;
   padding: 2rem 3rem;
   color: white;
@@ -18,11 +18,11 @@
   transition: all .5s;
 }
 .create__cta-btn:hover{
-  transform:  translateY(-4px);
+  transform:  translateY(-3px);
   box-shadow: 0 .8rem 1rem rgba(#000, .2);
 }
 .create__cta-btn:focus, .create__cta-btn:active {
   outline:none;
-  transform:  translateY(-2px);
+  transform:  translateY(-1px);
   box-shadow: 0 .3rem .8rem rgba(#000, .4);
 }

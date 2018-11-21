@@ -5,7 +5,7 @@
 .checkbox__label{
   position: relative;
   left: 50%;
-  top : -2em;
+  top : -4em;
   transform: translateX(-50%);
 }
 
@@ -17,7 +17,7 @@
   display: inline-block;
   position:absolute;
   left:0;
-  top: -1.5em;
+  // top: -1.5em;
   cursor: pointer;
 }
 

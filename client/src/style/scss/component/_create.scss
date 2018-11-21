@@ -16,7 +16,7 @@
 }
 .create__cards{
   display:flex;
-  justify-content: space-between;
+  justify-content: space-around;
   // background-color: pink;
   @media only screen and (max-width: 900px){
     flex-direction: column;
@@ -24,7 +24,7 @@
 }
 
 .create__field{
-  padding: 1rem;
+  // padding: 1rem;
   // background-color: orange;
   flex:0 0 40%;
   display:flex;
@@ -40,28 +40,28 @@
 
 
 
-.card__view{
-  width: 250px;
-  align-self: center;
-  background-color: #eee;
-  padding: 3rem 2.5rem;
-  border-radius: 5px;
-  position: relative;
-  box-shadow: 0 .8rem 1.2rem rgba(#000, .3);
-  // some reason my padding changes so this is a temporary fix till i find a better solution
-  @media only screen and (max-width: 600px){
-      padding: 4rem 2.5rem;
-  }
-}
+// .card__view{
+//   width: 250px;
+//   align-self: center;
+//   background-color: #eee;
+//   padding: 3rem 2.5rem;
+//   border-radius: 5px;
+//   position: relative;
+//   box-shadow: 0 .8rem 1.2rem rgba(#000, .3);
+//   // some reason my padding changes so this is a temporary fix till i find a better solution
+//   @media only screen and (max-width: 600px){
+//       padding: 4rem 2.5rem;
+//   }
+// }
 
-.card__view-title{
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  font-size: 1.5rem;
-  color: #aaa;
-}
+// .card__view-title{
+//   position: absolute;
+//   top: 50%;
+//   left: 50%;
+//   transform: translate(-50%, -50%);
+//   font-size: 1.5rem;
+//   color: #aaa;
+// }
 
 .input__master-title{
   color: #aaa;
