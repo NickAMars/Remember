@@ -6,4 +6,5 @@ export const ADD_CARD      = "ADD_CARD",
              SUBMIT_CARD   = "SUBMIT_CARD",
              DELETE_MASTER = "DELETE_MASTER",
              UPDATE_MASTER = "UPDATE_MASTER",
-             PUBLIC_MASTER = "PUBLIC_MASTER";
+             PUBLIC_MASTER = "PUBLIC_MASTER",
+             MASTER_FORM   = "MASTER_FORM";

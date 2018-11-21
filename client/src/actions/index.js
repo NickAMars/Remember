@@ -2,6 +2,13 @@
 import * as type from '../actions/types';
 
 
+
+export const showMasterForm = (flag,idMaster, title)=>{
+  return {
+  type: type.MASTER_FORM,
+  payload: {visible: flag, id: idMaster, title}
+  }
+}
  export const serverTest = (newCard)=>{
   return async dispatch => {
      const res = await axios.get('/api/profile/MasterCard');
