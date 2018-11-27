@@ -3,6 +3,7 @@ import {Header} from '../Header';
 import {SearchBar} from './SearchBar';
 import MasterCards from './MasterCards';
 import MasterForm from './MasterForm';
+import { connect } from 'react-redux';
 //* as actions
 // must keep track of state
 
@@ -13,17 +14,19 @@ const dummy = [ {id:"kiss", title:"Toni", date:"november 2,2017"},
                 {id:"No", title:"Conflict", date:"september 16, 2018"},
                 {id:"Dreams", title:"Realize", date:"March 14, 2018"}
             ];
-
-export class Mine extends Component{
+class Mine extends Component{
 ComponentDidMount(){
   // call to get information from the data base
   // There is also a redux life cycle method that can do this properly
 }
+// constructor(props){
+//   super(props);
+// }
 
  // update one mastercar
 
  render(){
-   // console.log(this.props);
+
    return (
      <div className="remember">
        <div className="header-box">
@@ -39,21 +42,23 @@ ComponentDidMount(){
                <MasterCards
                key={elem.id}
                masterinfo={elem}
+               visible={this.props.visible}
                />)
           }
+
          </ul>
        </div>
      </div>
    );
  }
 }
-// export const mapStateToProps = (state) => {
-//   return {
-//     test: state.test
-//   };
-// }
+const mapStateToProps = (state) => {
+  return {
+    test: state.test
+  };
+}
 
-// export default connect(mapStateToProps)(Mine);
+export default connect(mapStateToProps)(Mine);
   /*
     componentDidUpdate(){}
     @params prevProps, prevState, snapshot

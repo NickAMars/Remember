@@ -3,6 +3,22 @@ import * as type from '../actions/types';
 
 
 
+
+export const getMyCards = (pathname)=>{
+ return async dispatch => {
+    const res = await axios.get('/api/profile/MasterCard');
+    dispatch( {type: type.MYCARDS, payload: res.data } );
+  }
+}
+
+export const getPoolCards= (pathname)=>{
+ return async dispatch => {
+    // const res = await axios.get('/api/PoolCards');POOLCARDS
+    const res= await "pool of cards that are public"
+    dispatch( {type: type.POOLCARDS, payload: res.data } );
+  }
+}
+
 export const showMasterForm = (flag,idMaster, title)=>{
   return {
   type: type.MASTER_FORM,

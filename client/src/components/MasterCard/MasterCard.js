@@ -12,6 +12,7 @@ class MasterCard extends Component{
   // from the database with the top amount result from yesterday
   componentDidMount(){
     this.props.serverTest();
+    // console.log("props",this.props);
    // call action creater which places the result into the state
   }
   constructor(props){
@@ -57,12 +58,7 @@ class MasterCard extends Component{
             </div>
         </div>
         <div className="create">
-          <h4 className="heading__quaternary u-mb-md">Create Main Cards</h4>
-
-          <input type="checkbox" id="create__checkbox" className="checkbox"/>
-          <label htmlFor="create__checkbox" className="checkbox__label">
-            <span className="checkbox__btn">&nbsp;</span>
-          </label>
+          <h4 className="heading__quaternary u-sb-md">Create Main Cards</h4>
 
 
           <div className="create__contrainer ">

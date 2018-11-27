@@ -12,7 +12,7 @@ export  const CbPublic  = (props)=>{
     }
   }
   return (
-    <input style={ !props.visible ? { display: 'block'} : {display:'none'} } type="checkbox" id="create" onClick={publicCheckBox} className="master__checkbox"/>
+    <input  type="checkbox" id="create" onClick={publicCheckBox} className="master__checkbox"/>
   );
 };
 
@@ -23,3 +23,5 @@ export  const CbPublic  = (props)=>{
 
 
 // const Mak
+
+// style={ !props.visible ? { display: 'block'} : {display:'none'} }

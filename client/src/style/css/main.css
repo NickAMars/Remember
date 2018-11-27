@@ -373,43 +373,6 @@ body {
   .row > * {
     margin-left: 2rem; }
 
-.checkbox {
-  display: none; }
-
-.checkbox__label {
-  position: relative;
-  left: 50%;
-  top: -4em;
-  transform: translateX(-50%); }
-
-.checkbox__btn {
-  height: 3em;
-  width: 3em;
-  border: 5px solid red;
-  border-radius: 50%;
-  display: inline-block;
-  position: absolute;
-  left: 0;
-  cursor: pointer; }
-
-.checkbox__btn::after {
-  content: "";
-  display: none;
-  height: 1.3em;
-  width: 1.3em;
-  border-radius: 50%;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background-color: red; }
-
-.checkbox:checked + .checkbox__label .checkbox__btn::after {
-  display: block; }
-
-.checkbox:not(:checked) ~ .create__contrainer {
-  display: none; }
-
 .xcontainer-main {
   display: flex;
   justify-content: space-around;
@@ -437,6 +400,9 @@ body {
   flex: 0 0 40%;
   display: flex;
   flex-direction: column; }
+  @media only screen and (max-width: 900px) {
+    .create__field {
+      margin-bottom: 1rem; } }
 
 .create__view {
   flex: 0 0 40%;
@@ -573,7 +539,7 @@ body {
 
 .search {
   min-height: 4.5rem;
-  background-color: pink;
+  padding: 2rem;
   width: 100%;
   display: flex;
   justify-content: center;

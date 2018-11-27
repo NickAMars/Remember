@@ -8,8 +8,8 @@ import { deleteMaster, publicMaster,showMasterForm} from '../../actions';
 // camil case
 // pass keys to this items when mapping over object
 // export const MasterCards = (props) =>{
-  // update the date and the title with the props
-  export class MasterCards extends Component{
+// update the date and the title with the props
+export class MasterCards extends Component{
     constructor(props){
       super(props);
       this.state = {visible: false};
@@ -22,20 +22,18 @@ import { deleteMaster, publicMaster,showMasterForm} from '../../actions';
     }
     render(){
       const {title, date,id} = this.props.masterinfo;
+      // delMaster={this.props.deleteMaster} updMaster={this.props.showMasterForm} masterid={id}
       return (
             <li className="master__items">
-                <Buttons title={title} visible={this.state.visible} delMaster={this.props.deleteMaster} updMaster={this.props.showMasterForm} masterid={id}/>
-                <CbPublic visible={this.state.visible} pubinfo={this.props.masterinfo} />
-
+              {!this.state.visible && this.props.visible && <Buttons {...this.props}/>}
+              {!this.state.visible && this.props.visible && <CbPublic  pubinfo={this.props.masterinfo} />}
               <Link  to={`/smallcards/${id}`} className="master__links">
-
                 <span className="master__title">{title}</span>
                 <span className="master__date">{date}</span>
               </Link>
             </li>
-      );
+          );
     }
-
   }
 
   export const mapStateToProps = (state) => {
@@ -45,4 +43,4 @@ import { deleteMaster, publicMaster,showMasterForm} from '../../actions';
   }
   export default connect(mapStateToProps,{deleteMaster, publicMaster, showMasterForm} )(MasterCards);
 
-// }
+// didnt know i could do that

@@ -10,7 +10,6 @@ export default  function (state = {}, action) {
       // console.log(action.payload);
     return action.payload;
     case DELETE_MASTER:
-      console.log(action.payload);
     // do a filter removing the one with the id from the list
       return {id:`Working ${action.payload}`};
     case TEST_CARD:

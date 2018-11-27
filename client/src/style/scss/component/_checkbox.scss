@@ -1,43 +1,43 @@
-.checkbox{
-  display:none;
-  // margin: 0 auto;
-}
-.checkbox__label{
-  position: relative;
-  left: 50%;
-  top : -4em;
-  transform: translateX(-50%);
-}
+// .checkbox{
+//   display:none;
+//   // margin: 0 auto;
+// }
+// .checkbox__label{
+//   position: relative;
+//   left: 50%;
+//   top : -4em;
+//   transform: translateX(-50%);
+// }
 
-.checkbox__btn{
-  height: 3em;
-  width: 3em;
-  border: 5px solid red;
-  border-radius: 50%;
-  display: inline-block;
-  position:absolute;
-  left:0;
-  // top: -1.5em;
-  cursor: pointer;
-}
+// .checkbox__btn{
+//   height: 3em;
+//   width: 3em;
+//   border: 5px solid red;
+//   border-radius: 50%;
+//   display: inline-block;
+//   position:absolute;
+//   left:0;
+//   // top: -1.5em;
+//   cursor: pointer;
+// }
 
-.checkbox__btn::after{
-  content: "";
-  display: none;
-  height: 1.3em;
-  width:1.3em;
-  border-radius: 50%;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background-color:red;
-}
+// .checkbox__btn::after{
+//   content: "";
+//   display: none;
+//   height: 1.3em;
+//   width:1.3em;
+//   border-radius: 50%;
+//   position: absolute;
+//   top: 50%;
+//   left: 50%;
+//   transform: translate(-50%, -50%);
+//   background-color:red;
+// }
 // the center has been removeed
-.checkbox:checked +  .checkbox__label .checkbox__btn::after{
-  display:block;
-}
+// .checkbox:checked +  .checkbox__label .checkbox__btn::after{
+//   display:block;
+// }
 //  ruser can't create anything until the check has  been click
-.checkbox:not(:checked) ~  .create__contrainer{
-  display:none;
-}
+// .checkbox:not(:checked) ~  .create__contrainer{
+//   display:none;
+// }
