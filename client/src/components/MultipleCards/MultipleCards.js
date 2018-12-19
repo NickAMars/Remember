@@ -15,7 +15,7 @@ the user have access to from there main cards
 
 export class MultipleCards extends Component{
   render(){
-
+    // console.log(this.props.user);
     return (
       <div className="remember">
         <div className="header-box">
@@ -39,11 +39,11 @@ export class MultipleCards extends Component{
   }
   Submit = async () => {
     // later find a more immutable way to get the master card title
-     let title = this.props.match.params;
-     console.log(` TTHIS IS IT  ${title}`);
-     let { cards } = this.props;
+     const {title} = this.props.match.params;
+     // const user = this.props.user;
+     const { cards } = this.props;
      if(cards.length  !== 0)
-       this.props.submitCard(cards, title);
+       this.props.submitCard( title, cards);
   }
 
 }
@@ -57,7 +57,8 @@ MultipleCards.propTypes ={
 
 export const mapStateToProps = (state) => {
   return {
-    cards: state.cards
+    cards: state.cards,
+    user: state.user
   };
 }
 

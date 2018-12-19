@@ -4,10 +4,9 @@ import MultipleCards from './MultipleCards/MultipleCards';
 import {Landing} from './Landing/Landing';
 import MasterCard from './MasterCard/MasterCard';
 import Mine from './Mine/Mine';
-// import More from './More/More';
-// import SmallCards from './SmallCards/SmallCards';
+import SmallCards from './SmallCards/SmallCards';
 import { connect } from 'react-redux';
-import { getMyCards, getPoolCards} from '../actions';
+import { getMyCards, getPoolCards, fetchUser} from '../actions';
 // import SimpleMap from './SimpleMap';
 import anchor from '../img/SVG/anchor.svg';
 // import  {TestMasterCards} from './route_callbacks.js';
@@ -19,9 +18,14 @@ const test = () =>{
     </div>
   );
 }
+
 //mastercard goes to the beginning card
 // mastercard/subcards - goes to the sub card field
 class App extends Component{
+  componentDidMount(){
+    this.props.fetchUser();
+  }
+
   render(){
     return(
         <Router >
@@ -30,7 +34,8 @@ class App extends Component{
             <Route path='/test' component={test} />
             <Route path='/main/subcards/:title' component={MultipleCards} />
             {/*SAME COMPONENT NEED TO FIND A WAY TO REUSE COMPONENT ON DIRECT TO ROUTE*/}
-            <Route path='/smallcards/:idMaster'  component={MultipleCards} />
+
+            <Route path='/smallcards/:idMaster'  component={SmallCards} />
             <Route path='/more' render={ ({location}) => {
               this.props.getMyCards(location.pathname);
               return <Mine  visible={false}/>;
@@ -49,15 +54,10 @@ class App extends Component{
         </Router>
       )
     };
+    
 }
 
-//SmallCards
-
-
-// use redux methods to get all the master cards for the  OwnMasterCards and Group
-// these two field are identical because the only show the mainCard which are 200px width and 100px hight
-// export default App;
-  export default connect(null,{getMyCards, getPoolCards})(App);
+  export default connect(null,{getMyCards, getPoolCards, fetchUser})(App);
 
  // <Route path='/nav' component={Header} />
 // <Route path='/map' component={SimpleMap} />

@@ -19,11 +19,6 @@ ComponentDidMount(){
   // call to get information from the data base
   // There is also a redux life cycle method that can do this properly
 }
-// constructor(props){
-//   super(props);
-// }
-
- // update one mastercar
 
  render(){
 
@@ -59,8 +54,3 @@ const mapStateToProps = (state) => {
 }
 
 export default connect(mapStateToProps)(Mine);
-  /*
-    componentDidUpdate(){}
-    @params prevProps, prevState, snapshot
-  */
-//ComponentWillUnMount(){}

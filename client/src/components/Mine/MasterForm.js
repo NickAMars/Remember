@@ -11,12 +11,7 @@ class MasterForm extends Component{
     this.inputRef = React.createRef();
   }
 
-  /*
-    i cant update the input in the componentWillReceiveProps
-     phase   this.setState({ title:nextProps.test.title})
-  */
   componentWillReceiveProps(nextProps){
-    // console.log("WillRecieveProps");
     if(nextProps.test.visible !== this.state.visible){
       this.setState((state, props)=>{
         return {visible: nextProps.test.visible};
@@ -35,8 +30,6 @@ class MasterForm extends Component{
   updateMasterCard(event){
     event.preventDefault();
     let date = new Date().toDateString();
-    // console.log('refer',this.inputRef.current.value);
-    //pass in the id and the new title dont need to sent the date
     this.props.updateMaster(this.props.test.id, { title:this.inputRef.current.value, date});
     this.props.showMasterForm(false);
   }

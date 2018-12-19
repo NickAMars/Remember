@@ -7,7 +7,7 @@ export class Header extends Component{
 
     // store that id in the redux store. where i can get it at any time
 
-    //but i also need to stop from call the server all the time 
+    //but i also need to stop from call the server all the time
   }
 
   render(){
@@ -23,7 +23,7 @@ export class Header extends Component{
           <img className="tool-bar__item" src={cog} alt='X'/>
           <ul className="nav-logout">
           {/*ask the user if the want log out*/}
-            <li className="nav-logout__item"><Link to="/" className="nav-logout__link-log">LogOut</Link></li>
+            <li className="nav-logout__item"><a  href="/api/logout" className="nav-logout__link-log">LogOut</a></li>
             <li className="nav-logout__item"><Link  to="/" className="nav-logout__link-log">Setting</Link></li>
           </ul>
         </div>
