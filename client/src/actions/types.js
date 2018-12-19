@@ -1,4 +1,5 @@
-export const ADD_CARD      = "ADD_CARD",
+export const FETCH_USER    = "FETCH_USER",
+             ADD_CARD      = "ADD_CARD",
              UPDATE_CARD   = "UPDATE_CARD",
              DELETE_CARD   = "DELETE_CARD",
              UPDATE_FORM   = "UPDATE_FORM",

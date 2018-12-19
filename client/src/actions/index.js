@@ -4,6 +4,14 @@ import * as type from '../actions/types';
 
 
 
+
+
+export const  fetchUser = () =>
+  async dispatch => {
+    const res = await axios.get('/api/profile');
+    dispatch( {type: type.FETCH_USER, payload: res.data } );
+  }
+
 export const getMyCards = (pathname)=>{
  return async dispatch => {
     const res = await axios.get('/api/profile/MasterCard');
@@ -25,6 +33,9 @@ export const showMasterForm = (flag,idMaster, title)=>{
   payload: {visible: flag, id: idMaster, title}
   }
 }
+
+
+
  export const serverTest = (newCard)=>{
   return async dispatch => {
      const res = await axios.get('/api/profile/MasterCard');
@@ -49,6 +60,7 @@ export const showMasterForm = (flag,idMaster, title)=>{
      dispatch( {type: type.DELETE_MASTER, payload: id} );
 }
 
+
  // put all master cards into a pool to be view by each user
  // havent created the pool yet in the server side
  export const publicMaster = (newCard)=>{
@@ -57,11 +69,11 @@ export const showMasterForm = (flag,idMaster, title)=>{
      dispatch( {type: type.PUBLIC_MASTER, payload: res.data } );
    }
  }
+
+
+
+// Initially making all the small cards
 export const addCard = (card)=>{
-  // this process is never to go to the back end
-  // i will use a cookie to store the cards so that when
-  // the user refresh the screen all the cards arnt lost
-  // will apply in the memory section
   return {
     type: type.ADD_CARD,
     payload: card
@@ -73,9 +85,6 @@ export const deleteCard = (id)=>{
   payload: id
   }
 }
-/*
-  @param ID, Title, Description
-*/
 export const updateCard = (newCard)=>{
   return {
   type: type.UPDATE_CARD,
@@ -83,10 +92,6 @@ export const updateCard = (newCard)=>{
   }
 }
 
-/*
- send a true value to the form field which  display icon button to update card
-  @param ID, Title, Description
-*/
 export const updateForm = (newCard)=>{
   return {
   type: type.UPDATE_FORM,
@@ -94,28 +99,12 @@ export const updateForm = (newCard)=>{
   }
 }
 
-export const submitCard= (allcards, masterTitle)=>{
-  let data = { cards :allcards, title: masterTitle };
+
+
+export const submitCard =  (title, cards)=>{
+  let data = { title , cards };
  return async dispatch => {
     const res = await axios.post('/api/profile/MasterCard',data);
     dispatch( {type: type.SUBMIT_CARD, payload: res.data } );
   }
 }
-
-//  async (allcards, masterTitle)=>{
-//   // have a post request which send
-//   let data = { cards :allcards, title: masterTitle };
-//   const res = await axios.post('/api/profile/MasterCard',data);
-//   console.log(res);
-//   return {
-//   type: SUBMIT_CARD,
-//   payload: res
-//   }
-// }
-
-//Test dispatch method from server
-// export const testServer = () =>
-//   async dispatch => {
-//     const res = await axios.get('/api/profile/MasterCard');
-//     dispatch( {type: TEST_CARD, payload: res.data } );
-//
