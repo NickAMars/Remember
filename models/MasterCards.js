@@ -18,7 +18,11 @@ const masterCardSchema = new Schema({
      ref: "subcards"
    }
  ],
- progress: [progressSchema]
+ progress: [progressSchema],
+ user:{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "users"
+ }
 });
 
 // count the subcard length
