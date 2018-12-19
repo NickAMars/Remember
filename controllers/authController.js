@@ -15,9 +15,8 @@ module.exports = {
   facebook:     passport.authenticate('facebook', {scope : ['email']}),
   facebookCB:   (req, res) =>{res.redirect('/main')},
   logout: (req,res) =>{
-    console.log(req.user)
     req.logout();
-    res.send(req.user);
+    res.redirect('/');
   }
 }
 /*
