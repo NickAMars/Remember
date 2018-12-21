@@ -1,9 +1,10 @@
 import React, {Component} from  'react';
 import { BrowserRouter as Router, Switch, Route} from 'react-router-dom';
-import MultipleCards from './MultipleCards/MultipleCards';
-import {Landing} from './Landing/Landing';
-import MasterCard from './MasterCard/MasterCard';
-import Mine from './Mine/Mine';
+import MultipleCards from './MultipleCards';
+import {Landing} from './Landing';
+import Register from './Register';
+import MasterCard from './MasterCard';
+import Mine from './Mine';
 import SmallCards from './SmallCards/SmallCards';
 import { connect } from 'react-redux';
 import { getMyCards, getPoolCards, fetchUser} from '../actions';
@@ -32,6 +33,7 @@ class App extends Component{
         <div>
           <Switch>
             <Route path='/test' component={test} />
+            <Route path='/register' component={Register} />
             <Route path='/main/subcards/:title' component={MultipleCards} />
             {/*SAME COMPONENT NEED TO FIND A WAY TO REUSE COMPONENT ON DIRECT TO ROUTE*/}
 
@@ -54,7 +56,7 @@ class App extends Component{
         </Router>
       )
     };
-    
+
 }
 
   export default connect(null,{getMyCards, getPoolCards, fetchUser})(App);

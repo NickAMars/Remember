@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import { Link } from 'react-router-dom';
-import google from  '../../img/SVG/google-plus3.svg';
-import facebook from  '../../img/SVG/facebook2.svg';
+// import google from  '../../img/SVG/google-plus3.svg';
+// import facebook from  '../../img/SVG/facebook2.svg';
 export class SignIn extends Component{
   constructor(props){
     super(props);
@@ -39,11 +39,13 @@ export class SignIn extends Component{
           <div className="formA__group">
 
             <Link className="btnA btnA--green " to="/main">Sign in &rarr;</Link>
+            {/*<a className="btnA btnA--green " href="/auth/google"  to="/auth/login">Sign in &rarr;</a>*/}
           </div>
-
-
-          <a href="/auth/google" className="btnA__svg"> <img src={google} alt='google'/> </a>
-          <a href="/auth/facebook" className="btnA__svg"> <img src={facebook} alt='facebook'/> </a>
+          <Link className="" to="/register" >Register &rarr;</Link>
+          {/*
+            <a href="/auth/google" className="btnA__svg"> <img src={google} alt='google'/> </a>
+            <a href="/auth/facebook" className="btnA__svg"> <img src={facebook} alt='facebook'/> </a>
+            */}
 
       </div>
     );

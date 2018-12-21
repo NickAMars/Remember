@@ -256,7 +256,7 @@ body {
       margin-top: 4rem;
       flex: 0 1 100%; } }
   .formA__group:not(:last-child) {
-    margin-bottom: 2rem; }
+    margin-bottom: .5rem; }
   .formA__input {
     border: none;
     border-radius: 2rem;
