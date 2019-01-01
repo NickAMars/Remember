@@ -1,6 +1,6 @@
 import React, {Component } from 'react';
 import { connect } from 'react-redux';
-import {updateMaster,showMasterForm} from '../../actions';
+import {updateMaster,showMasterForm} from '../../../actions';
 class MasterForm extends Component{
   // pass a changable value to initialize state
   // state = { title : "" , visible:false};
@@ -13,19 +13,13 @@ class MasterForm extends Component{
 
   componentWillReceiveProps(nextProps){
     if(nextProps.test.visible !== this.state.visible){
+      // console.log(nextProps);
       this.setState((state, props)=>{
         return {visible: nextProps.test.visible};
       }) ;
     }
   }
   // componentDidUpdate(prevProps, prevState){
-  //   // console.log(prevProps);
-  //   // if(prevProps.test){
-  //   if(prevProps.test.visible !== this.state.visible)
-  //   this.setState({ title: prevProps.test.title}) ;
-  //   console.log("DidUpdate");
-  //
-  //   // }
   // }
   updateMasterCard(event){
     event.preventDefault();
@@ -51,7 +45,7 @@ class MasterForm extends Component{
   }
 }
 
-export const mapStateToProps = (state) => {
+const mapStateToProps = (state) => {
   return {
     test: state.test
   };

@@ -10,6 +10,7 @@ module.exports = {
   createMasterCards : async (req,res) =>{
     // console.log("create one master card");
     const {title, cards } = req.body;
+
     // console.log(req.user);
     console.log(title);
     const findUser = await User.findById(req.user);

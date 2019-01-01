@@ -1,23 +1,17 @@
 import React, {Component} from 'react';
-import {Header} from '../Header';
+// import {Header} from '../Header';
 import { Link } from 'react-router-dom';
-import {SmallCard} from  './smallCard';
+import {TopFiveCard} from '../Helper/Cards';
 import {Graph} from  './graph';
-import { serverTest } from '../../actions';
-// import {bindActionCreators} from 'redux';
 import { connect } from 'react-redux';
-// import TopFive from './TopFive';
 class MasterCard extends Component{
-  // when the component has mounted then we are going to get the cards
-  // from the database with the top amount result from yesterday
   componentDidMount(){
-    this.props.serverTest();
+    // this.props.serverTest();
     // console.log("props",this.props);
    // call action creater which places the result into the state
   }
   constructor(props){
     super(props);
-    // wnat to hold 5 cards which are the best of the user
     this.state = {
       title: "I love what i do",
       // this is just temporary values
@@ -33,13 +27,12 @@ class MasterCard extends Component{
 
 
   render(){
-    // console.log(this.props.test);
     return (
       <div>
         <div className="header-box">
           <h1 className="heading__primary heading__primary--pink u-mt-sm ">Remember</h1>
         </div>
-        < Header />
+      {/* < Header />*/}
 
         <div className="xcontainer-main u-mb-md">
             <div className="topcards">
@@ -47,7 +40,7 @@ class MasterCard extends Component{
               <ul className="list">
                  {
                     this.state.cards.map( function(master, index){
-                      return ( <SmallCard key={master._id} cards={master}/>  );
+                      return ( <TopFiveCard key={master._id} cards={master}/>  );
                     })
                  }
                </ul>
@@ -63,9 +56,11 @@ class MasterCard extends Component{
 
           <div className="create__contrainer ">
             <div className="create__cards  u-mb-sm">
+
               <div className="create__field">
                 <input onChange={(event) => this.setState( {title:event.target.value} )} type="text" value={this.state.title} id="title" className="input__master-title" maxLength="32" />
               </div>
+
               <div className="create__cta u-mb-sm">
                 <Link to={`/main/subcards/${this.state.title}`} className="create__cta-btn "> Create Master Card </Link>
               </div>
@@ -82,30 +77,4 @@ const mapStateToProps = (state) => {
     test: state.test
   };
 }
-export default connect(mapStateToProps, {serverTest})(MasterCard);
-
-
-
-/*
-
-<div className="create">
-  <h4 className="heading__quaternary u-mb-md">Create Main Cards</h4>
-
-  <input type="checkbox" id="create__checkbox" className="checkbox"/>
-  <label htmlFor="create__checkbox" className="checkbox__label">
-    <span className="checkbox__btn">&nbsp;</span>
-  </label>
-
-
-  <div className="create__contrainer ">
-    <div className="create__cards  u-mb-sm">
-      <div className="create__field">
-        <input onChange={(event) => this.setState( {title:event.target.value} )} type="text" value={this.state.title} id="title" className="input__master-title" maxLength="32" />
-      </div>
-      <div className="create__cta u-mb-sm">
-        <Link to={`/main/subcards/${this.state.title}`} className="create__cta-btn "> Create Master Card </Link>
-      </div>
-    </div>
-  </div>
-</div>
-*/
+export default connect(mapStateToProps, null)(MasterCard);

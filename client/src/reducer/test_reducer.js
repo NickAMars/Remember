@@ -7,6 +7,7 @@ import { TEST_CARD, SUBMIT_CARD, DELETE_MASTER,MASTER_FORM}  from '../actions/ty
 export default  function (state = {}, action) {
   switch(action.type){
     case MASTER_FORM:
+    console.log(action.payload);
       // console.log(action.payload);
     return action.payload;
     case DELETE_MASTER:

@@ -1,9 +1,12 @@
-import React,{Component} from 'react';
-import {Header} from '../Header';
-import {SearchBar} from './SearchBar';
-import MasterCards from './MasterCards';
-import MasterForm from './MasterForm';
-import { connect } from 'react-redux';
+import React,{Component} from 'react'
+import { connect } from 'react-redux'
+// import {Header} from '../Header';
+
+// import
+// ,MasterCards
+// import  { SearchBar} from './Fields'
+import  {MasterCard} from '../Helper/Cards'
+import {MasterForm,SearchBar} from '../Helper/Form'
 //* as actions
 // must keep track of state
 
@@ -21,20 +24,20 @@ ComponentDidMount(){
 }
 
  render(){
-
+    // console.log(this.props);
    return (
      <div className="remember">
        <div className="header-box">
          <h1 className="heading__primary heading__primary--pink u-mt-sm ">Remember</h1>
        </div>
-       < Header />
+       {/*< Header />*/}
        <SearchBar/>
        <MasterForm/>
        <div className="master">
          <ul className="master__container">
           {
             dummy.map(elem =>
-               <MasterCards
+               <MasterCard
                key={elem.id}
                masterinfo={elem}
                visible={this.props.visible}

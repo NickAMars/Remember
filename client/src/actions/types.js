@@ -7,7 +7,6 @@ export const FETCH_USER    = "FETCH_USER",
              SUBMIT_CARD   = "SUBMIT_CARD",
              DELETE_MASTER = "DELETE_MASTER",
              UPDATE_MASTER = "UPDATE_MASTER",
-             PUBLIC_MASTER = "PUBLIC_MASTER",
              MASTER_FORM   = "MASTER_FORM",
              MYCARDS       = "MYCARDS",
              POOLCARDS     = "POOLCARDS";

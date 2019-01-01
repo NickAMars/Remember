@@ -1,7 +1,7 @@
-import React from  'react';
+import React from  'react'
 // import { connect } from 'react-redux';
-import close from  '../../img/SVG/close-outline.svg';
-import update from  '../../img/SVG/compose.svg';
+import close from  '../../img/SVG/close-outline.svg'
+import update from  '../../img/SVG/compose.svg'
 
 
 export const Card  = (props)=>{

@@ -3,10 +3,8 @@ import React, {Component} from 'react';
 export class SearchBar extends Component{
   constructor(props){
     super(props);
-    // keeping track of state the search bar
     this.state = {searchbar : "search me"};
   }
-      /* You Must be crazy thinking im going to stop   */
   render(){
     return(
       <div className="search">
@@ -19,7 +17,7 @@ export class SearchBar extends Component{
             </svg>
           </button>
         </div>
-        {/*might think about seperating this block  soon*/}
+
         <div className="search__filter">
            <button className="search__btn">Filter </button>
            <ul className="filter__list">

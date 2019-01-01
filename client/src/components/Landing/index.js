@@ -1,6 +1,6 @@
 import React from 'react';
 import {Description} from './Description';
-import {SignIn} from './SignIn';
+import {SignIn} from '../Helper/Form';
 
 
 export const Landing = () =>{

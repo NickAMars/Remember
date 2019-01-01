@@ -5,11 +5,12 @@ export const  Graph  = (props)=>{
 
 return (
       <table  className="table">
-    {/*     <thead>
-                <tr className="table__hr">
-                    <th className="table__th" colSpan="6">D3 GRAPH</th>
-                </tr>
-          </thead>
+        <thead>
+          <tr className="table__hr">
+              <th className="table__th" colSpan="6">D3 GRAPH</th>
+          </tr>
+        </thead>
+        <tbody>
           <tr className= "table__tr">
             <th className="table__hr--sub">&nbsp;</th>
             <th className="table__hr--sub">CARD 1</th>
@@ -78,7 +79,7 @@ return (
             <td className="table__tc--1">40</td>
             <td className="table__tc--1">40</td>
           </tr>
-      */} 
+        </tbody>
       </table>
     );
 }

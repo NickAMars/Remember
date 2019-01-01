@@ -1,17 +1,10 @@
-import React, {Component} from 'react';
-import { connect } from 'react-redux';
-import {deleteCard,  updateForm, submitCard} from '../../actions';
-import {Header} from '../Header';
-import {Card} from './Card';
-import Form from './Form';
-import PropTypes from 'prop-types';
-
-/*
-This section in my application is just the sub cards which
-the user have access to from there main cards
-
-  Next Step is to make a section call main cards
-*/
+import React, {Component} from 'react'
+import { connect } from 'react-redux'
+import {deleteCard,  updateForm, submitCard} from '../../actions'
+// import {Header} from '../Header';
+import {Card} from './Card'
+import {Form} from '../Helper/Form'
+import PropTypes from 'prop-types'
 
 export class MultipleCards extends Component{
   render(){
@@ -21,7 +14,7 @@ export class MultipleCards extends Component{
         <div className="header-box">
           <h1 className="heading__primary heading__primary--pink u-mt-sm ">Remember</h1>
         </div>
-        < Header />
+      { /*  < Header />*/}
       {/*<h4 className="heading__tertiary u-mt-sm ">Create</h4>*/}
 
         <Form Submit ={this.Submit}/>
@@ -47,6 +40,11 @@ export class MultipleCards extends Component{
   }
 
 }
+
+
+
+
+
 
 MultipleCards.propTypes ={
     cards: PropTypes.array.isRequired,

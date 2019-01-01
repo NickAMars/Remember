@@ -2,7 +2,7 @@ import React from  'react';
 import { Link } from 'react-router-dom';
 
 // functional component that display one card item
-export  const SmallCard  = (props)=>{
+export  const TopFiveCard = (props)=>{
   const {_id ,title, date } = props.cards;
   // console.log(title,date);
   // console.log(props);

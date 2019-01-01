@@ -2,41 +2,27 @@ import React, {Component} from  'react';
 import { BrowserRouter as Router, Switch, Route} from 'react-router-dom';
 import MultipleCards from './MultipleCards';
 import {Landing} from './Landing';
-import Register from './Register';
 import MasterCard from './MasterCard';
 import Mine from './Mine';
-import SmallCards from './SmallCards/SmallCards';
+import SmallCards from './SmallCards';
+import {Header} from './Header';
 import { connect } from 'react-redux';
 import { getMyCards, getPoolCards, fetchUser} from '../actions';
-// import SimpleMap from './SimpleMap';
-import anchor from '../img/SVG/anchor.svg';
-// import  {TestMasterCards} from './route_callbacks.js';
-//TEST
-const test = () =>{
-  return (
-    <div>
-    <img src={anchor} height="40px" alt="first use of svg in react"/>
-    </div>
-  );
-}
-
-//mastercard goes to the beginning card
-// mastercard/subcards - goes to the sub card field
 class App extends Component{
   componentDidMount(){
     this.props.fetchUser();
+    // console.log("this is the user",this.props.user);
   }
+
 
   render(){
     return(
         <Router >
         <div>
+        {this.props.user && < Header />}
           <Switch>
-            <Route path='/test' component={test} />
-            <Route path='/register' component={Register} />
-            <Route path='/main/subcards/:title' component={MultipleCards} />
-            {/*SAME COMPONENT NEED TO FIND A WAY TO REUSE COMPONENT ON DIRECT TO ROUTE*/}
 
+            <Route path='/main/subcards/:title' component={MultipleCards} />
             <Route path='/smallcards/:idMaster'  component={SmallCards} />
             <Route path='/more' render={ ({location}) => {
               this.props.getMyCards(location.pathname);
@@ -59,8 +45,9 @@ class App extends Component{
 
 }
 
-  export default connect(null,{getMyCards, getPoolCards, fetchUser})(App);
-
- // <Route path='/nav' component={Header} />
-// <Route path='/map' component={SimpleMap} />
-// <Route path='/map' component={SimpleMap} />
+export const mapStateToProps = (state) => {
+  return {
+    user: state.user
+  };
+}
+export default connect(mapStateToProps,{getMyCards, getPoolCards, fetchUser})(App);
