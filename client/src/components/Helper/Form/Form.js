@@ -15,13 +15,21 @@ export class Form extends Component{
       firstRender: true
     };
   }
-  componentWillReceiveProps(nextProps){
-    // console.log("nextProps",nextProps);
-    let {display, title, description} = nextProps.formupdate;
-    if(display && this.state.firstRender){
-      // console.log(display,title,description );
-      this.setState({firstRender: false, title, description});
-    }
+  // componentWillReceiveProps(nextProps){
+  //   // console.log("nextProps",nextProps);
+  //   let {display, title, description} = nextProps.formupdate;
+  //   if(display && this.state.firstRender){
+  //     // console.log(display,title,description );
+  //     this.setState({firstRender: false, title, description});
+  //   }
+  // }
+  static getDerivedStateFromProps({formupdate : {display, title, description}},  state){
+      // let {display, title, description} = props.formupdate;
+      if(display && state.firstRender){
+        // console.log(display,title,description );
+         return{firstRender: false, title, description};
+      }
+      return null;
   }
 
   onChangeI = (event) => {

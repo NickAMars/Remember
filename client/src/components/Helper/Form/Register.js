@@ -14,11 +14,12 @@
   onSubmit = (e) =>{
     e.preventDefault();
     console.log( "User name :" ,this.state)
-    
+
   }
+  // onSubmit={this.onSubmit}
     render(){
       return(
-          <form className="" onSubmit={this.onSubmit}>
+          <form className="">
             <div className="">
               <input id="name" className="" type="text"  value={this.state.userName}  onChange={this.UpdateUserName}  maxLength="32" />
               <label htmlFor="name"> userName</label>
@@ -32,7 +33,8 @@
               <label htmlFor="checkpsw"> Check Password</label>
             </div>
             <div className="">
-              <button className="" > Submit </button>
+              <button className="" onClick = {this.onSubmit}> Submit </button>
+              <button className="" onClick= {this.props.onClose} > Close </button>
             </div>
           </form>
       );
