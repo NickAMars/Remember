@@ -2,6 +2,23 @@
   font-size: 1.4rem;
   text-transform: uppercase;
   color: #ccc;
+  &__register{
+    font-size: 1.4rem;
+    background-color: transparent;
+    border:none;
+    margin: auto;
+    display:block;
+    // margin-right: 2rem;
+    color: #5DF;
+    padding:  1rem 0;
+  }
+  &__register:hover{
+    color:#57F;
+    cursor: pointer;
+  }
+  &__register:focus{
+    outline:none;
+  }
   &__add{
     font-size: 3rem;
     background-color: #ff4500;
@@ -95,16 +112,18 @@
     color: #fff;
   }
   &__svg{
-    width:100%;
-    height:100%;
+    display: inline-block;
+    width:2.5rem;
+    height: 2.5rem;
     &:not(:last-child){
-      margin-right: 2rem;
+      margin-right: 1.5rem;
     }
-    // height: 3rem;
-    svg {
-      width:4rem;
-      height: 4rem;
-      fill: purple;
+
+    &--google{
+      fill: #F00;
+    }
+    &--facebook{
+     fill: #26F;
     }
   }
 }
