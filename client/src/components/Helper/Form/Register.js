@@ -1,5 +1,6 @@
   import React, {PureComponent } from 'react'
   // import { Link } from 'react-router-dom'
+  import {validatePsw} from  '../Validate';
   class Register extends PureComponent{
 
     constructor(props){
@@ -9,34 +10,48 @@
   UpdateUserName = (e) =>{this.setState({userName: e.target.value}); }
   Updatepwd = (e) =>{this.setState({pwd: e.target.value});}
   UpdatepwdCheck = (e) =>{this.setState({pwdCheck: e.target.value});}
-  validateUsername = (username) =>{}
-  validatePassword = (password,passwordCheck) =>{}
+
+
   onSubmit = (e) =>{
     e.preventDefault();
-    console.log( "User name :" ,this.state)
+    const {userName ,pwd, pwdCheck} =  this.state;
+    // console.log(this.state);
+    if(validatePsw(pwd,pwdCheck)){
+      // perit submit of
+      console.log( "User name :" ,userName)
+      console.log( "User pwd:" ,pwd)
+    }else{
+      console.log("validation");
+    }
 
   }
   // onSubmit={this.onSubmit}
     render(){
       return(
-          <form className="">
-            <div className="">
-              <input id="name" className="" type="text"  value={this.state.userName}  onChange={this.UpdateUserName}  maxLength="32" />
-              <label htmlFor="name"> userName</label>
+        <div className="modal__form">
+            <form className="form">
+            <div className="u-mb-sm ">
+              <h2 className="heading__quaternary">Register</h2>
             </div>
-            <div className="">
-              <input id="psw" className="" type="password" value={this.state.pwd} onChange={this.Updatepwd} />
-              <label htmlFor="psw"> Password</label>
-            </div>
-            <div className="">
-              <input id="checkpsw" className="" type="password" value={this.state.pwdCheck} onChange={this.UpdatepwdCheck} />
-              <label htmlFor="checkpsw"> Check Password</label>
-            </div>
-            <div className="">
-              <button className="" onClick = {this.onSubmit}> Submit </button>
-              <button className="" onClick= {this.props.onClose} > Close </button>
-            </div>
-          </form>
+              <div className="form__group">
+                <input id="name" className="form__input" type="text"  value={this.state.userName}  onChange={this.UpdateUserName}  maxLength="32" />
+                <label className="form__label" htmlFor="name">UserName</label>
+              </div>
+              <div className="form__group">
+                <input id="psw"  className="form__input" type="password" value={this.state.pwd} onChange={this.Updatepwd} />
+                <label className="form__label" htmlFor="psw">Password</label>
+              </div>
+              <div className="form__group">
+                <input id="checkpsw" className="form__input" type="password" value={this.state.pwdCheck} onChange={this.UpdatepwdCheck} />
+                <label className="form__label" htmlFor="checkpsw">Password Check</label>
+              </div>
+
+              <div className="form__group--btn">
+                <button className="form__btn form__btn--submit" onClick = {this.onSubmit}>Submit</button>
+                <button className="form__btn form__btn--close" onClick= {this.props.onClose} >Close</button>
+              </div>
+            </form>
+        </div>
       );
     }
 
