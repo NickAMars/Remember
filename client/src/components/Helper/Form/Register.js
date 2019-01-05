@@ -16,12 +16,19 @@
     e.preventDefault();
     const {userName ,pwd, pwdCheck} =  this.state;
     // console.log(this.state);
-    if(validatePsw(pwd,pwdCheck)){
-      // perit submit of
-      console.log( "User name :" ,userName)
-      console.log( "User pwd:" ,pwd)
+    if(userName !== "" && pwd !== "" && pwdCheck !== ""){
+      // check if user name is already Their in server
+
+      if(validatePsw(pwd,pwdCheck)){
+        // send to server
+        // console.log( pwd ,userName)
+        console.log(" validation ");
+      }else{
+        console.log(" invalid password ");
+      }
     }else{
-      console.log("validation");
+      //
+      console.log("A field has not been inputed");
     }
 
   }
