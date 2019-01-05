@@ -1,9 +1,13 @@
 import React, {Component} from 'react';
 // import {Header} from '../Header';
-import { Link } from 'react-router-dom';
+// import { Link } from 'react-router-dom';
 import {TopFiveCard} from '../Helper/Cards';
-import {Graph} from  './graph';
+import {CreateMaster} from '../Helper/Form';
+// import {Graph} from  './graph';
+import {Chart} from  './chart';
 import { connect } from 'react-redux';
+// import {data} from  '../../constance'
+// import * as d3 from "d3"
 class MasterCard extends Component{
   componentDidMount(){
     // this.props.serverTest();
@@ -12,9 +16,12 @@ class MasterCard extends Component{
   }
   constructor(props){
     super(props);
+    // this.state={
+    //
+    // }
     this.state = {
-      title: "I love what i do",
       // this is just temporary values
+      line :null,
       cards: [
               {_id: "kiss", title:"title1", date:"november 4 2018"},
               {_id: "heaven", title:"title2", date:"december 15 2018"},
@@ -25,18 +32,24 @@ class MasterCard extends Component{
     };
   }
 
-
+  // lineGenerator = d3.line();
+  // static getDerivedStateFromProps(props){
+  //   // this.lineGenerator(data);
+  //   console.log(data);
+  //
+  //   // return {line:this.lineGenerator};
+  //   return null;
+  // }
   render(){
     return (
       <div>
         <div className="header-box">
           <h1 className="heading__primary heading__primary--pink u-mt-sm ">Remember</h1>
         </div>
-      {/* < Header />*/}
 
         <div className="xcontainer-main u-mb-md">
             <div className="topcards">
-              <h4 className="header__quaternary u-mb-sm">Top Five Cards </h4>
+              <h4 className="heading__quaternary u-mb-sm">Top Five Cards </h4>
               <ul className="list">
                  {
                     this.state.cards.map( function(master, index){
@@ -46,27 +59,9 @@ class MasterCard extends Component{
                </ul>
             </div>
 
-            <div className="topcards__graph">
-              <Graph />
-            </div>
+              <Chart />
         </div>
-        <div className="create">
-          <h4 className="heading__quaternary u-sb-md">Create Main Cards</h4>
-
-
-          <div className="create__contrainer ">
-            <div className="create__cards  u-mb-sm">
-
-              <div className="create__field">
-                <input onChange={(event) => this.setState( {title:event.target.value} )} type="text" value={this.state.title} id="title" className="input__master-title" maxLength="32" />
-              </div>
-
-              <div className="create__cta u-mb-sm">
-                <Link to={`/main/subcards/${this.state.title}`} className="create__cta-btn "> Create Master Card </Link>
-              </div>
-            </div>
-          </div>
-        </div>
+        <CreateMaster/>
 
       </div>
     );
@@ -78,3 +73,21 @@ const mapStateToProps = (state) => {
   };
 }
 export default connect(mapStateToProps, null)(MasterCard);
+
+// <div className="create">
+//   <h4 className="heading__quaternary u-sb-md">Create Main Cards</h4>
+//
+//
+//   <div className="create__contrainer ">
+//     <div className="create__cards  u-mb-sm">
+//
+//       <div className="create__field">
+//         <input onChange={(event) => this.setState( {title:event.target.value} )} type="text" value={this.state.title} id="title" className="input__master-title" maxLength="32" />
+//       </div>
+//
+//       <div className="create__cta u-mb-sm">
+//         <Link to={`/main/subcards/${this.state.title}`} className="create__cta-btn "> Create Master Card </Link>
+//       </div>
+//     </div>
+//   </div>
+// </div>
