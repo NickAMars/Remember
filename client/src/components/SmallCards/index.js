@@ -36,14 +36,11 @@ class SmallCards extends Component{
         <div className="header-box">
           <h1 className="heading__primary heading__primary--pink u-mt-sm ">Remember</h1>
         </div>
-      {/*  < Header />*/}
         <hr className="u-mt-sm u-mb-sm"/>
         <div className="row">
         {
          /*creating card components*/
-         dummy.map((smallcard, index) => {
-           return (<SubCard  key={smallcard.id}  {...smallcard} />);
-         })
+         dummy.map((smallcard, index) => <SubCard  key={smallcard.id}  {...smallcard} />)
         }
         </div>
       </div>
