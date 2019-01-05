@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "axios": "^0.18.0",
+    "d3": "^5.7.0",
     "google-map-react": "^1.0.6",
     "google-maps-react": "^2.0.2",
     "lodash": "^4.17.10",
