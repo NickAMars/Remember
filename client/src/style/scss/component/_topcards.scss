@@ -2,17 +2,20 @@
   background-color: #eee;
   border-radius: .5em;
   padding: 2em 4em;
+  // height: 500px;
   flex: 0 1 300px;
-  text-align: center;
+  align-self:center;
   box-shadow: 0 .6em 1.2em rgba(#000, .2);
   @media only screen and (max-width: 900px){
+    // align-self:stretch;
+    justify-content: center;
    margin-bottom: 2em;
   }
 }
 .topcards__graph{
-    flex: 0 1 590px;
+    flex: 0 1 540px;
     border-radius: 5px;
-    // background-color: #fff;
+    align-self:center;
     padding:2rem;
     background-color: #eee;
     // margin-left:1rem;

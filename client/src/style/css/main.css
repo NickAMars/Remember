@@ -88,7 +88,7 @@ body {
   font-size: 4rem; }
 
 .heading__quaternary {
-  color: #777;
+  color: #D2A;
   font-size: 2.5em;
   letter-spacing: .2em;
   font-weight: 700;
@@ -436,8 +436,7 @@ body {
   font-weight: 400; }
   @media only screen and (max-width: 900px) {
     .xcontainer-main {
-      flex-direction: column;
-      justify-content: flex-start; } }
+      flex-direction: column; } }
 
 .create__show {
   padding: 2rem; }
@@ -539,15 +538,17 @@ body {
   border-radius: .5em;
   padding: 2em 4em;
   flex: 0 1 300px;
-  text-align: center;
+  align-self: center;
   box-shadow: 0 0.6em 1.2em rgba(0, 0, 0, 0.2); }
   @media only screen and (max-width: 900px) {
     .topcards {
+      justify-content: center;
       margin-bottom: 2em; } }
 
 .topcards__graph {
-  flex: 0 1 590px;
+  flex: 0 1 540px;
   border-radius: 5px;
+  align-self: center;
   padding: 2rem;
   background-color: #eee;
   box-shadow: 0 0.6em 1.2em rgba(0, 0, 0, 0.2); }
