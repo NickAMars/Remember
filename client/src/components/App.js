@@ -1,5 +1,5 @@
 import React, {Component} from  'react';
-import { BrowserRouter as Router, Switch, Route} from 'react-router-dom';
+import { BrowserRouter as Router, Route} from 'react-router-dom';
 import MultipleCards from './MultipleCards';
 import {Landing} from './Landing';
 import MasterCard from './MasterCard';
@@ -20,24 +20,24 @@ class App extends Component{
         <Router >
         <div>
         {this.props.user && < Header />}
-          <Switch>
 
-            <Route path='/main/subcards/:title' component={MultipleCards} />
-            <Route path='/smallcards/:idMaster'  component={SmallCards} />
-            <Route path='/more' render={ ({location}) => {
-              this.props.getMyCards(location.pathname);
-              return <Mine  visible={false}/>;
-              }
-            } />
-            <Route path='/mine'render={ ({location}) => {
+
+            <Route exact path='/main/subcards/:title' component={MultipleCards} />
+            <Route exact path='/smallcards/:idMaster'  component={SmallCards} />
+            <Route exact path='/more' render={ ({location}) => {
               this.props.getPoolCards(location.pathname);
-              return <Mine visible={true}/>;
+              return <Mine pathname={location.pathname}  visible={false}/>;
+              }
+            } />
+            <Route exact path='/mine'render={ ({location}) => {
+              this.props.getMyCards(location.pathname);
+              return <Mine pathname={location.pathname} visible={true}/>;
               }
             } />
 
-            <Route path='/main' component={MasterCard} />
-            <Route path='/' component={Landing} />
-          </Switch>
+            <Route exact path='/main' component={MasterCard} />
+            <Route exact path='/' component={Landing} />
+
           </div>
         </Router>
       )
@@ -51,3 +51,5 @@ export const mapStateToProps = (state) => {
   };
 }
 export default connect(mapStateToProps,{getMyCards, getPoolCards, fetchUser})(App);
+// import {Switch} from 'react-router-dom';
+// <Switch> </Switch>

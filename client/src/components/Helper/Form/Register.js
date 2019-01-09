@@ -1,28 +1,33 @@
   import React, {PureComponent } from 'react'
-  // import { Link } from 'react-router-dom'
+  import {RegisterUser} from '../../../actions'
   import {validatePsw} from  '../Validate';
   class Register extends PureComponent{
 
     constructor(props){
       super(props);
-      this.state = {userName : "", pwd : "", pwdCheck: ""};
+      this.state = {username : "", password : "", pwdCheck: ""};
     }
-  UpdateUserName = (e) =>{this.setState({userName: e.target.value}); }
-  Updatepwd = (e) =>{this.setState({pwd: e.target.value});}
+  UpdateUserName = (e) =>{this.setState({username: e.target.value}); }
+  Updatepwd = (e) =>{this.setState({password: e.target.value});}
   UpdatepwdCheck = (e) =>{this.setState({pwdCheck: e.target.value});}
 
 
   onSubmit = (e) =>{
     e.preventDefault();
-    const {userName ,pwd, pwdCheck} =  this.state;
+    const {username ,password, pwdCheck} =  this.state;
     // console.log(this.state);
-    if(userName !== "" && pwd !== "" && pwdCheck !== ""){
+    if(username !== "" && password !== "" && pwdCheck !== ""){
       // check if user name is already Their in server
 
-      if(validatePsw(pwd,pwdCheck)){
+      if(validatePsw(password,pwdCheck)){
         // send to server
-        // console.log( pwd ,userName)
+        // console.log( pwd ,name)
         console.log(" validation ");
+        const data =  {username, password};
+        // console.log(data)
+        // dont need to go to reducer
+        this.props.closeForm();
+        RegisterUser(data);
       }else{
         console.log(" invalid password ");
       }
@@ -32,8 +37,13 @@
     }
 
   }
+  onClose = (e) => {
+    e.preventDefault();
+    this.props.closeForm();
+  }
   // onSubmit={this.onSubmit}
     render(){
+      // console.log(R)
       return(
         <div className="modal__form">
             <form className="form">
@@ -41,11 +51,11 @@
               <h2 className="heading__quaternary">Register</h2>
             </div>
               <div className="form__group">
-                <input id="name" className="form__input" type="text"  value={this.state.userName}  onChange={this.UpdateUserName}  maxLength="32" />
+                <input id="name" className="form__input" type="text"  value={this.state.username}  onChange={this.UpdateUserName}  maxLength="32" />
                 <label className="form__label" htmlFor="name">UserName</label>
               </div>
               <div className="form__group">
-                <input id="psw"  className="form__input" type="password" value={this.state.pwd} onChange={this.Updatepwd} />
+                <input id="psw"  className="form__input" type="password" value={this.state.password} onChange={this.Updatepwd} />
                 <label className="form__label" htmlFor="psw">Password</label>
               </div>
               <div className="form__group">
@@ -54,8 +64,8 @@
               </div>
 
               <div className="form__group--btn">
-                <button className="form__btn form__btn--submit" onClick = {this.onSubmit}>Submit</button>
-                <button className="form__btn form__btn--close" onClick= {this.props.onClose} >Close</button>
+                <button className="form__btn form__btn--submit"  onClick = {this.onSubmit}>Submit</button>
+                <button className="form__btn form__btn--close" onClick= {this.onClose} >Close</button>
               </div>
             </form>
         </div>

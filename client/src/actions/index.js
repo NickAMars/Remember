@@ -7,7 +7,11 @@ import user from './user';
 
 
 export const fetchUser = user.fetchUser;
+export const RegisterUser = user.RegisterUser;
+export const loginUser = user.loginUser;
 export const getPoolCards = poolcards.getPoolCards;
+
+// export const loginUser = user.loginUser;
 // export const publicMaster = poolcards.publicMaster;
 
 export const getMyCards = mastercards.getMyCards;

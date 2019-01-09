@@ -2,12 +2,12 @@ import { combineReducers } from 'redux';
 import user from './userProfile';
 import  cards  from './cardOperations';
 import  formupdate  from './updateForm';
-import  test  from './test_reducer';
+import  master_card  from './master_card';
 const rootReducer = combineReducers({
   user,
   cards,
   formupdate,
-  test // to test server with actionCreater
+  master_card // to test server with actionCreater
 });
 
 export default rootReducer;

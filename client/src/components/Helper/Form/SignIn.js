@@ -1,5 +1,6 @@
 import React, {Component} from 'react'
-import { Link } from 'react-router-dom'
+// import { Link } from 'react-router-dom'
+  import {loginUser} from '../../../actions'
 // import google from  '../../../img/SVG/google-plus3.svg'
 // import facebook from  '../../../img/SVG/facebook2.svg'
 import Modal from '../Modal'
@@ -20,16 +21,20 @@ export class SignIn extends Component{
   constructor(props){
     super(props);
     this.state = {
-      userName: "Username",
+      username: "username",
       password: "password",
       isOpen: false
     };
   }
-  toggleModal = (e) => {
-    e.preventDefault();
+  toggleModal = () => {
     this.setState({
       isOpen: !this.state.isOpen
     });
+  }
+
+  onSubmit = () => {
+  const {username, password}=this.state;
+      loginUser({username, password});
   }
 
   render(){
@@ -46,9 +51,9 @@ export class SignIn extends Component{
 
           <div className="formA__group">
             <input
-             onChange={(event)=>{this.setState({userName: event.target.value })}}
+             onChange={(event)=>{this.setState({username: event.target.value })}}
               type="text" className="formA__input"
-               value={this.state.userName} /* allows the input to depend on the state*/
+               value={this.state.username} /* allows the input to depend on the state*/
                required/>
 
           </div>
@@ -61,8 +66,7 @@ export class SignIn extends Component{
                value={this.state.password}  required/>
           </div>
           <div className="formA__group">
-
-            <Link className="btnA btnA--green " to="/main">Sign in &rarr;</Link>
+            <button className="btnA btnA--green " onClick={this.onSubmit}>Sign in &rarr;</button>
             {/*<a className="btnA btnA--green " href="/auth/google"  to="/auth/login">Sign in &rarr;</a>*/}
           </div>
         </form>
@@ -79,7 +83,7 @@ export class SignIn extends Component{
               </svg>
             </a>
             <Modal show={this.state.isOpen}>
-                      <Register onClose={this.toggleModal}/>
+                      <Register closeForm={this.toggleModal}/>
             </Modal>
 
       </div>

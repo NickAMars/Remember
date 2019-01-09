@@ -9,8 +9,10 @@ export default {
     payload: {visible: flag, id: idMaster, title}
     }
   },
+
   getMyCards : (pathname)=> async dispatch => {
       const res = await axios.get('/api/profile/MasterCard');
+      console.log(res);
       dispatch( {type: type.MYCARDS, payload: res.data } );
 
   },

@@ -8,6 +8,8 @@ import {Chart} from  './chart';
 import { connect } from 'react-redux';
 // import {data} from  '../../constance'
 // import * as d3 from "d3"
+
+import {data} from  '../../constance'
 class MasterCard extends Component{
   componentDidMount(){
     // this.props.serverTest();
@@ -59,7 +61,7 @@ class MasterCard extends Component{
                </ul>
             </div>
 
-              <Chart />
+              <Chart data={data}/>
         </div>
         <CreateMaster/>
 

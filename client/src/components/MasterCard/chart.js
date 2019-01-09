@@ -1,78 +1,100 @@
 import React, {Component} from 'react'
-import {beginDate, data} from  '../../constance'
+import {beginDate} from  '../../constance'
 // data,
 import * as d3 from "d3"
 
 const width = 500;
 const height = 500;
-const margin = { top: 10, right: 13,
-                  bottom: 20,left: 20};
+const margin = { top: 15, right: 15,
+                  bottom: 20,left: 30};
 
 export class Chart extends Component{
     state = {
       line: null,
       xScale: d3.scaleTime().domain(beginDate(new Date())).range([margin.left, width - margin.right]),
       yScale: d3.scaleLinear().range([height - margin.bottom, margin.top ]),
-      // areaGenerator: d3.line()
-      areaGenerator: d3.area()
-      // .curve(d3.curveCardinal)
+      areaGenerator:d3.area().curve(d3.curveLinear)
     };
-    // this.Date = new Date();
-    // console.log(this.Date);
+          // areaGenerator: d3.line()
+    // .curve(d3.curveLinear)
+    // curve(d3.curveCardinal)
 
 
     xAxis = d3.axisBottom().scale(this.state.xScale)
+            .ticks(7)
+            // .orient("bottom") doesnt work
+          .tickSize(0)
           .tickFormat(d3.timeFormat("%m-%d"));
     yAxis = d3.axisLeft().scale(this.state.yScale)
-      .tickFormat(d3.format(".0s"));
+          // .tickSize( 2)
+          .tickFormat(d3.format(".0s"));
   componentDidMount(){
     // get information needed from the server to do this
   }
-// weekdays(new Date().getDate())
-  // xScale = d3.scaleTime().domain(beginDate(new Date()))
-  //         .range([margin.left, width - margin.right]);
-                          // .range([beginDate(new Date()) ,new Date()]);
-  // xScale = d3.scaleTime().domain([0,width])
-  //                         .range([new Date(2019, 0, 7), new Date(2019, 0, 14)]);
-  // areaGenerator = d3.line();
-  //Can only use the nextProps and current state
   static getDerivedStateFromProps(nextProps, prevState){
      // if (!nextProps.data) return null;
+     const {data} = nextProps;
      const {xScale, yScale,  areaGenerator} = prevState;
       const maxTime = d3.max(data, d => d.time)/(1000); // in second
       yScale.domain([0, maxTime]);
       // console.log(yScale(data[0].time));
      areaGenerator.x(d => xScale(d.date));
-     areaGenerator.y0(height- margin.bottom);
+     areaGenerator.y0(height- margin.top);
      areaGenerator.y1(d => yScale( d.time/1000) );
+     // areaGenerator.define(d => d.date !== null);
      const line = areaGenerator(data);
      // console.log(line);
      return {line};
 
   }
-
+    // manipulating the DOM (seems to only go when page load)
   componentDidUpdate() {
-    // manipulating the DOM
   d3.select(this.refs.xAxis).call(this.xAxis);
   d3.select(this.refs.yAxis).call(this.yAxis);
+  // TITLE
+    d3.select(this.refs.svg)
+      .append("text")
+      .attr("x", width/2)
+      .attr("y", margin.top)
+      .attr("font-size", "1rem")
+      .attr("font-weight","900")
+      .attr("letter-spacing","10px")
+      .style("text-anchor", "middle")
+      .text("Top Five");
+    //DATE
+    d3.select(this.refs.svg)
+      .append("text")
+      .attr("x", width/2)
+      .attr("y",height)
+      .attr("font-size", "1rem")
+      .attr("font-weight","900")
+      .attr("letter-spacing","10px")
+      .style("text-anchor", "middle")
+      .text("DATE (mm/dd)");
+      //TIME
+    d3.select(this.refs.svg)
+      .append("text")
+      .attr("transform", "rotate(-90)")
+      .attr("font-size", "1.4rem")
+      .attr("x", -height/2)
+      .attr("y", margin.left -5)
+      .attr("dy", "-1.1em")
+      .attr("letter-spacing","10px")
+      .style("text-anchor", "middle")
+      .text("TIME (sec)");
+
 }
 
   render(){
-    // console.log(this.areaGenerator(data)
-    // .x(d => this.xScale(d.date))
-    // .y(d => 300)
-  // );
-  // console.log( this.areaGenerator(data) );
-    // console.log(this.xScale(new Date(2019,0,4)));
-      // console.log(this.state.date.getFullYear());
     return(
       <div className="topcards__graph">
         <svg
+          ref='svg'
           width={width}
           height={height}>
-          <path d= {this.state.line} fill= 'pink' stroke-width="2" stroke={'#00F'}/>
+          <path d= {this.state.line} fill= 'orangered' strokeWidth="0" />
           <g>
-            <g ref='xAxis' transform={`translate(0, ${height - margin.bottom})`} />
+            <g ref='xAxis' transform={`translate(0, ${height - margin.top})`} />
             <g ref='yAxis' transform={`translate(${margin.left}, 0)`} />
           </g>
         </svg>
@@ -80,3 +102,5 @@ export class Chart extends Component{
     )
   }
 }
+// stroke={'#EEE'}
+/* problem *The area goes under the graph so i apply a temorary fize */

@@ -3,16 +3,17 @@ const MasterCard = require('../models/MasterCards');
 const SubCard = require('../models/SubCards');
 const passport        = require('passport');
 module.exports = {
-  masterCards : (req,res) =>{
-    console.log("show all master cards ");
+  masterCards : async (req,res) =>{
+      const findUser = await User.findById(req.user);
+      // populate these feels with the actual data
+      console.log(findUser.mastercards);
+    // console.log("show all master cards ");
+    // console.log("help")
     res.send("All master cards");
   },
   createMasterCards : async (req,res) =>{
     // console.log("create one master card");
     const {title, cards } = req.body;
-
-    // console.log(req.user);
-    console.log(title);
     const findUser = await User.findById(req.user);
     const newMaster = new MasterCard({title });
     findUser.mastercards.push(newMaster);

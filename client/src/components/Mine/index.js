@@ -1,5 +1,6 @@
 import React,{Component} from 'react'
 import { connect } from 'react-redux'
+// import { getMyCards} from '../../actions'
 // import {Header} from '../Header';
 
 // import
@@ -11,6 +12,7 @@ import {MasterForm,SearchBar} from '../Helper/Form'
 // must keep track of state
 
 
+
 // dummy date
 const dummy = [ {id:"kiss", title:"Toni", date:"november 2,2017"},
                 {id:"love", title:"Parent", date:"september 4, 2013"},
@@ -18,10 +20,11 @@ const dummy = [ {id:"kiss", title:"Toni", date:"november 2,2017"},
                 {id:"Dreams", title:"Realize", date:"March 14, 2018"}
             ];
 class Mine extends Component{
-ComponentDidMount(){
-  // call to get information from the data base
-  // There is also a redux life cycle method that can do this properly
-}
+
+  constructor(props){
+    super(props)
+    console.log(props);
+  }
 
  render(){
     // console.log(this.props);
@@ -52,8 +55,9 @@ ComponentDidMount(){
 }
 const mapStateToProps = (state) => {
   return {
-    test: state.test
+    test: state.master_card
   };
 }
 
 export default connect(mapStateToProps)(Mine);
+// {getMyCards}

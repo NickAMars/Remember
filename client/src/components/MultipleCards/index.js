@@ -31,7 +31,6 @@ export class MultipleCards extends Component{
     );
   }
   Submit = async () => {
-    // later find a more immutable way to get the master card title
      const {title} = this.props.match.params;
      // const user = this.props.user;
      const { cards } = this.props;

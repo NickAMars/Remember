@@ -34,9 +34,7 @@ export const beginDate = (current_date) =>{
   const date = current_date.getDate();
   const current = new Date(year, month, date);
   const milliseconds = new Date(year, month, date) - seven_days;
-  // console.log(new Date(milliseconds));
-  // console.log(new Date(milliseconds));
-  // console.log([new Date(milliseconds), current ]);
+
   return [new Date(milliseconds), current ];
 }
 
@@ -74,10 +72,11 @@ export const beginDate = (current_date) =>{
 
 
 export const data = [
-  {date : new Date(2018, 11,28), time: 0 },
-   {date : new Date(2018, 11,29), time: 6000 },
-  {date : new Date(2018, 11, 30), time: 10000 },
-  {date : new Date(2019, 0,1), time: 9000 },
+  {date : new Date(2018, 11, 30), time: 10500 },
+  {date : new Date(2019, 0,1), time: 9090 },
   {date : new Date(2019, 0, 2), time: 7000 },
-{date :  new Date(2019, 0, 3), time: 3000 },
-{date : new Date(2019, 0,4), time: 100 } ]
+  {date :  new Date(2019, 0, 3), time: 3000 },
+  {date : new Date(2019, 0,4), time: 0 },
+  {date : new Date(2019, 0,5), time: 9999 },
+  {date : new Date(2019, 0,6), time: 6040 }
+]

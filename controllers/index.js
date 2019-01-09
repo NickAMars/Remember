@@ -3,7 +3,9 @@ const passport        = require('passport');
 module.exports = {
     // signUp(req,res){res.send("Signup");},
     profile : async(req,res) =>{
-      console.log("send the current_user id ");
+      // console.log("Log user in");
+      console.log("profile  \n", req.user);
+      // res.redirect('/main');
       res.send(req.user);
     },
   /* UPDATE */
@@ -15,13 +17,4 @@ module.exports = {
       console.log("delete");
       res.send("delete");
      }
-
 }
-
-// test case for seeing people in the database
-// const Nick = new User({ code: '7777', name: "Nick", password:"Marsden"});
-// await Nick.save();
-// Nick["mastercards"].push({title:"Node.js", url:"Picture here"})
-// await Nick.save();
-// console.log(Nick);
-// res.send("CHANGE USER INFORMATION");
