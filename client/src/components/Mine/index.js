@@ -8,26 +8,27 @@ import { connect } from 'react-redux'
 // import  { SearchBar} from './Fields'
 import  {MasterCard} from '../Helper/Cards'
 import {MasterForm,SearchBar} from '../Helper/Form'
+import {showMasterForm} from '../../actions';
 //* as actions
 // must keep track of state
-
-
-
-// dummy date
-const dummy = [ {id:"kiss", title:"Toni", date:"november 2,2017"},
-                {id:"love", title:"Parent", date:"september 4, 2013"},
-                {id:"No", title:"Conflict", date:"september 16, 2018"},
-                {id:"Dreams", title:"Realize", date:"March 14, 2018"}
-            ];
+// let visible = false;
 class Mine extends Component{
-
+  //
   constructor(props){
     super(props)
-    console.log(props);
+    // console.log(props);
+    this.state ={
+      visible: false,
+      searchBar:"search",
+      title: "",
+      _id:""
+    }
   }
 
  render(){
-    // console.log(this.props);
+    const master = this.props.master;
+    const {visible,_id, title} =this.state;
+    // console.log(master);
    return (
      <div className="remember">
        <div className="header-box">
@@ -35,16 +36,23 @@ class Mine extends Component{
        </div>
        {/*< Header />*/}
        <SearchBar/>
-       <MasterForm/>
+       {
+        visible ?
+          <MasterForm title={title} _id={_id} toggleMasterForm ={this.toggleMasterForm}/>
+          : <noscript/>
+       }
        <div className="master">
          <ul className="master__container">
           {
-            dummy.map(elem =>
+            master.map(elem =>
                <MasterCard
-               key={elem.id}
+               key={elem._id}
                masterinfo={elem}
                visible={this.props.visible}
-               />)
+               showMasterForm={this.showMasterForm}
+               toggleMasterForm={this.toggleMasterForm}
+               />
+             )
           }
 
          </ul>
@@ -52,12 +60,19 @@ class Mine extends Component{
      </div>
    );
  }
+ showMasterForm  = (_id,title) => {
+   this.setState({title, _id});
+ }
+ toggleMasterForm = () =>{
+   this.setState({visible:!this.state.visible});
+ }
 }
 const mapStateToProps = (state) => {
+  // console.log(state.master_card)
   return {
-    test: state.master_card
+    master: state.master_card
   };
 }
 
-export default connect(mapStateToProps)(Mine);
+export default connect(mapStateToProps,{showMasterForm})(Mine);
 // {getMyCards}
