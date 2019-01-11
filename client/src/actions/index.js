@@ -27,3 +27,4 @@ export const updateCard = smallcards.updateCard;
 export const updateForm = smallcards.updateForm;
 // server side
 export const submitCard = smallcards.submitCard;
+export const getSmallCards = smallcards.getSmallCards;
