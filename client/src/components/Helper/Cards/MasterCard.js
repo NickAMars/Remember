@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 // import {Buttons} from './Buttons';
 import {UpdateButton, RemoveButton } from '../Buttons'
 import {CbPublic} from '../InputField';
-import { deleteMaster,showMasterForm} from '../../../actions';
+import { deleteMaster, getSmallCards} from '../../../actions';
 
 
 class MasterCard extends Component{
@@ -13,22 +13,22 @@ class MasterCard extends Component{
       this.state = {visible: false};
     }
 
-    componentWillReceiveProps(nextProps){
-      if(nextProps.test.visible !== this.state.visible){
-        this.setState({visible: nextProps.test.visible}) ;
-      }
-    }
+    // static getDeriveStateFromProps(nextProps, state){
+    //   if(nextProps.test.visible !== state.visible){
+    //     this.setState({visible: nextProps.test.visible}) ;
+    //   }
+    // }
         // {!this.state.visible && this.props.visible &&  <Buttons {...this.props}/>}
     render(){
-      const {title, date,id} = this.props.masterinfo;
+      const {title, date,_id} = this.props.masterinfo;
       return (
             <li className="master__items">
               <div  className="master__svg ">
                 {!this.state.visible && this.props.visible &&  <UpdateButton onClick={this.UpdateButton} masterinfo={this.props.masterinfo}/>}
-                {!this.state.visible && this.props.visible &&  <RemoveButton onClick={this.RemoveButton} ID={id}/>}
+                {!this.state.visible && this.props.visible &&  <RemoveButton onClick={this.RemoveButton} ID={_id}/>}
               </div>
             {!this.state.visible && this.props.visible && <CbPublic  pubinfo={this.props.masterinfo} />}
-              <Link  to={`/smallcards/${id}`} className="master__links">
+              <Link  to={`/smallcards/${_id}`} className="master__links" onClick={()=>this.props.getSmallCards(_id)}>
                 <span className="master__title">{title}</span>
                 <span className="master__date">{date}</span>
               </Link>
@@ -36,22 +36,21 @@ class MasterCard extends Component{
           );
     }
     UpdateButton  = () => {
-      const {id,title} = this.props.masterinfo;
-
-      this.props.showMasterForm(true, id, title);
-      // console.log("Update action creator to shhow form The Button");
+      const {_id,title} = this.props.masterinfo;
+      this.props.showMasterForm(_id,title);
+      this.props.toggleMasterForm();
     }
     RemoveButton  = () => {
-      const {id} = this.props.masterinfo;
-      this.props.deleteMaster(id);
-      // console.log("RemoveButton The Button");
+      const {_id} = this.props.masterinfo;
+      console.log(_id)
+      // this.props.deleteMaster(_id);
     }
   }
 
 const mapStateToProps = (state) => {
     return {
-      test: state.test
+      // test: state.mastercards
     };
   }
 
-  export default connect(mapStateToProps,{deleteMaster, showMasterForm} )(MasterCard);
+  export default connect(mapStateToProps,{deleteMaster,  getSmallCards} )(MasterCard);
