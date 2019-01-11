@@ -1,10 +1,10 @@
 import React, {Component } from 'react';
 import { connect } from 'react-redux';
-import {updateMaster,showMasterForm} from '../../../actions';
+import {updateMaster} from '../../../actions';
 class MasterForm extends Component{
   // pass a changable value to initialize state
   // state = { title : "" , visible:false};
-  state = {visible:false};
+  // state = {visible:false};
   constructor(props){
     super(props);
     this.updateMasterCard =this.updateMasterCard.bind(this);
@@ -12,29 +12,35 @@ class MasterForm extends Component{
   }
 
   componentWillReceiveProps(nextProps){
-    if(nextProps.test.visible !== this.state.visible){
-      // console.log(nextProps);
-      this.setState((state, props)=>{
-        return {visible: nextProps.test.visible};
-      }) ;
-    }
+    // if(nextProps.test.visible !== this.state.visible){
+    //   // console.log(nextProps);
+    //   this.setState((state, props)=>{
+    //     return {visible: nextProps.test.visible};
+    //   }) ;
+    // }
   }
   // componentDidUpdate(prevProps, prevState){
   // }
   updateMasterCard(event){
     event.preventDefault();
     let date = new Date().toDateString();
-    this.props.updateMaster(this.props.test.id, { title:this.inputRef.current.value, date});
-    this.props.showMasterForm(false);
+    // console.log(this.inputRef.current.value);
+    this.props.updateMaster(
+      this.props._id,
+       {
+         title:this.inputRef.current.value,
+         date
+       });
+    this.props.toggleMasterForm();
   }
 
   render(){
     return (
-      <div className="create__contrainer "  style={ this.state.visible ? { display: 'block'} : {display:'none'} }>
+      <div className="create__contrainer "  >
         <form className="create__cards  u-mt-sm">
 
           <div className="create__field">
-              <input type="text" ref= {this.inputRef} placeholder="update" className="input__master-title" maxLength="32" />
+              <input type="text" ref= {this.inputRef} placeholder={this.props.title} className="input__master-title" maxLength="32" />
           </div>
           <div className="create__cta u-mb-sm">
             <button onClick= {this.updateMasterCard} className="create__cta-btn "> Update Master Card </button>
@@ -44,11 +50,11 @@ class MasterForm extends Component{
     );
   }
 }
+// style={ this.state.visible ? { display: 'block'} : {display:'none'}
+// const mapStateToProps = (state) => {
+//   return {
+//     test: state.test
+//   };
+// }
 
-const mapStateToProps = (state) => {
-  return {
-    test: state.test
-  };
-}
-
- export default connect(mapStateToProps, {updateMaster,showMasterForm})(MasterForm);
+ export default connect(null, {updateMaster})(MasterForm);
