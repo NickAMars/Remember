@@ -37,7 +37,6 @@ module.exports = {
       findMaster.timestamp = date;
       findMaster.save()
       .catch(err=> res.status(500).send("Couldnt save Master Cards"));
-
     res.send(findMaster);
   },
   deleteMasterCards : (req,res) =>{
