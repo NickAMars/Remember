@@ -9,4 +9,5 @@ export const FETCH_USER    = "FETCH_USER",
              UPDATE_MASTER = "UPDATE_MASTER",
              MASTER_FORM   = "MASTER_FORM",
              MYCARDS       = "MYCARDS",
-             POOLCARDS     = "POOLCARDS";
+             POOLCARDS     = "POOLCARDS",
+             GET_SUBCARDS  = "GET_SMALLCARDS";
