@@ -1,14 +1,14 @@
-import React, {Component} from  'react';
+import React, {PureComponent} from  'react';
 import { BrowserRouter as Router, Route} from 'react-router-dom';
 import MultipleCards from './MultipleCards';
 import {Landing} from './Landing';
-import MasterCard from './MasterCard';
+import Main from './Main';
 import Mine from './Mine';
 import SmallCards from './SmallCards';
 import {Header} from './Header';
 import { connect } from 'react-redux';
 import { getMyCards, getPoolCards, fetchUser} from '../actions';
-class App extends Component{
+class App extends PureComponent{
   componentDidMount(){
     this.props.fetchUser();
     // console.log("this is the user",this.props.user);
@@ -16,6 +16,7 @@ class App extends Component{
 
 
   render(){
+    const {master} = this.props;
     return(
         <Router >
         <div>
@@ -30,12 +31,16 @@ class App extends Component{
               }
             } />
             <Route exact path='/mine'render={ ({location}) => {
-              this.props.getMyCards(location.pathname);
+              if(master.length === 0){
+                //"call this only once"
+                this.props.getMyCards(location.pathname);
+              }
+
               return <Mine pathname={location.pathname} visible={true}/>;
               }
             } />
 
-            <Route exact path='/main' component={MasterCard} />
+            <Route exact path='/main' component={Main} />
             <Route exact path='/' component={Landing} />
 
           </div>
@@ -47,7 +52,8 @@ class App extends Component{
 
 export const mapStateToProps = (state) => {
   return {
-    user: state.user
+    user: state.user,
+    master: state.master_card
   };
 }
 export default connect(mapStateToProps,{getMyCards, getPoolCards, fetchUser})(App);
