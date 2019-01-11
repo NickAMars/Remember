@@ -4,12 +4,9 @@ const SubCard = require('../models/SubCards');
 const passport        = require('passport');
 module.exports = {
   masterCards : async (req,res) =>{
-      const findUser = await User.findById(req.user);
-      // populate these feels with the actual data
-      console.log(findUser.mastercards);
-    // console.log("show all master cards ");
-    // console.log("help")
-    res.send("All master cards");
+      const findUser = await User.findById(req.user).populate('mastercards');
+      if(!findUser) res.status(500).send({});
+      res.send(findUser.mastercards);
   },
   createMasterCards : async (req,res) =>{
     // console.log("create one master card");
@@ -23,26 +20,25 @@ module.exports = {
         newSub.save();
     });
     newMaster.user = findUser;
-    // add all sub cards
     Promise.all([findUser.save(), newMaster.save()]);
-    // // findUser.save();
-
-    // place all the card information here
-    // createMaster.subcards.push()
 
     res.send("create one master card" );
   },
-  updateMasterCards : (req,res) =>{
-    //Would have to update from the users side
+  updateMasterCards :async  (req,res) =>{
 
+    // res.status(400).send("Nothing Was Sent to update")
+    if(!req.body.title) return;
+    const {title,date} =  req.body;
+    const _id = req.params.id;
+    const findMaster = await MasterCard.findById(_id);
+    if(!findMaster)
+      return res.status(500).send("Couldnt find Master Card Information");
+      findMaster.title = title;
+      findMaster.timestamp = date;
+      findMaster.save()
+      .catch(err=> res.status(500).send("Couldnt save Master Cards"));
 
-   //  {cards:
-   //  [ { id: '3932d1c0-02ec-11e9-ab5f-adce0c5467bf',
-   //      title: 'sdf',
-   //      description: 'dsfd',
-   //      firstRender: true } ],
-   // title: { title: 'I love what i do' }
-    res.send("update a master card");
+    res.send(findMaster);
   },
   deleteMasterCards : (req,res) =>{
     console.log("delete a master card "+ req.params.id);
