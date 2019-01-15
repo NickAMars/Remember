@@ -31,9 +31,13 @@ masterCardSchema.virtual('countCards').get( function(){
   return this.subcards.length;
 });
 
+// Make sure i delete a model instance when getting to this 
 masterCardSchema.pre('remove', async function(next){
+  // this is the reference to the master
+  // $in -- go through all the subcards and look at there id
   const subCards = mongoose.model('subcards');
-  await subCards.remove({ _id: { $in : this.subCards }});
+  // go through all the subCards, look at all the sub cards
+  await subCards.deleteMany({ _id : { $in : this.subcards } });
   next();
 });
 

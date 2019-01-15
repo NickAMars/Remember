@@ -23,7 +23,8 @@ export default {
       const res = await axios.put(`/api/profile/MasterCard/${id}`, newCard);
       dispatch( {type: type.UPDATE_MASTER, payload: res.data } );
   },
-  deleteMaster : (id)=> async dispatch => {
+  deleteMaster : (id)=>
+  async dispatch => {
        await axios.delete( `/api/profile/MasterCard/${id}` );
        dispatch( {type: type.DELETE_MASTER, payload: id} );
   }

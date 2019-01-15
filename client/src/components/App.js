@@ -31,10 +31,10 @@ class App extends PureComponent{
               }
             } />
             <Route exact path='/mine'render={ ({location}) => {
-              if(master.length === 0){
+              if(master.length === 0)
                 //"call this only once"
                 this.props.getMyCards(location.pathname);
-              }
+
 
               return <Mine pathname={location.pathname} visible={true}/>;
               }

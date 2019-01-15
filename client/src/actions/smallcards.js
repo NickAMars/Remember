@@ -33,13 +33,13 @@ export default {// subCardRouts
     payload: newCard
     }
   },
-  submitCard : (title, cards)=>{
+  submitCard : async(title, cards)=>{
   let data = { title , cards };
-  // console.log(data);
-   return async dispatch => {
-      const res = await axios.post('/api/profile/MasterCard',data);
-      dispatch( {type: type.SUBMIT_CARD, payload: res.data } );
-    }
+   // return async dispatch => {
+       await axios.post('/api/profile/MasterCard',data);
+      // console.log(res)
+      // dispatch( {type: type.SUBMIT_CARD, payload: res.data } );
+    // }
   }
 
 }

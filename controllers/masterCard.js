@@ -29,8 +29,8 @@ module.exports = {
     // res.status(400).send("Nothing Was Sent to update")
     if(!req.body.title) return;
     const {title,date} =  req.body;
-    const _id = req.params.id;
-    const findMaster = await MasterCard.findById(_id);
+    // const _id = req.params.id;
+    const findMaster = await MasterCard.findById(req.params.id);
     if(!findMaster)
       return res.status(500).send("Couldnt find Master Card Information");
       findMaster.title = title;
@@ -39,8 +39,13 @@ module.exports = {
       .catch(err=> res.status(500).send("Couldnt save Master Cards"));
     res.send(findMaster);
   },
-  deleteMasterCards : (req,res) =>{
-    console.log("delete a master card "+ req.params.id);
+  deleteMasterCards : async (req,res) =>{
+    // await User.remove({_id: req.params.id});
+    const mastercard = await MasterCard.findById(req.params.id);
+    mastercard.remove();
+    // await MasterCard.findOne(req.params.id);
+
+    // console.log( req.params);
     res.send("delete a master card");
   }
 };

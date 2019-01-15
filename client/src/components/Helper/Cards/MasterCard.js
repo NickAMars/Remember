@@ -42,8 +42,7 @@ class MasterCard extends Component{
     }
     RemoveButton  = () => {
       const {_id} = this.props.masterinfo;
-      console.log(_id)
-      // this.props.deleteMaster(_id);
+      this.props.deleteMaster(_id);
     }
   }
 

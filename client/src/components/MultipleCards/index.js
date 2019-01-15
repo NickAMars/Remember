@@ -35,7 +35,8 @@ export class MultipleCards extends Component{
      // const user = this.props.user;
      const { cards } = this.props;
      if(cards.length  !== 0)
-       this.props.submitCard( title, cards);
+       submitCard( title, cards);
+    this.props.history.push('/main');
   }
 
 }
@@ -59,4 +60,4 @@ export const mapStateToProps = (state) => {
   };
 }
 
-export default connect(mapStateToProps,{deleteCard, updateForm, submitCard})(MultipleCards);
+export default connect(mapStateToProps,{deleteCard, updateForm})(MultipleCards);
