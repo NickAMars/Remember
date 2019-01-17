@@ -13,8 +13,9 @@ export  default  {
     RegisterUser : async (data) =>{
       // async dispatch => {
       console.log('signup')
-        const res = await axios.post('/auth/signup', data );
-        console.log(res);
+        // const res =
+         await axios.post('/auth/signup', data );
+        // console.log(res);
         // return dispatch( {type: type.FETCH_USER, payload: res.data } );
 
       // }
@@ -22,8 +23,9 @@ export  default  {
     loginUser : async (data) =>{
       // async dispatch => {
       console.log("login");
-        const res = await axios.post('/auth/login', data );
-        console.log(res);
+        // const res =
+         await axios.post('/auth/login', data );
+        // console.log(res);
         // return dispatch( {type: type.FETCH_USER, payload: res.data } );
 
       // }

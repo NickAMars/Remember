@@ -32,7 +32,8 @@ export class SignIn extends Component{
     });
   }
 
-  onSubmit = () => {
+  onSubmit = (e) => {
+    e.preventDefault();
   const {username, password}=this.state;
       loginUser({username, password});
   }

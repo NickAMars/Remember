@@ -22,9 +22,7 @@
       if(validatePsw(password,pwdCheck)){
         // send to server
         // console.log( pwd ,name)
-        console.log(" validation ");
         const data =  {username, password};
-        // console.log(data)
         // dont need to go to reducer
         this.props.closeForm();
         RegisterUser(data);
