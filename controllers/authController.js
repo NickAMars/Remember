@@ -6,19 +6,23 @@ const uuidv4            = require('uuid/v4');
 
 module.exports = {
   signup: async (req, res)=> {
-    const {name, password}=req.body;
+    const {username, password}=req.body;
 
-    // console.log(name, password)
+    // console.log(username, password)
     const hash = await helpers.hash(password);
-    const existingUser = await User.findOne({ 'name': name});
+    const existingUser = await User.findOne({ 'name': username});
     if(existingUser)
         return res.status(500).send("User already Exist");
     // generate a random id
-    const newUser = new User({code: uuidv4(), name: name, password: hash });
+    const newUser = new User({"code": uuidv4(), "name": username, "password": hash });
     await newUser.save();
-    // console.log(newUser)
-    // return done(null, newUser);
-    res.send(newUser);
+    // logs user in
+    passport.authenticate("local")(req, res, ()=>{
+      // console.log("to main")
+      res.redirect('/main');
+    });
+    // res.send(newUser);
+    // res.send("love them niggas")
 
   },
   login:

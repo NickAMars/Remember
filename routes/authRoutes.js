@@ -7,10 +7,10 @@ const passport        = require('passport');
 module.exports = app => {
 
   // File for out or signing up existing user
-  app.post('/auth/signup',authController.signup);
+  app.post('/auth/signup', authController.signup);
 
   //click sign up button check information send back
-  app.post('/auth/login',authController.login);
+  app.post('/auth/login', authController.login);
 
   // app.post('/auth/google/callback',Controller.local);
   app.get('/auth/google', authController.google);

@@ -30,7 +30,7 @@ module.exports = (passport) => {
             else if (user.password !==  helpers.hash(password))
               return done(null, false, { message: 'Incorrect password.' });
             else{
-              console.log("user is log in ")
+              // console.log("user is log in ")
                 return done(null, user);
             }
           })
