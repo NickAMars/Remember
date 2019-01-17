@@ -24,7 +24,7 @@ userSchema.pre('remove', async function(next){
 
     // should populate all the mastercards then remove all subcard from individual master cards
     // then remove the master cards, repeat until finish
-  await mongoose.model('subcards').remove({ _id : { $in : this } });
+  // await mongoose.model('subcards').remove({ _id : { $in : this } });
 
   // remove all the masterCards associated with this user
   // const MasterCards = mongoose.model('mastercards');
