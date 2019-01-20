@@ -8,7 +8,6 @@ import PropTypes from 'prop-types'
 
 export class MultipleCards extends Component{
   render(){
-    // console.log(this.props.user);
     return (
       <div className="remember">
         <div className="header-box">
@@ -35,7 +34,7 @@ export class MultipleCards extends Component{
      // const user = this.props.user;
      const { cards } = this.props;
      if(cards.length  !== 0)
-       submitCard( title, cards);
+       this.props.submitCard( title, cards);
     this.props.history.push('/main');
   }
 
@@ -60,4 +59,4 @@ export const mapStateToProps = (state) => {
   };
 }
 
-export default connect(mapStateToProps,{deleteCard, updateForm})(MultipleCards);
+export default connect(mapStateToProps,{deleteCard, updateForm, submitCard})(MultipleCards);
