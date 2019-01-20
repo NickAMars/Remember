@@ -1,7 +1,9 @@
 import React, {PureComponent} from 'react';
 import { connect } from 'react-redux';
 import {SubCard} from '../Helper/Cards';
+import { getMasterTime} from '../../actions'
 
+// This component constantly updates
 
 class SmallCards extends PureComponent{
 
@@ -38,8 +40,8 @@ class SmallCards extends PureComponent{
   }
 
 componentWillUnmount(){
+  this.props.getMasterTime(this.props.match.params.idMaster,this.state.time);
   clearInterval( this.timer );
-  // console.log("timer is :",this.timer)
 }
 
 }
@@ -50,7 +52,7 @@ export const mapStateToProps = (state) => {
   };
 }
 
-export default connect(mapStateToProps)(SmallCards);
+export default connect(mapStateToProps, {getMasterTime})(SmallCards);
 
 
 
