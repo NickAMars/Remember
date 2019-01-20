@@ -14,7 +14,6 @@ export default {
 
   getMyCards : (pathname)=> async dispatch => {
       const res = await axios.get('/api/profile/MasterCard');
-      // console.log(res);
       dispatch( {type: type.MYCARDS, payload: res.data } );
 
   },
@@ -27,5 +26,17 @@ export default {
   async dispatch => {
        await axios.delete( `/api/profile/MasterCard/${id}` );
        dispatch( {type: type.DELETE_MASTER, payload: id} );
-  }
+  },
+  getMasterTime : (id,time)=>
+  async dispatch => {
+    const res = await axios.put( `/api/profile/MasterCard/time/${id}`,{time} );
+       dispatch( {type: type.UPDATE_TIME, payload: res.data} );
+  },
+  submitCard : (title, cards)=>
+    async dispatch => {//put instead of post
+     let data = { title , cards };
+      const res =  await axios.post('/api/profile/MasterCard',data);
+     dispatch( {type: type.UPDATE_TIME, payload: res.data } );
+    }
+
 }

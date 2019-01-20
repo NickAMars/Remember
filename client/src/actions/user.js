@@ -15,7 +15,6 @@ export  default  {
       console.log('signup')
         // const res =
          await axios.post('/auth/signup', data );
-        // console.log(res);
         // return dispatch( {type: type.FETCH_USER, payload: res.data } );
 
       // }

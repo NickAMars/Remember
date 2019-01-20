@@ -32,14 +32,7 @@ export default {// subCardRouts
     type: type.UPDATE_FORM,
     payload: newCard
     }
-  },
-  submitCard : async(title, cards)=>{
-  let data = { title , cards };
-   // return async dispatch => {
-       await axios.post('/api/profile/MasterCard',data);
-      // console.log(res)
-      // dispatch( {type: type.SUBMIT_CARD, payload: res.data } );
-    // }
   }
+
 
 }
