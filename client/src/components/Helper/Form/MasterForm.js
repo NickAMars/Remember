@@ -11,20 +11,10 @@ class MasterForm extends Component{
     this.inputRef = React.createRef();
   }
 
-  componentWillReceiveProps(nextProps){
-    // if(nextProps.test.visible !== this.state.visible){
-    //   // console.log(nextProps);
-    //   this.setState((state, props)=>{
-    //     return {visible: nextProps.test.visible};
-    //   }) ;
-    // }
-  }
-  // componentDidUpdate(prevProps, prevState){
-  // }
+  // componentDidUpdate(prevProps, prevState){}
   updateMasterCard(event){
     event.preventDefault();
     let date = new Date().toDateString();
-    // console.log(this.inputRef.current.value);
     this.props.updateMaster(
       this.props._id,
        {
