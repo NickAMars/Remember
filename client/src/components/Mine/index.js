@@ -16,7 +16,6 @@ class Mine extends Component{
   //
   constructor(props){
     super(props)
-    // console.log(props);
     this.state ={
       visible: false,
       searchBar:"search",
@@ -28,7 +27,6 @@ class Mine extends Component{
  render(){
     const master = this.props.master;
     const {visible,_id, title} =this.state;
-    // console.log(master);
    return (
      <div className="remember">
        <div className="header-box">
@@ -68,7 +66,6 @@ class Mine extends Component{
  }
 }
 const mapStateToProps = (state) => {
-  // console.log(state.master_card)
   return {
     master: state.master_card
   };
