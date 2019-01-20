@@ -1,9 +1,6 @@
 import React, {Component} from 'react';
-// import {Header} from '../Header';
-// import { Link } from 'react-router-dom';
 import {TopFiveCard} from '../Helper/Cards';
 import {CreateMaster} from '../Helper/Form';
-// import {Graph} from  './graph';
 import {Chart} from  './chart';
 import { connect } from 'react-redux';
 // import {data} from  '../../constance'
@@ -13,7 +10,6 @@ import {data} from  '../../constance'
 class MasterCard extends Component{
   componentDidMount(){
     // this.props.serverTest();
-    // console.log("props",this.props);
    // call action creater which places the result into the state
   }
   constructor(props){
@@ -37,7 +33,6 @@ class MasterCard extends Component{
   // lineGenerator = d3.line();
   // static getDerivedStateFromProps(props){
   //   // this.lineGenerator(data);
-  //   console.log(data);
   //
   //   // return {line:this.lineGenerator};
   //   return null;
