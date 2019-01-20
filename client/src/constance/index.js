@@ -53,8 +53,6 @@ export const beginDate = (current_date) =>{
 //     }
 //   }
 //
-//   // console.log(order_week);
-//   // console.log()
 // return order_week;
 // }
 

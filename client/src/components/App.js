@@ -11,7 +11,6 @@ import { getMyCards, getPoolCards, fetchUser} from '../actions';
 class App extends PureComponent{
   componentDidMount(){
     this.props.fetchUser();
-    // console.log("this is the user",this.props.user);
   }
 
 
