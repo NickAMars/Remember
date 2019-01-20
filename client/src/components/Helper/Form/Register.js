@@ -15,13 +15,11 @@
   onSubmit = (e) =>{
     e.preventDefault();
     const {username ,password, pwdCheck} =  this.state;
-    // console.log(this.state);
     if(username !== "" && password !== "" && pwdCheck !== ""){
       // check if user name is already Their in server
 
       if(validatePsw(password,pwdCheck)){
         // send to server
-        // console.log( pwd ,name)
         const data =  {username, password};
         // dont need to go to reducer
         this.props.closeForm();
@@ -30,7 +28,6 @@
         console.log(" invalid password ");
       }
     }else{
-      //
       console.log("A field has not been inputed");
     }
 
@@ -41,7 +38,6 @@
   }
   // onSubmit={this.onSubmit}
     render(){
-      // console.log(R)
       return(
         <div className="modal__form">
             <form className="form">

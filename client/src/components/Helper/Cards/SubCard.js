@@ -32,6 +32,3 @@ export const SubCard  = (props)=>{
   const updateCard = () => {
     console.log("put an input field infront of the form");
   }
-
-  // <img onClick={()=> console.log("put an input field infront of the form")}  src={update} alt='U'/>
-  // <img onClick={()=> console.log("remove this card from the database and from the filter")}  src={close} alt='X'/>

@@ -18,7 +18,6 @@ export class Form extends Component{
   static getDerivedStateFromProps({formupdate : {display, title, description}},  state){
       // let {display, title, description} = props.formupdate;
       if(display && state.firstRender){
-        // console.log(display,title,description );
          return{firstRender: false, title, description};
       }
       return null;
@@ -31,7 +30,6 @@ export class Form extends Component{
     this.setState({ description: event.target.value });
   }
   render(){
-    // console.log(this.props)
     let {display} = this.props.formupdate;
     let valueI=  this.state.title;
     let valueTA = this.state.description;

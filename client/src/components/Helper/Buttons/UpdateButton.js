@@ -1,6 +1,5 @@
 import React from  'react';
 export  const UpdateButton  = (props)=>{
-  // console.log(props)
   const {masterinfo={id:null, title:null}, onClick} = props;
   return (
         <svg onClick={()=>onClick(true,masterinfo.id, masterinfo.title)}  version="1.1" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 30 30">

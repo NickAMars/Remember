@@ -5,17 +5,7 @@ import React, {Component} from 'react'
 // import facebook from  '../../../img/SVG/facebook2.svg'
 import Modal from '../Modal'
 import {Register} from '../Form'
-/*
-  import {Modal} from '../Modal';
-  <div className="modal">
-    <Modal>
-      <h1>Register</h1>
-      <input type="text" placeholder="userName" value=""/>
-      <input type="password" placeholder="password" value=""/>
-      <input type="password" placeholder="password" value=""/>
-    </Modal>
-  </div>
-*/
+
 
 export class SignIn extends Component{
   constructor(props){
@@ -39,7 +29,6 @@ export class SignIn extends Component{
   }
 
   render(){
-    // console.log("Modal : ",this.state.isModal);
     return (
 
       <div className="formA">
