@@ -10,4 +10,6 @@ module.exports = app => {
   app.put('/api/profile/MasterCard/:id',isLoggedIn, Controller.updateMasterCards);
   // delete my profile
   app.delete('/api/profile/MasterCard/:id',isLoggedIn, Controller.deleteMasterCards);
+
+  app.put('/api/profile/MasterCard/time/:id',isLoggedIn, Controller.timeMasterCards);
 }

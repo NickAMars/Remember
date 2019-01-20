@@ -4,14 +4,14 @@ const { Schema } = mongoose;
 // embedded day practive
 const progressSchema = new Schema({
   time: Number,
-  daycreated: {type: Date, default: Date.now}
+  daycreated: {type: Date, default: Date.now()}
 });
 
 
 const masterCardSchema = new Schema({
   title: String,
   url: {type: String, default: ""},
-  timestamp: {type: Date, default: Date.now},
+  timestamp: {type: Date, default: Date.now()},
   subcards: [
    {
      type: mongoose.Schema.Types.ObjectId,
@@ -31,7 +31,7 @@ masterCardSchema.virtual('countCards').get( function(){
   return this.subcards.length;
 });
 
-// Make sure i delete a model instance when getting to this 
+// Make sure i delete a model instance when getting to this
 masterCardSchema.pre('remove', async function(next){
   // this is the reference to the master
   // $in -- go through all the subcards and look at there id
