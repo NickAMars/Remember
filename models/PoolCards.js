@@ -6,11 +6,19 @@ const poolSchema = new Schema({
   author: String,
   title: String,
   description: String,
-  timestamp: Date
+  timestamp: {type: Date, default: Date.now()},
+  subcards: [
+   {
+     type: mongoose.Schema.Types.ObjectId,
+     ref: "subcard"
+   }
+ ]
 });
 
-/*
-Compare the author with the code
-  add a master card to the pool
-  Allow the author to delete and update this card in the pool
-*/
+poolSchema.pre('remove', async function(next){
+  const subCards = mongoose.model('subcard');
+  await subCards.deleteMany({ _id : { $in : this.subcards } });
+  next();
+});
+
+module.exports = mongoose.model('poolcards', poolSchema);
