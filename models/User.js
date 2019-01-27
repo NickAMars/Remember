@@ -1,9 +1,13 @@
 const mongoose = require('mongoose');
 const { Schema } = mongoose;
+mongoose.set('useCreateIndex', true);
 
 const userSchema = new Schema({
   code: String,
-  name: String,
+  name: {
+    type: String,
+    unique: true
+  },
   password: String,
   mastercards: [
    {
