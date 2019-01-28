@@ -23,7 +23,13 @@ Then, I can start connecting my routes and work on the server.
 
 Then, create a middle ware so the user cant go back to the main page unless they have log out.
 
-Then i can focus on scaling with redis for the mongodb database and cluster for multiple children.
+Then I can focus on scaling with redis for the mongodb database and cluster for multiple children.
 
 
-//Then, after that I work on the graph point rather I find a way to do it with d3.js or a graphing library //but i would need a skip which can go through these cards showing the time increase and decrease of use.
+//Then, after that I work on the graph point rather I find a way to do it with d3.js or a graphing library //but I would need a skip which can go through these cards showing the time increase and decrease of use.
+
+
+***Current problems I can work around for now***
+//Well react store doesn't update after creating a master card quick enough
+//The small card state doesn't seem to go away after I submit. even though i manually empty it.
+//The remove doesn't work immediately anymore
