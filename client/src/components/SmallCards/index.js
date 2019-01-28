@@ -11,18 +11,29 @@ class SmallCards extends PureComponent{
     super(props)
     this.state = {
       time: 0,
-      current: Date.now()
+      current: Date.now(),
+      prevent: true,
     }
   }
-  componentDidMount(){
+  componentDidMount(props){
     this.timer =  setInterval( ()=>
       this.setState({ time : Date.now() - this.state.current})
     , 1)
   }
+static getDerivedStateFromProps(nextProps){
+  if(nextProps.location.query){ // if query exist set the state to it
+    const {prevent} = nextProps.location.query;
 
+    return {prevent};
+  }
+  return null;
+}
   // using the props called by mine and more cards
   // to get the cards which are filling this field
   render(){
+    if(this.state.prevent)
+      clearInterval( this.timer );
+    console.log(this.props);
     return (
       <div className="remember">
         <div className="header-box">
@@ -40,8 +51,10 @@ class SmallCards extends PureComponent{
   }
 
 componentWillUnmount(){
-  this.props.getMasterTime(this.props.match.params.idMaster,this.state.time);
-  clearInterval( this.timer );
+  if(!this.state.prevent){
+    this.props.getMasterTime(this.props.match.params.idMaster,this.state.time);
+    clearInterval( this.timer );
+  }
 }
 
 }
@@ -53,12 +66,3 @@ export const mapStateToProps = (state) => {
 }
 
 export default connect(mapStateToProps, {getMasterTime})(SmallCards);
-
-
-
-// {
-//  /*creating card components*/
-//  this.props.smallcards.map((smallcard, index) => {
-//    return (<Card  key={smallcard.id}  {...smallcard} />);
-//  })
-// }
