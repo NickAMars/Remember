@@ -24,7 +24,8 @@ export default {
   },
   deleteMaster : (id)=>
   async dispatch => {
-       await axios.delete( `/api/profile/MasterCard/${id}` );
+      const res= await axios.delete( `/api/profile/MasterCard/${id}` );
+      console.log(res);
        dispatch( {type: type.DELETE_MASTER, payload: id} );
   },
   getMasterTime : (id,time)=>
