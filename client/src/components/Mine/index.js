@@ -1,17 +1,8 @@
 import React,{Component} from 'react'
 import { connect } from 'react-redux'
-// import { getMyCards} from '../../actions'
-// import {Header} from '../Header';
-
-// import
-// ,MasterCards
-// import  { SearchBar} from './Fields'
 import  {MasterCard} from '../Helper/Cards'
 import {MasterForm,SearchBar} from '../Helper/Form'
 import {showMasterForm} from '../../actions';
-//* as actions
-// must keep track of state
-// let visible = false;
 class Mine extends Component{
   //
   constructor(props){
@@ -20,19 +11,30 @@ class Mine extends Component{
       visible: false,
       searchBar:"search",
       title: "",
-      _id:""
+      _id:"",
+      cards:[]
     }
   }
+static getDerivedStateFromProps(nextProps, state){
+  const {pathname, master, poolcards} = nextProps
+  if(pathname === '/mine'){
+    return{cards: [...master] };
+  }else if(pathname === '/more'){
+    return {cards: [...poolcards] };
+  }else{
+    return null;
+  }
+}
+
 
  render(){
-    const master = this.props.master;
     const {visible,_id, title} =this.state;
+    const {pathname} = this.props;
    return (
      <div className="remember">
        <div className="header-box">
          <h1 className="heading__primary heading__primary--pink u-mt-sm ">Remember</h1>
        </div>
-       {/*< Header />*/}
        <SearchBar/>
        {
         visible ?
@@ -42,13 +44,14 @@ class Mine extends Component{
        <div className="master">
          <ul className="master__container">
           {
-            master.map(elem =>
+            this.state.cards.map(elem =>
                <MasterCard
                key={elem._id}
                masterinfo={elem}
                visible={this.props.visible}
                showMasterForm={this.showMasterForm}
                toggleMasterForm={this.toggleMasterForm}
+               pathname={pathname}
                />
              )
           }
@@ -67,6 +70,7 @@ class Mine extends Component{
 }
 const mapStateToProps = (state) => {
   return {
+    poolcards: state.poolcards,
     master: state.master_card
   };
 }
