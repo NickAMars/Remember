@@ -1,10 +1,15 @@
 import React from  'react';
+import MasterCard from  '../Class/MasterCard';
 
 export  const CbPublic  = (props)=>{
   let checkbox = false;
   const publicCheckBox = () =>{
+
     if(!checkbox){
-      // console.log(props.pubinfo);
+      const {_id,title,user,subcards} = props.pubinfo;
+      const Master = new MasterCard();
+      Master.setID(_id).setAuthor(user).setTitle(title).setSubCards(subcards);
+      props.addPoolCard(Master);
       checkbox = true;
     }else{
       checkbox = false;
