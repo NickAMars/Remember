@@ -16,6 +16,7 @@ const app = express();
 app.use(bodyParser.json());
 app.use(express.urlencoded({ extended: true }));
 // mongoose database
+require('./models/PoolCards');
 require('./models/SubCards');
 require('./models/MasterCards');
 require('./models/User');
@@ -36,6 +37,7 @@ require('./routes/authRoutes')(app);
 require('./routes')(app);
 require('./routes/masterCardRoutes')(app);
 require('./routes/subCardRoutes')(app);
+require('./routes/poolCardRoutes')(app);
 
 
 /*
@@ -52,7 +54,7 @@ if(process.env.NODE_ENV === 'production'){
   });
 
 }
-
+//ERROR HANDLER
 app.use((err, req, res, next)=>{
   return res.status(err.status|| 500).json({
     error: {

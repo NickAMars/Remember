@@ -3,7 +3,7 @@ const passport        = require('passport');
 module.exports = {
     // signUp(req,res){res.send("Signup");},
     profile : async(req,res) =>{
-      res.send(req.user);
+      res.send(req.user._id);
     },
   /* UPDATE */
     update: async (req,res) =>{
