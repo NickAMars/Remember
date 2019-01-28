@@ -14,13 +14,9 @@ export default  function (state = [], action) {
     case MYCARDS:
     return action.payload;
     case UPDATE_MASTER:
-      // for(let i=0;i < state.length; i++ )
-      //   if(state[i]._id === action.payload._id)
-      //     state[i] = action.payload;
-      // UPDATED at the beginning
     return [action.payload,...state.filter(card=> card._id !== action.payload._id)];
     case DELETE_MASTER:
-      return state.filter(elem => elem.id !== action.payload);
+      return state.filter(card => card._id !== action.payload);
     case  UPDATE_TIME:
       return action.payload;
     default:
