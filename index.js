@@ -56,6 +56,7 @@ if(process.env.NODE_ENV === 'production'){
 }
 //ERROR HANDLER
 app.use((err, req, res, next)=>{
+  console.log("ERROR HANDLER")
   return res.status(err.status|| 500).json({
     error: {
       message:err.message || "OOPs! Something went wrong."

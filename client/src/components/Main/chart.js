@@ -15,6 +15,11 @@ export class Chart extends Component{
       yScale: d3.scaleLinear().range([height - margin.bottom, margin.top ]),
       areaGenerator:d3.area().curve(d3.curveLinear)
     };
+
+    constructor(props){
+      super(props);
+      this.updateD3 = this.updateD3.bind(this);
+    }
           // areaGenerator: d3.line()
     // .curve(d3.curveLinear)
     // curve(d3.curveCardinal)
@@ -29,6 +34,7 @@ export class Chart extends Component{
           // .tickSize( 2)
           .tickFormat(d3.format(".0s"));
   componentDidMount(){
+    this.updateD3();
     // get information needed from the server to do this
   }
   static getDerivedStateFromProps(nextProps, prevState){
@@ -47,6 +53,9 @@ export class Chart extends Component{
   }
     // manipulating the DOM (seems to only go when page load)
   componentDidUpdate() {
+    this.updateD3();
+   }
+updateD3(){
   d3.select(this.refs.xAxis).call(this.xAxis);
   d3.select(this.refs.yAxis).call(this.yAxis);
   // TITLE
@@ -80,7 +89,6 @@ export class Chart extends Component{
       .attr("letter-spacing","10px")
       .style("text-anchor", "middle")
       .text("TIME (sec)");
-
 }
 
   render(){

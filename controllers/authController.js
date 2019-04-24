@@ -5,7 +5,7 @@ const passport        = require('passport');
 const uuidv4            = require('uuid/v4');
 
 module.exports = {
-  signup: async (req, res)=> {
+  signup: async (req, res, next)=> {
     const {username, password}=req.body;
 
     // console.log(username, password)
