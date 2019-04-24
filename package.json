@@ -12,13 +12,13 @@
   "scripts": {
     "server": "nodemon index.js",
     "client": "npm start --prefix client",
-    "dev": "concurrently \"yarn server\" \"yarn client\"",
-    "heroku-postbuild": "NPM_CONFIG_PRODUCTION=false yarn install --cwd client && yarn build --cwd client",
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "heroku-postbuild": "NPM_CONFIG_PRODUCTION=false npm install --cwd client && npm build --cwd client",
     "test": "jest --watch"
   },
   "dependencies": {
     "body-parser": "^1.18.3",
-    "concurrently": "^4.0.1",
+    "concurrently": "^4.1.0",
     "cookie-session": "^2.0.0-beta.3",
     "express": "^4.16.3",
     "express-session": "^1.15.6",
