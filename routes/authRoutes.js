@@ -1,5 +1,5 @@
 const authController      = require(`../controllers/authController`);
-const passport        = require('passport');
+// const passport        = require('passport');
 
 
 
@@ -13,10 +13,10 @@ module.exports = app => {
   app.post('/auth/login', authController.login);
 
   // app.post('/auth/google/callback',Controller.local);
-  app.get('/auth/google', authController.google);
-  app.get('/auth/google/callback', passport.authenticate('google'),authController.googleCB);
-  app.get('/auth/facebook', authController.facebook);
-  app.get('/auth/facebook/callback', passport.authenticate('facebook'), authController.facebookCB);
+  // app.get('/auth/google', authController.google);
+  // app.get('/auth/google/callback', passport.authenticate('google'),authController.googleCB);
+  // app.get('/auth/facebook', authController.facebook);
+  // app.get('/auth/facebook/callback', passport.authenticate('facebook'), authController.facebookCB);
   app.get('/api/logout', authController.logout);
 }
 

@@ -1,4 +1,4 @@
-// const passport          = require('passport');
+const passport          = require('passport');
 const mongoose          = require('mongoose');
 const helpers           = require('./helpers');
 const keys              = require('../config/keys');

@@ -6,4 +6,5 @@ module.exports= {
   googleClientSecret: process.env.googleClientSecret,
   FBClientID:process.env.FBClientID,
   FBClientSecret:process.env.FBClientSecret,
+  Secret_key: process.env.Secret_key
 }

@@ -12,18 +12,21 @@
   "scripts": {
     "start": "node index.js",
     "server": "nodemon index.js",
-    "client": "npm start --prefix client",
+    "client": "npm run start --prefix client",
     "dev": "concurrently \"npm run server\" \"npm run client\"",
-    "heroku-postbuild": "NPM_CONFIG_PRODUCTION=false npm install --cwd client && npm build --cwd client",
+    "heroku-postbuild": "NPM_CONFIG_PRODUCTION=false npm install --prefix client && npm run build --prefix client",
     "test": "jest --watch"
   },
   "dependencies": {
+    "bcrypt": "^3.0.6",
     "body-parser": "^1.18.3",
     "concurrently": "^4.1.0",
     "cookie-session": "^2.0.0-beta.3",
+    "cors": "^2.8.5",
     "express": "^4.16.3",
     "express-session": "^1.15.6",
     "jest": "^23.6.0",
+    "jsonwebtoken": "^8.5.1",
     "lodash": "^4.17.10",
     "mongoose": "^5.2.9",
     "passport": "^0.4.0",
