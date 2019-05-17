@@ -8,6 +8,7 @@ export  default  {
   fetchUser : () =>
     async dispatch => {
       const res = await axios.get('/api/profile');
+      // console.log(res.data);
       dispatch( {type: type.FETCH_USER, payload: res.data } );
     },
     RegisterUser : async (data) =>{
@@ -24,7 +25,9 @@ export  default  {
       console.log("login");
         // const res =
          await axios.post('/auth/login', data );
-        // console.log(res);
+         // i need to get the id of the user
+          // const res = await axios.get('/api/profile');
+          // console.log(res.data);
         // return dispatch( {type: type.FETCH_USER, payload: res.data } );
 
       // }

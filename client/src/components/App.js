@@ -6,20 +6,27 @@ import Main from './Main';
 import Mine from './Mine';
 import SmallCards from './SmallCards';
 import {Header} from './Header';
+// import { Redirect } from 'react-router-dom';
 import { connect } from 'react-redux';
+// import axios from 'axios';
 import { getMyCards, getPoolCards, fetchUser} from '../actions';
+// this.axios = axios;
 class App extends PureComponent{
   componentDidMount(){
     this.props.fetchUser();
   }
 
+ // componentDidUpdate(prevProps, prevState, snapshot){
+ //   console.log(prevProps)
+ // }
 
   render(){
-    const {master} = this.props;
+    const {master, user} = this.props;
+
     return(
-        <Router >
+      <Router >
         <div>
-        {this.props.user && < Header />}
+        {user && user._id && < Header />}
 
 
             <Route exact path='/main/subcards/:title' component={MultipleCards} />

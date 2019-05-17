@@ -3,8 +3,9 @@ const passport        = require('passport');
 module.exports = {
     // signUp(req,res){res.send("Signup");},
     profile : async(req,res,next) =>{
+      // console.log(req.user);
       if(req.user)
-        res.send(req.user._id);
+        res.send(req.user);
       else
         next();
     },

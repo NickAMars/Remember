@@ -1,13 +1,15 @@
 import React, {Component} from 'react'
+// import { Redirect } from 'react-router-dom'
 // import { Link } from 'react-router-dom'
   import {loginUser} from '../../../actions'
+  import { connect } from 'react-redux';
 // import google from  '../../../img/SVG/google-plus3.svg'
 // import facebook from  '../../../img/SVG/facebook2.svg'
 import Modal from '../Modal'
 import {Register} from '../Form'
 
 
-export class SignIn extends Component{
+class SignIn extends Component{
   constructor(props){
     super(props);
     this.state = {
@@ -16,16 +18,20 @@ export class SignIn extends Component{
       isOpen: false
     };
   }
+  componentDidUpdate(prevProps,prevState){
+    // console.log(prevProps);
+  }
   toggleModal = () => {
     this.setState({
       isOpen: !this.state.isOpen
     });
   }
 
-  onSubmit = (e) => {
+   onSubmit = async (e) => {
     e.preventDefault();
-  const {username, password}=this.state;
-      loginUser({username, password});
+    const {username, password}=this.state;
+    await  loginUser({username, password});
+    this.props.history.push(`/main`);
   }
 
   render(){
@@ -84,5 +90,14 @@ export class SignIn extends Component{
 
     // onClose={this.toggleModal}
 }
+
+const mapStateToProps = (state) => {
+  // console.log(state.user)
+  return {
+    user: state.user
+  };
+}
+
+export default connect(mapStateToProps)(SignIn);
 // onClick={this.ToggleModel}/
 // {this.state.isModal && <Modal > <Register  /> </Modal>}
