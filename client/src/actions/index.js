@@ -13,6 +13,7 @@ export const loginUser = user.loginUser;
 // export const loginUser = user.loginUser;
 // export const publicMaster = poolcards.publicMaster;
 
+export const getMyCard = mastercards.getMyCard;
 export const getMyCards = mastercards.getMyCards;
 export const showMasterForm = mastercards.showMasterForm;
 export const updateMaster = mastercards.updateMaster;
