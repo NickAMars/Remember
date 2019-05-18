@@ -59,6 +59,7 @@ componentWillUnmount(){
 
 }
 export const mapStateToProps = (state) => {
+  // console.log(state.showsubcards);
   return {
     smallcards: state.smallcards,
     showsubcards: state.showsubcards
