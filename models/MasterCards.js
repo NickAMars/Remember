@@ -22,7 +22,8 @@ const masterCardSchema = new Schema({
  user:{
       type: mongoose.Schema.Types.ObjectId,
       ref: "users"
- }
+ },
+ timespent: {type: Number , default: 0}
 });
 
 // count the subcard length
@@ -30,6 +31,14 @@ const masterCardSchema = new Schema({
 masterCardSchema.virtual('countCards').get( function(){
   return this.subcards.length;
 });
+// gets the time spent
+// masterCardSchema.virtual('calculateTimeSpent').get( function(){
+//   let timeSpent = 0;
+//   this.progress.forEach(elem => {
+//     timeSpent += elem.time;
+//   });
+//   return timeSpent;
+// });
 
 // Make sure i delete a model instance when getting to this
 masterCardSchema.pre('remove', async function(next){
