@@ -4,6 +4,15 @@ const SubCard = require('../models/SubCards');
 const helper = require('../services/helpers');
 const passport        = require('passport');
 module.exports = {
+
+  masterCard : async (req,res, next) =>{
+    const findMaster = await MasterCard.findById(req.params.id).populate('subcards');
+      // console.log(findMaster);
+    if(!findMaster) return next();
+
+    // console.log(findMaster.progress);
+    res.send(findMaster);
+  },
   masterCards : async (req,res, next) =>{
       const findUser = await User.findById(req.user).populate(
         {path:'mastercards',
@@ -54,25 +63,43 @@ module.exports = {
     const findMaster = await MasterCard.findById(req.params.id);
     const length = findMaster.progress.length;
     const time = req.body.time;
+    let prevSix;
     // takes the current time and look on the last time
     const daycreated = helper.currentDate(new Date()); // return date
     // {$inc: { postCount: 2}}
-    if(length === 0 ){ // if empty
+    if(length === 0 ){ // if the current array is empty
+
+      //INITIALIZING SEVEN PLACES
+      // put a value inside your previous days
+      prevSix = helper.previousSix();
+      for(let i = 0; i< prevSix.length; i++){
+        findMaster.progress.push({time:0, daycreated:prevSix[i] });
+      }
       findMaster.progress.push({time, daycreated });
+
     }else if(findMaster.progress[length-1].daycreated.getTime() === daycreated.getTime()){
+      //IF LAST ELEMENT IS THE SAME AS THE CURRENT DATE
       // update the time
       findMaster.progress[length-1].time += time;
     }else{ // time, date
+
+
+      findMaster.progress = helper.mixdate(helper.previousSix() , findMaster.progress);
+
+      // put at the back of stack the newest one
       findMaster.progress.push({time, daycreated });
-      // if the new length is 8 remove the first element
-      if(findMaster.progress.length > 7){
-        findMaster.progress.shift();
-      }
     }
+    findMaster.timespent = helper.calculateTimeSpent(findMaster.progress);
+    // console.log(handler.calculateTimeSpent(findMaster.progress));
     await findMaster.save();
     const findUser = await User.findById(req.user).populate('mastercards');
     if(!findUser) next();//res.status(500).send({});
     //send all the master cards back for the users
+
+ // get all the user master card
+    findUser.topfiveMaster = helper.TopFiveCard(findUser.mastercards);
+    findUser.save();
+
     res.send(findUser.mastercards);
   }
 };
