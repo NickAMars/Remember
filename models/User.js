@@ -2,6 +2,15 @@ const mongoose = require('mongoose');
 const { Schema } = mongoose;
 mongoose.set('useCreateIndex', true);
 
+
+// embedded day practive
+const topFiveSchema = new Schema({
+  maxTime: {type:Number, default: 0},
+  referenceID: String ,
+  title: {type:String, default: ""},
+  timestamp: {type: Date, default: Date.now()}
+});
+
 const userSchema = new Schema({
   code: String,
   name: {
@@ -14,7 +23,8 @@ const userSchema = new Schema({
      type: mongoose.Schema.Types.ObjectId,
      ref: "mastercards"
    }
- ]
+ ],
+ topfiveMaster:[topFiveSchema]
 });
 // count the master card the user has
 userSchema.virtual('countCards').get( function(){
