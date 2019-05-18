@@ -6,7 +6,8 @@ export default {// subCardRouts
   getSmallCards : (id) =>{
     return async dispatch => {
        const res = await axios.get(`/api/profile/MasterCard/${id}`);
-       dispatch( {type: type.GET_SUBCARDS, payload: res.data } );
+       // console.log(res.data);
+       dispatch( {type: type.GET_SUBCARDS, payload: res.data.subcards } );
      }
   },
   addCard : (card)=>{

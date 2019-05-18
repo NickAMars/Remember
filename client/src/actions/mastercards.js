@@ -11,7 +11,16 @@ export default {
   //   // payload: {visible: flag, id: idMaster, title}
   //   // }
   // },
+  getMyCard : (id)=> async dispatch => {
+    // console.log(id, "in he action");
+      const res = await axios.get(`/api/profile/MasterCard/${id}`);
+      // console.log(res.data.progress);
 
+      return res.data.progress;
+      // dispatch( {type: type.MYCARDS, payload: res.data } );
+      // return
+
+  },
   getMyCards : (pathname)=> async dispatch => {
       const res = await axios.get('/api/profile/MasterCard');
       dispatch( {type: type.MYCARDS, payload: res.data } );
