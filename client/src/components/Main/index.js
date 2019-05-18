@@ -3,14 +3,16 @@ import {TopFiveCard} from '../Helper/Cards';
 import {CreateMaster} from '../Helper/Form';
 import {Chart} from  './chart';
 import { connect } from 'react-redux';
+import { fetchUser ,getMyCard } from '../../actions';
 // import {data} from  '../../constance'
 // import * as d3 from "d3"
 
-import {data} from  '../../constance'
+// import {data} from  '../../constance'
 class MasterCard extends Component{
   componentDidMount(){
     // this.props.serverTest();
    // call action creater which places the result into the state
+   this.props.fetchUser();
   }
   constructor(props){
     super(props);
@@ -20,13 +22,8 @@ class MasterCard extends Component{
     this.state = {
       // this is just temporary values
       line :null,
-      cards: [
-              {_id: "kiss", title:"title1", date:"november 4 2018"},
-              {_id: "heaven", title:"title2", date:"december 15 2018"},
-              {_id: "demons", title:"title3", date:"september 30 2018"},
-              {_id: "loveones", title:"title4", date:"september 26 2018"},
-              {_id: "pain", title:"title5", date:"september 1 2018"}
-            ]
+      data : [],
+      cards: []
     };
   }
 
@@ -37,7 +34,23 @@ class MasterCard extends Component{
   //   // return {line:this.lineGenerator};
   //   return null;
   // }
+  getDataFromTopFive = async (oneTopFive) => {
+    // console.log("id",oneTopFive);
+    let data = await this.props.getMyCard(oneTopFive);
+    this.setState({data});
+    // console.log("data ", this.state.data);
+  }
+
+  static getDerivedStateFromProps(props, state){
+    if(props.user){
+      return{ cards : props.user.topfiveMaster};
+    }else{
+      return null;
+    }
+  }
   render(){
+    // console.log(this.props);
+    // this.getDataFromTopFive("ASDf");
     return (
       <div>
         <div className="header-box">
@@ -49,14 +62,14 @@ class MasterCard extends Component{
               <h4 className="heading__quaternary u-mb-sm">Top Five Cards </h4>
               <ul className="list">
                  {
-                    this.state.cards.map( function(master, index){
-                      return ( <TopFiveCard key={master._id} cards={master}/>  );
+                   this.state.cards.map( (master, index) =>{
+                      return ( <TopFiveCard onClick={this.getDataFromTopFive} key={master.referenceID} cards={master}/>  );
                     })
                  }
                </ul>
             </div>
 
-              <Chart data={data}/>
+              <Chart data={this.state.data}/>
         </div>
         <CreateMaster/>
 
@@ -66,10 +79,12 @@ class MasterCard extends Component{
 }
 const mapStateToProps = (state) => {
   return {
-    test: state.test
+    test: state.test,
+    master_card: state.master_card,
+    user: state.user
   };
 }
-export default connect(mapStateToProps, null)(MasterCard);
+export default connect(mapStateToProps, {fetchUser, getMyCard})(MasterCard);
 
 // <div className="create">
 //   <h4 className="heading__quaternary u-sb-md">Create Main Cards</h4>

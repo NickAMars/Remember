@@ -43,7 +43,7 @@ export class Chart extends Component{
      const {xScale, yScale,  areaGenerator} = prevState;
       const maxTime = d3.max(data, d => d.time)/(1000); // in second
       yScale.domain([0, maxTime]);
-     areaGenerator.x(d => xScale(d.date));
+     areaGenerator.x(d => xScale(new Date(d.daycreated.toString())));
      areaGenerator.y0(height- margin.top);
      areaGenerator.y1(d => yScale( d.time/1000) );
      // areaGenerator.define(d => d.date !== null);
