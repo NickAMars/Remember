@@ -23,7 +23,6 @@ class MasterCard extends Component{
     render(){
       const {title, date,_id} = this.props.masterinfo;
       const {pathname} = this.props;
-
       return (
             <li className="master__items">
               <div  className="master__svg ">
@@ -33,6 +32,7 @@ class MasterCard extends Component{
             { this.props.visible && <CbPublic  pubinfo={this.props.masterinfo} addPoolCard={this.props.addPoolCard} />}
               <Link  to={{ pathname:`/smallcards/${_id}`, query: { prevent:pathname === '/more'? true:false  }}} className="master__links"
                onClick={()=> pathname === '/more' ?this.props.getPoolSubCard(_id) :this.props.getSmallCards(_id)}>
+
                 <span className="master__title">{title}</span>
                 <span className="master__date">{date}</span>
               </Link>

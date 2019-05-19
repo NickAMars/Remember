@@ -29,10 +29,10 @@ module.exports = {
     const findUser = await User.findById(req.user);
     const newMaster = new MasterCard({title });
     findUser.mastercards.push(newMaster);
-    cards.forEach(card => {
+    cards.forEach( async card => {
         const newSub = new SubCard({title: card.title,   descriptions: card.description });
         newMaster.subcards.push(newSub);
-        newSub.save();
+      await  newSub.save();
     });
     newMaster.user = findUser;
     await Promise.all([findUser.save(), newMaster.save()]);
@@ -67,8 +67,8 @@ module.exports = {
     // takes the current time and look on the last time
     const daycreated = helper.currentDate(new Date()); // return date
     // {$inc: { postCount: 2}}
+    // console.log(length);
     if(length === 0 ){ // if the current array is empty
-
       //INITIALIZING SEVEN PLACES
       // put a value inside your previous days
       prevSix = helper.previousSix();
@@ -76,8 +76,8 @@ module.exports = {
         findMaster.progress.push({time:0, daycreated:prevSix[i] });
       }
       findMaster.progress.push({time, daycreated });
-
-    }else if(findMaster.progress[length-1].daycreated.getTime() === daycreated.getTime()){
+ // if its equal to the current date
+    }else if(Number(findMaster.progress[length-1].daycreated) === Number(daycreated)){
       //IF LAST ELEMENT IS THE SAME AS THE CURRENT DATE
       // update the time
       findMaster.progress[length-1].time += time;
@@ -85,11 +85,12 @@ module.exports = {
 
 
       findMaster.progress = helper.mixdate(helper.previousSix() , findMaster.progress);
-
       // put at the back of stack the newest one
       findMaster.progress.push({time, daycreated });
     }
     findMaster.timespent = helper.calculateTimeSpent(findMaster.progress);
+    // just incase we have a overlap of data
+    if(findMaster.progress.length > 8) findMaster.progress.shift();
     // console.log(handler.calculateTimeSpent(findMaster.progress));
     await findMaster.save();
     const findUser = await User.findById(req.user).populate('mastercards');
@@ -98,7 +99,7 @@ module.exports = {
 
  // get all the user master card
     findUser.topfiveMaster = helper.TopFiveCard(findUser.mastercards);
-    findUser.save();
+    await findUser.save();
 
     res.send(findUser.mastercards);
   }

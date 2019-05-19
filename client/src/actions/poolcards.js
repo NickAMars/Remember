@@ -25,6 +25,7 @@ export default {
   getPoolSubCard: (id)=>{
     return async dispatch => {
        const res = await axios.get(`/api/poolcards/${id}`);
+           console.log(res.data);
        dispatch( {type: type.GET_SUBCARDS, payload: res.data} );
      }
   }

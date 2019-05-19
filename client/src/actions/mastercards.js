@@ -21,6 +21,7 @@ export default {
       // return
 
   },
+  
   getMyCards : (pathname)=> async dispatch => {
       const res = await axios.get('/api/profile/MasterCard');
       dispatch( {type: type.MYCARDS, payload: res.data } );

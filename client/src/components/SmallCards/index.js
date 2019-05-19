@@ -31,6 +31,8 @@ static getDerivedStateFromProps(nextProps){
   // using the props called by mine and more cards
   // to get the cards which are filling this field
   render(){
+    // console.log("show sub ",this.props.showsubcards);
+    // console.log(" small cards ",this.props.smallcards);
     if(this.state.prevent)
       clearInterval( this.timer );
    // console.log(this.props);

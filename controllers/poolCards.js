@@ -4,7 +4,7 @@ const SubCard = require('../models/SubCards');
 module.exports = {
   getPoolCards:  async (req,res) =>{
     // get all pool cards that are made public
-    const allPool = await PoolCard.find();
+    const allPool = await PoolCard.find().populate('subcards');
     res.send(allPool);
     // These poolcards are mad public so anyone can see them
     // const allPoolCards = await PoolCard.find();

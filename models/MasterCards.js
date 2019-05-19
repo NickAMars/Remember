@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const { Schema } = mongoose;
-
+const User = require('./User');
 // embedded day practive
 const progressSchema = new Schema({
   time: Number,
@@ -47,6 +47,17 @@ masterCardSchema.pre('remove', async function(next){
   const subCards = mongoose.model('subcard');
   // go through all the subCards, look at all the sub cards
   await subCards.deleteMany({ _id : { $in : this.subcards } });
+
+// get the user and remove the The top five card if it is in there
+  const findUser = await User.findById(this.user);
+  const topfive_length =await findUser.topfiveMaster.length;
+  if(topfive_length > 0 ){
+    let index = findUser.topfiveMaster.findIndex(topfive => topfive.referenceID === this._id.toString());
+    if(index > 0 ){
+      findUser.topfiveMaster.splice(index, index+1);
+    }
+  }
+  await findUser.save();
   next();
 });
 

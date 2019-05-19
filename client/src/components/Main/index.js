@@ -37,6 +37,7 @@ class MasterCard extends Component{
   getDataFromTopFive = async (oneTopFive) => {
     // console.log("id",oneTopFive);
     let data = await this.props.getMyCard(oneTopFive);
+    // console.log(data);
     this.setState({data});
     // console.log("data ", this.state.data);
   }

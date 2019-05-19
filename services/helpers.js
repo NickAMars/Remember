@@ -17,7 +17,7 @@ helpers.currentDate = function(current){// Date
 
 // return an array of the previous 7 days
 helpers.previousSix = function(){// Date
-  const TOTAL_DAYS = 6;
+  const TOTAL_DAYS = 7;
   const current_date = this.currentDate(new Date());
   const prevDays= [];
 // second min hours day
@@ -36,8 +36,9 @@ helpers.mixdate = function(default_arr , mongo_arr){
   // Day that should be in
   furthestDay = default_arr[0];// - 4*(1000 *  60 * 60 * 24);
 
+  // removing from the front of the array the once that are less than expected value
   for(let i = 0; i < mongo_arr.length; i++){
-    if(furthestDay > mongo_arr[i].daycreated){
+    if(furthestDay > Number(mongo_arr[i].daycreated)){
       // remove the first element until we have a value that is greater than
       mongo_arr.shift();
       i--;
@@ -46,9 +47,11 @@ helpers.mixdate = function(default_arr , mongo_arr){
 
   let merge = [];
   let i=0, j=0;
-
-  while(j< 6){
-    if(mongo_arr[i].daycreated == default_arr[j]){
+console.log(default_arr);
+console.log(mongo_arr);
+  while(j< MAX_LENGTH ){
+    console.log("at index: " + j,mongo_arr[i].daycreated === default_arr[j]);
+    if(Number( mongo_arr[i].daycreated ) === default_arr[j]){
       merge.push(mongo_arr[i]);
     i++;
     }else if(mongo_arr[i].daycreated > default_arr[j]){
@@ -56,7 +59,8 @@ helpers.mixdate = function(default_arr , mongo_arr){
     }
     j++;
   }
-
+  console.log(merge);
+console.log("Function Ended");
   return merge;
 
 }
@@ -68,14 +72,16 @@ helpers.calculateTimeSpent= function(mongo_arr){
     });
     return timeSpent;
 }
-helpers.TopFiveCard= function(masterCards){
+// only gives back 5 cards in an object array
+helpers.TopFiveCard= function(Cards){
   // gets the 5 largest values in that array and return it back
-
+    const masterCards  = Cards.slice(0);
     let max = 0 ;
     let max_Index = 0;
     let card = {};
     let storage = [];
     if( masterCards.length < 5){
+      // if we have less that 5 cards
       for(let i = 0 ; i <  masterCards.length; i++){
         storage.push({
           maxTime: masterCards[i].timespent,
@@ -83,16 +89,21 @@ helpers.TopFiveCard= function(masterCards){
           title:masterCards[i].title,
           timestamp: masterCards[i].timestamp});
       }
+
     }else{
       while(storage.length != 5){
+        // Looks for which card has the maximum time spent
         for(let i = 0 ; i < masterCards.length; i++){
-          if(max < masterCards[i].timespent){
+          // the equal sign is so that if we have all 0 it wont go on a continous loop
+          if(max <= Number(masterCards[i].timespent)){
             max_Index = i;
             max = masterCards[i].timespent;
             card = masterCards[i];
           }
-        }
+        }// for end
+        // remove the card from the list
         masterCards.splice(max_Index,1);
+        // puts it in the storage array
         storage.push({
           maxTime: max,
           referenceID: card._id.toString(),
