@@ -60,6 +60,7 @@ class SignIn extends Component{
   // }
 
   render(){
+    console.log("call");
     return (
 
       <div className="formA">

@@ -1,6 +1,7 @@
   import React, {PureComponent } from 'react'
   import {RegisterUser} from '../../../actions'
   import {validatePsw} from  '../Validate';
+    import { connect } from 'react-redux';
   class Register extends PureComponent{
 
     constructor(props){
@@ -23,7 +24,7 @@
         const data =  {username, password};
         // dont need to go to reducer
         this.props.closeForm();
-        RegisterUser(data);
+        this.props.RegisterUser(data);
       }else{
         console.log(" invalid password ");
       }
@@ -69,7 +70,8 @@
   }
 
               // <Link className="" to="/">Submit</Link>
-  export default Register;
+  // export default Register;
+  export default connect(null, {RegisterUser})(Register);
 
   // this.userRef      = React.createRef();
   // this.passRef      = React.createRef();

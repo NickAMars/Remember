@@ -11,15 +11,13 @@ export  default  {
       // console.log(res.data);
       dispatch( {type: type.FETCH_USER, payload: res.data } );
     },
-    RegisterUser : async (data) =>{
-      // async dispatch => {
-      console.log('signup')
-        // const res =
-         await axios.post('/auth/signup', data );
-        // return dispatch( {type: type.FETCH_USER, payload: res.data } );
-
-      // }
-    },
+    RegisterUser :(data) =>async dispatch => {
+       console.log("signup");
+       const res = await axios.post('/auth/signup', data );
+       // console.log(res.data);
+       dispatch( {type: type.FETCH_USER, payload: res.data } );
+     }
+,
     loginUser : (data) =>
       async dispatch => {
         // console.log("hellow");
