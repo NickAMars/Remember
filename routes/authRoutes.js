@@ -10,7 +10,11 @@ module.exports = app => {
   app.post('/auth/signup', authController.signup);
 
   //click sign up button check information send back
-  app.post('/auth/login', authController.login);
+  app.post('/auth/login', authController.login, (req,res)=>{
+    console.log(res);
+    // res.redirect("/main");
+    res.send(req.user);
+  });
 
   // app.post('/auth/google/callback',Controller.local);
   // app.get('/auth/google', authController.google);
@@ -18,6 +22,7 @@ module.exports = app => {
   // app.get('/auth/facebook', authController.facebook);
   // app.get('/auth/facebook/callback', passport.authenticate('facebook'), authController.facebookCB);
   app.get('/api/logout', authController.logout);
+  app.get('/auth/test', authController.Profile);
 }
 
 /*

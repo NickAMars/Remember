@@ -12,12 +12,15 @@ const User = mongoose.model('users');
 module.exports = (passport) => {
 
   passport.serializeUser((user, done) => {
-    done(null, user.id);
+    // console.log("serializeUser ",user.id )
+    done(null, user);
   });
-  passport.deserializeUser((id, done) =>{
-    User.findById( id ).then(user => {
-      done(null, user)
-    });
+  passport.deserializeUser((user, done) =>{
+    // console.log("deserializeUser ",user )
+    done(null, user);
+    // User.findById( id ).then(user => {
+    //   done(null, user)
+    // });
   });
   /*
     User id doesnt change,name can change, password can change

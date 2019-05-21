@@ -3,11 +3,14 @@ import React, {Component} from 'react'
 // import { Link } from 'react-router-dom'
   import {loginUser} from '../../../actions'
   import { connect } from 'react-redux';
+  import { Redirect } from 'react-router-dom';
 // import google from  '../../../img/SVG/google-plus3.svg'
 // import facebook from  '../../../img/SVG/facebook2.svg'
 import Modal from '../Modal'
 import {Register} from '../Form'
 
+
+let rerenderOnce  = false;
 
 class SignIn extends Component{
   constructor(props){
@@ -18,9 +21,6 @@ class SignIn extends Component{
       isOpen: false
     };
   }
-  componentDidUpdate(prevProps,prevState){
-    // console.log(prevProps);
-  }
   toggleModal = () => {
     this.setState({
       isOpen: !this.state.isOpen
@@ -30,14 +30,40 @@ class SignIn extends Component{
    onSubmit = async (e) => {
     e.preventDefault();
     const {username, password}=this.state;
-    await  loginUser({username, password});
-    this.props.history.push(`/main`);
+    try{
+      await  this.props.loginUser({username, password});
+      // this.setState({username: "", password: ""});
+      rerenderOnce = true;
+    }catch(e){
+      console.log(e);
+    }
   }
+
+  renderRedirect = () => {
+    if(rerenderOnce){
+      // re-render
+      // console.log()
+      rerenderOnce = false;
+      this.setState({username: "", password: ""});
+      console.log(rerenderOnce);
+    }
+    if (this.props.user) {
+      if(this.props.user.code)
+      return <Redirect to='/main' />
+    }
+  }
+  // componentDidUpdate(props){
+  //   console.log(props);
+  // }
+  // componentWillUnmount(props){
+  //   console.log(this.props);
+  // }
 
   render(){
     return (
 
       <div className="formA">
+      {this.renderRedirect()}
         <form>
           <div className=" u-mb-sm u-mt-md">
             <h2 className="heading__secondary">
@@ -98,6 +124,6 @@ const mapStateToProps = (state) => {
   };
 }
 
-export default connect(mapStateToProps)(SignIn);
+export default connect(mapStateToProps, {loginUser})(SignIn);
 // onClick={this.ToggleModel}/
 // {this.state.isModal && <Modal > <Register  /> </Modal>}

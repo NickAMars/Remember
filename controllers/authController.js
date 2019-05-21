@@ -16,20 +16,26 @@ module.exports = {
     // generate a random id
     const newUser = new User({"code": uuidv4(), "name": username, "password": hash });
     await newUser.save();
+    // res.send(newUser);
     // logs user in
     passport.authenticate("local")(req, res, ()=>{
       // console.log("to main")
-      res.redirect('/main');
+      // res.redirect('/main');
+      res.send(newUser);
     });
     // res.send(newUser);
     // res.send("love them niggas")
 
   },
+  Profile: async (req, res, next) => {
+    res.redirect('/main');
+  },
+
   login:
     passport.authenticate('local',{
-      successRedirect : '/main',
       failureRedirect : '/'
     })
+
   ,
   google:       passport.authenticate('google', {scope : ['email']}),
   googleCB:     (req, res) =>{res.redirect('/main')},

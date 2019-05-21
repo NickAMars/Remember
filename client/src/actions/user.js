@@ -20,18 +20,13 @@ export  default  {
 
       // }
     },
-    loginUser : async (data) =>{
-      // async dispatch => {
-      console.log("login");
-        // const res =
-         await axios.post('/auth/login', data );
-         // i need to get the id of the user
-          // const res = await axios.get('/api/profile');
-          // console.log(res.data);
-        // return dispatch( {type: type.FETCH_USER, payload: res.data } );
-
-      // }
-    }
+    loginUser : (data) =>
+      async dispatch => {
+        // console.log("hellow");
+        const res = await axios.post('/auth/login', data );
+        // console.log(res.data);
+        dispatch( {type: type.FETCH_USER, payload: res.data } );
+      }
 }
 
 // app.post('/auth/signup',authController.signup);
