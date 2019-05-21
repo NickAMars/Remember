@@ -47,10 +47,10 @@ helpers.mixdate = function(default_arr , mongo_arr){
 
   let merge = [];
   let i=0, j=0;
-console.log(default_arr);
-console.log(mongo_arr);
+// console.log(default_arr);
+// console.log(mongo_arr);
   while(j< MAX_LENGTH ){
-    console.log("at index: " + j,mongo_arr[i].daycreated === default_arr[j]);
+    // console.log("at index: " + j,mongo_arr[i].daycreated === default_arr[j]);
     if(Number( mongo_arr[i].daycreated ) === default_arr[j]){
       merge.push(mongo_arr[i]);
     i++;
@@ -59,8 +59,8 @@ console.log(mongo_arr);
     }
     j++;
   }
-  console.log(merge);
-console.log("Function Ended");
+  // console.log(merge);
+// console.log("Function Ended");
   return merge;
 
 }

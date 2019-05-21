@@ -18,7 +18,7 @@ module.exports = {
         {path:'mastercards',
           populate:{
             path: "subcards",
-            model: "subcard"
+            model: "subcards"
           }
         });
       if(!findUser) next();//res.status(500).send({});
@@ -87,10 +87,11 @@ module.exports = {
       findMaster.progress = helper.mixdate(helper.previousSix() , findMaster.progress);
       // put at the back of stack the newest one
       findMaster.progress.push({time, daycreated });
+      // console.log(findMaster.progress)
     }
     findMaster.timespent = helper.calculateTimeSpent(findMaster.progress);
     // just incase we have a overlap of data
-    if(findMaster.progress.length > 8) findMaster.progress.shift();
+    if(findMaster.progress.length > 8) while(findMaster.progress.length > 8) findMaster.progress.shift();
     // console.log(handler.calculateTimeSpent(findMaster.progress));
     await findMaster.save();
     const findUser = await User.findById(req.user).populate('mastercards');
