@@ -11,7 +11,7 @@ module.exports = app => {
 
   //click sign up button check information send back
   app.post('/auth/login', authController.login, (req,res)=>{
-    console.log(res);
+    // console.log(res);
     // res.redirect("/main");
     res.send(req.user);
   });

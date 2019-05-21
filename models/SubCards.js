@@ -6,5 +6,5 @@ const subCardSchema = new Schema({
   descriptions: String
 });
 
-module.exports = mongoose.model('subcard', subCardSchema);
+module.exports = mongoose.model('subcards', subCardSchema);
 //change model name from subcards
