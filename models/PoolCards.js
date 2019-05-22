@@ -3,20 +3,21 @@ const { Schema } = mongoose;
 
 // constain the master cards that went public
 const poolSchema = new Schema({
+  // person who wrote the card can delete  this
   author: String,
   title: String,
   // description: String,
   timestamp: {type: Date, default: Date.now()},
   subcards: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "subcards"
-    }
+   {
+     type: mongoose.Schema.Types.ObjectId,
+     ref: "poolsubcard"
+   }
  ]
 });
 
 poolSchema.pre('remove', async function(next){
-  const subCards = mongoose.model('subcards');
+  const subCards = mongoose.model('subcard');
   await subCards.deleteMany({ _id : { $in : this.subcards } });
   next();
 });

@@ -15,6 +15,7 @@ const app = express();
 app.use(bodyParser.json());
 app.use(express.urlencoded({ extended: true }));
 // mongoose database
+require('./models/PoolSubCards');
 require('./models/PoolCards');
 require('./models/SubCards');
 require('./models/MasterCards');
