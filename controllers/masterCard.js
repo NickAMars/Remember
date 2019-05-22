@@ -101,7 +101,8 @@ module.exports = {
  // get all the user master card
     findUser.topfiveMaster = helper.TopFiveCard(findUser.mastercards);
     await findUser.save();
-
+    // req.user = findUser;
+    // console.log(req.user)
     res.send(findUser.mastercards);
   }
 };

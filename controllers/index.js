@@ -1,11 +1,11 @@
 const User = require('../models/User');
 const passport        = require('passport');
 module.exports = {
-    // signUp(req,res){res.send("Signup");},
+    // req.user doesnt updata as efficiently as i thought
     profile : async(req,res,next) =>{
-      // console.log(req.user);
-      if(req.user)
-        res.send(req.user);
+      const findUser = await User.findById(req.user._id);
+      if(findUser)
+        res.send(findUser);
       else
         next();
     },
