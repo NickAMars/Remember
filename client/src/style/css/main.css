@@ -819,80 +819,109 @@ body {
   .header-box {
     text-align: center; }
 
-.nav {
-  display: flex;
-  justify-content: space-around; }
-  .nav-list {
-    flex: 0 0 70%;
-    list-style: none;
-    display: flex;
-    justify-content: center; }
-    .nav-list__item {
-      flex: 1;
-      margin-right: .5rem;
-      display: flex; }
-    .nav-list__link:link, .nav-list__link:visited {
-      flex: 1;
-      background-color: yellowgreen;
-      text-decoration: none;
-      padding: 1rem 2rem;
-      position: relative;
-      text-align: center;
-      font-size: 2rem;
-      color: #fff; }
-    .nav-list__link::before {
-      content: "";
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      width: 100%;
-      border-bottom: 5px solid orangered;
-      transition: all .4s; }
-    .nav-list__link:hover::before {
-      transform: scaleX(0.3); }
-  .nav-logout {
-    display: none;
-    position: absolute;
-    top: 100%;
-    width: 100%;
-    list-style: none; }
-    .nav-logout__item {
-      display: flex;
-      margin-bottom: 1px;
-      justify-content: center; }
-    .nav-logout__link-log {
-      padding: .7rem 2.5rem;
-      background-color: pink;
-      color: #777;
-      font-size: 2rem;
-      text-decoration: none;
-      text-align: center;
-      position: relative; }
-    .nav-logout__link-log::before {
-      content: "";
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      z-index: 10;
-      width: 100%;
-      border-bottom: 3px solid orangered;
-      transition: all .4s; }
-    .nav-logout__link-log:hover::before {
-      transform: scaleX(0.5); }
+.navigation__header {
+  color: orangered;
+  text-align: center;
+  font-size: 2.5rem;
+  letter-spacing: 1rem;
+  border-bottom: 1px solid #777; }
 
-.tool-bar {
-  display: flex;
-  justify-content: flex-end;
-  position: relative;
-  z-index: 1000; }
-  .tool-bar__item {
-    background-color: transparent;
-    border: none; }
-  .tool-bar__item:focus {
+.navbar {
+  position: fixed;
+  background-color: pink;
+  width: 0;
+  height: 90vh;
+  right: 0;
+  top: 0;
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 0 60%);
+  transition: all 2s; }
+
+.navigation__button {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 4rem;
+  height: 4rem;
+  padding: 0.5rem 0.5rem;
+  transition: all 2s;
+  background-color: transparent;
+  background-color: pink;
+  border-bottom-left-radius: 1rem;
+  border: none; }
+  .navigation__button:active, .navigation__button:focus {
     outline: none; }
 
-.tool-bar:hover > .nav-logout {
-  display: block; }
+.navigation__icon {
+  fill: orangered;
+  width: 100%;
+  height: 100%; }
+
+.navbar-nav {
+  list-style: none;
+  transition: all 0.4s; }
+  .navbar-nav__items {
+    text-align: center;
+    position: relative;
+    border-bottom: 2px solid #aaa; }
+    .navbar-nav__items:not(:last-child) {
+      padding: .5rem; }
+    .navbar-nav__items:before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: -1;
+      height: 100%;
+      width: 3px;
+      background-color: purple;
+      transform-origin: left center;
+      transform: scaleY(0);
+      transition: transform 0.4s, width 0.4s 0.4s; }
+    .navbar-nav__items:hover::before {
+      transform: scaleY(1);
+      width: 100%; }
+  .navbar-nav__link {
+    display: block;
+    text-decoration: none;
+    text-transform: uppercase;
+    font-size: 2rem;
+    color: #FFF; }
+
+.navbar-nav-2 {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  list-style: none; }
+  .navbar-nav-2__items {
+    width: 50%;
+    position: relative;
+    color: #f00;
+    border-bottom: 1px solid #aaa; }
+    .navbar-nav-2__items:not(:last-child) {
+      color: #fff;
+      padding: 1rem 0; }
+    .navbar-nav-2__items:before {
+      content: "";
+      position: absolute;
+      z-index: -1;
+      top: 0;
+      left: 0;
+      height: 100%;
+      width: 3px;
+      background-color: purple;
+      transform-origin: left center;
+      transform: scaleY(0);
+      transition: transform 0.4s, width 0.4s 0.4s; }
+    .navbar-nav-2__items:hover::before {
+      transform: scaleY(1);
+      width: 100%; }
+  .navbar-nav-2__link:link, .navbar-nav-2__link:visited {
+    display: block;
+    padding: .5rem .5rem;
+    text-decoration: none;
+    transition: all 3s;
+    position: relative;
+    color: inherit; }
 
 /*
 Landing page design here
