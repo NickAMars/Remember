@@ -51,7 +51,7 @@ helpers.mixdate = function(default_arr , mongo_arr){
   let merge = [];
   let i=0, j=0;
   while(j< MAX_LENGTH- 1){
-    console.log("length : i ",mongo_arr.length , i)
+    // console.log("length : i ",mongo_arr.length , i)
     if(mongo_arr.length > i &&
       Number( mongo_arr[i].daycreated ) >= default_arr[j]  &&
       Number( mongo_arr[i].daycreated ) <= default_arr[j+1] ){
@@ -64,7 +64,7 @@ helpers.mixdate = function(default_arr , mongo_arr){
 
     j++;
   }
-  console.log(merge);
+  // console.log(merge);
   // console.log(merge);
 // console.log("Function Ended");
   return merge;
