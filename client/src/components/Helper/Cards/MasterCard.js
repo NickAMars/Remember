@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 // import {Buttons} from './Buttons';
 import {UpdateButton, RemoveButton } from '../Buttons'
 import {CbPublic} from '../InputField';
-import { deleteMaster,deletePoolCard, getSmallCards, addPoolCard, getPoolSubCard} from '../../../actions';
+import { deleteMaster,deletePoolCard, getSmallCards, addPoolCard, getPoolSubCard, storePoolToMaster} from '../../../actions';
 
 
 class MasterCard extends Component{
@@ -26,10 +26,10 @@ class MasterCard extends Component{
       return (
             <li className="master__items">
               <div  className="master__svg ">
-                { this.props.visible &&  <UpdateButton onClick={this.UpdateButton} masterinfo={this.props.masterinfo}/>}
-                { this.state.visible &&  <RemoveButton onClick={this.RemoveButton} ID={_id}/>}
+                {  this.props.visible &&  <UpdateButton onClick={ this.UpdateButton} masterinfo={this.props.masterinfo}/>}
+                { (this.props.showCheckBox || this.props.visible) &&  <RemoveButton onClick={this.RemoveButton} ID={_id}/>}
               </div>
-            { this.props.visible && <CbPublic  pubinfo={this.props.masterinfo} addPoolCard={this.props.addPoolCard} />}
+            { !this.props.showCheckBox && <CbPublic  pubinfo={this.props.masterinfo} addPoolCard={pathname === '/mine'?this.props.addPoolCard:this.addPoolToMine} />}
               <Link  to={{ pathname:`/smallcards/${_id}`, query: { prevent:pathname === '/more'? true:false  }}} className="master__links"
                onClick={()=> pathname === '/more' ?this.props.getPoolSubCard(_id) :this.props.getSmallCards(_id)}>
 
@@ -53,6 +53,10 @@ class MasterCard extends Component{
       else
         this.props.deleteMaster(_id);
     }
+    addPoolToMine  = () => {
+      const {_id} = this.props.masterinfo;
+      this.props.storePoolToMaster(_id);
+    }
   }
 
 const mapStateToProps = (state) => {
@@ -61,4 +65,4 @@ const mapStateToProps = (state) => {
     };
   }
 
-  export default connect(mapStateToProps,{deleteMaster,deletePoolCard, getSmallCards, addPoolCard, getPoolSubCard} )(MasterCard);
+  export default connect(mapStateToProps,{deleteMaster,deletePoolCard, getSmallCards, addPoolCard, getPoolSubCard, storePoolToMaster} )(MasterCard);

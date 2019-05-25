@@ -26,6 +26,14 @@ static getDerivedStateFromProps(nextProps, state){
   }
 }
 
+poolCardMatchUser(poolcard){
+  if(this.props.user !== null)
+  if(this.props.user._id === poolcard.author)
+    return true;
+  else
+    return false;
+}
+
 
  render(){
     const {visible,_id, title} =this.state;
@@ -52,6 +60,7 @@ static getDerivedStateFromProps(nextProps, state){
                showMasterForm={this.showMasterForm}
                toggleMasterForm={this.toggleMasterForm}
                pathname={pathname}
+               showCheckBox={this.poolCardMatchUser(elem)}
                />
              )
           }
@@ -71,9 +80,13 @@ static getDerivedStateFromProps(nextProps, state){
 const mapStateToProps = (state) => {
   return {
     poolcards: state.poolcards,
-    master: state.master_card
+    master: state.master_card,
+    user: state.user
   };
 }
 
 export default connect(mapStateToProps,{showMasterForm})(Mine);
 // {getMyCards}
+
+
+// this.props.user._id === this.props.author
