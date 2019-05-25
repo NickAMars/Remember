@@ -36,3 +36,4 @@ export const getPoolCards = poolcards.getPoolCards;
 export const addPoolCard = poolcards.addPoolCard;
 export const deletePoolCard = poolcards.deletePoolCard;
 export const getPoolSubCard = poolcards.getPoolSubCard;
+export const storePoolToMaster = poolcards.storePoolToMaster;

@@ -18,7 +18,6 @@ export default {
   deletePoolCard: (id)=>{
    return async dispatch => {
       const res = await axios.delete(`/api/poolcards/${id}`);
-      console.log(res.data)
       dispatch( {type: type.POOLCARDS, payload: res.data} );
     }
   },
@@ -27,6 +26,13 @@ export default {
        const res = await axios.get(`/api/poolcards/${id}`);
            console.log(res.data);
        dispatch( {type: type.GET_SUBCARDS, payload: res.data} );
+     }
+  },
+  storePoolToMaster: (id)=>{
+    return async dispatch => {
+       const res = await axios.post(`/api/poolcards/add/${id}`);
+           // console.log(res.data);
+       dispatch( {type: type.MYCARDS, payload: res.data} );
      }
   }
 }
