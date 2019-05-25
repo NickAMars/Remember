@@ -16,8 +16,8 @@ helpers.currentDate = function(current){// Date
 }
 
 // return an array of the previous 7 days
-helpers.previousSix = function(){// Date
-  const TOTAL_DAYS = 7;
+helpers.previousEight = function(){// Date
+  const TOTAL_DAYS = 8;
   const current_date = this.currentDate(new Date());
   const prevDays= [];
 // second min hours day
@@ -32,33 +32,39 @@ return prevDays;
 }
 
 helpers.mixdate = function(default_arr , mongo_arr){
-  const MAX_LENGTH = 7;
+
+  const MAX_LENGTH = 8;
+
   // Day that should be in
   furthestDay = default_arr[0];// - 4*(1000 *  60 * 60 * 24);
-
   // removing from the front of the array the once that are less than expected value
   for(let i = 0; i < mongo_arr.length; i++){
+    // remove anthing that lower than the expected date
     if(furthestDay > Number(mongo_arr[i].daycreated)){
-      // remove the first element until we have a value that is greater than
       mongo_arr.shift();
+      // remove the first element until we have a value that is greater than
+      // mongo_arr.shift();
       i--;
     }
   }
 
   let merge = [];
   let i=0, j=0;
-// console.log(default_arr);
-// console.log(mongo_arr);
-  while(j< MAX_LENGTH ){
-    // console.log("at index: " + j,mongo_arr[i].daycreated === default_arr[j]);
-    if(Number( mongo_arr[i].daycreated ) === default_arr[j]){
-      merge.push(mongo_arr[i]);
-    i++;
-    }else if(mongo_arr[i].daycreated > default_arr[j]){
+  while(j< MAX_LENGTH- 1){
+    console.log("length : i ",mongo_arr.length , i)
+    if(mongo_arr.length > i &&
+      Number( mongo_arr[i].daycreated ) >= default_arr[j]  &&
+      Number( mongo_arr[i].daycreated ) <= default_arr[j+1] ){
+        merge.push(mongo_arr[i]);
+
+        i++;
+    }else{
       merge.push({ daycreated: default_arr[j], time: 0});
     }
+
     j++;
   }
+  console.log(merge);
   // console.log(merge);
 // console.log("Function Ended");
   return merge;

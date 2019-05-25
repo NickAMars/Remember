@@ -71,7 +71,7 @@ module.exports = {
     if(length === 0 ){ // if the current array is empty
       //INITIALIZING SEVEN PLACES
       // put a value inside your previous days
-      prevSix = helper.previousSix();
+      prevSix = helper.previousEight();
       for(let i = 0; i< prevSix.length; i++){
         findMaster.progress.push({time:0, daycreated:prevSix[i] });
       }
@@ -84,7 +84,7 @@ module.exports = {
     }else{ // time, date
 
 
-      findMaster.progress = helper.mixdate(helper.previousSix() , findMaster.progress);
+      findMaster.progress = helper.mixdate(helper.previousEight() , findMaster.progress);
       // put at the back of stack the newest one
       findMaster.progress.push({time, daycreated });
       // console.log(findMaster.progress)
