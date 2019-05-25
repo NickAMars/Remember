@@ -17,8 +17,8 @@ const poolSchema = new Schema({
 });
 
 poolSchema.pre('remove', async function(next){
-  const subCards = mongoose.model('subcard');
-  await subCards.deleteMany({ _id : { $in : this.subcards } });
+  const poolsubCards = mongoose.model('poolsubcard');
+  await poolsubCards.deleteMany({ _id : { $in : this.subcards } });
   next();
 });
 

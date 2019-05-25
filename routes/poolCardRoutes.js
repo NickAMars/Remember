@@ -6,5 +6,6 @@ module.exports = app => {
   app.get('/api/poolcards',Controller.getPoolCards);
   app.get('/api/poolcards/:id', Controller.subCards);
   app.post('/api/poolcards',Controller.addPoolCard);
+  app.post('/api/poolcards/add/:id',Controller.storePoolToMaster);
   app.delete('/api/poolcards/:id', Controller.removePoolCard);
 };
