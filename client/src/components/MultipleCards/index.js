@@ -37,6 +37,12 @@ export class MultipleCards extends Component{
        this.props.submitCard( title, cards);
     this.props.history.push('/main');
   }
+  componentWillUnmount(){
+    // const { cards } = this.props;
+    if(this.props.cards.length)
+      this.Submit();
+  }
+
 
 }
 
