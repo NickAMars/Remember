@@ -7,7 +7,10 @@ import {Form} from '../Helper/Form'
 import PropTypes from 'prop-types'
 
 export class MultipleCards extends Component{
+  submitClick = false;
+
   render(){
+    // console.log(this.submitClick);
     return (
       <div className="remember">
         <div className="header-box">
@@ -33,13 +36,16 @@ export class MultipleCards extends Component{
      const {title} = this.props.match.params;
      // const user = this.props.user;
      const { cards } = this.props;
-     if(cards.length  !== 0)
+     if(cards.length  !== 0){
        this.props.submitCard( title, cards);
+       this.submitClick = true;
+     }
     this.props.history.push('/main');
   }
   componentWillUnmount(){
     // const { cards } = this.props;
-    if(this.props.cards.length)
+    // console.log(this.submitClick);
+    if(this.props.cards.length && !this.submitClick )
       this.Submit();
   }
 

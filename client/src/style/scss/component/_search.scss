@@ -2,7 +2,7 @@
   min-height: 4.5rem;
   // background-color: pink;
   padding: 2rem;
-  width:100%;
+  // width:100%;
   display: flex;
   justify-content: center;
   font-size: 1.4rem;
@@ -14,12 +14,13 @@
 
 .search__name{
   // background-color: orangered;
-  flex: 0 0 400px;
+  flex: 1;
   // margin-right:
   display: flex;
-  margin: 0 auto;
+
+  // margin: 0 auto;
   position: relative;
-  justify-content: center;
+  justify-content: flex-start;
   @media only screen and (max-width: 600px){
     height: 6rem;
   }
@@ -31,28 +32,31 @@
 
  &--input{
   padding: .96em 1.5em;
-  width: 80%;
+  width: 50%;
   border-radius: 50px;
   border: none;
   font-size: inherit;
   color: #aaa;
   background-color: #eee;
   box-shadow: 0 .5rem 1rem rgba(#000, .4);
-  transform: scaleX(1);
   transition: all 2s;
+
+  @media only screen and (max-width: 600px){
+      width: 80%;
+  }
 
   &:hover{
     // width: 90%;
-      transform: scaleX(1.1);
+      // transform: scaleX(1.1);
   }
    &:focus{
      outline:none;
    }
  }
 }
-.search__name--input:hover + .search__icon-btn{
-    transform: translate(-50%,-50%);
-}
+// .search__name--input:hover + .search__icon-btn{
+//     transform: translate(-50%,-50%);
+// }
 
 .search__name--input:focus + .search__icon-btn .search__icon{
   fill: #ccc;
@@ -61,33 +65,36 @@
   fill: #ccc;
 }
 
-// button holds svg icon
-.search__icon-btn{
-  position:absolute;
-  right:0;
-  top:50%;
-  // margin-left: -40rem;
-  // margin-left:40%;
-
-  transform: translate(-80%,-50%);
-  // background-color: rgba(#F00, 0.3);
-  background-color: #eee;
-  border: none;
-  width:50px;
-  height: 90%;
-  border-radius: 100px;
-  cursor:pointer;
-  transition: all 2s;
-  &:focus{
-    outline:none;
-  }
-}
 // svg icon
 .search__icon{
   height: 2.5rem;
   width: 2.5rem;
   fill: #ddd;
   transition: 2s fill;
+  // button holds svg icon
+  &-btn{
+    position:absolute;
+    right:50%;
+    top:50%;
+    // margin-left: -40rem;
+    // margin-left:40%;
+
+    transform: translate(-80%,-50%);
+    // background-color: rgba(#F00, 0.3);
+    background-color: #eee;
+    border: none;
+    width:50px;
+    height: 90%;
+    border-radius: 100px;
+    @media only screen and (max-width: 600px){
+      right:15%;
+    }
+    cursor:pointer;
+    transition: all 2s;
+    &:focus{
+      outline:none;
+    }
+  }
 }
 // active svg
 .search__icon:active{
@@ -98,12 +105,12 @@
 .search__filter{
   width: 100px;
   display:flex;
-  justify-content: flex-end;
+  justify-content: center;
   position:relative;
   z-index: 10;
   @media only screen and (max-width: 500px){
-      height: 6em;
-      align-self:   flex-end;
+      height: 5em;
+      align-self:   flex-start;
       margin-bottom: 5px;
   }
 }
@@ -112,7 +119,7 @@
   // width: 100%;
   // height: 100%;
   margin-right:2rem;
-  flex: 0 0 100px;
+  flex: 0 0 120px;
   background-color:#eee;
   border-radius: 3px;
   border:none;
@@ -135,7 +142,7 @@
   position:absolute;
   bottom: 50%;
   right:0;
-  transform: translate(0,50%);
+  transform: translate(-10%,50%);
 
   // arrow_down
   width: 0;

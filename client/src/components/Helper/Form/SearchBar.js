@@ -1,9 +1,15 @@
 import React, {Component} from 'react';
 
+import {SelectSort} from './SelectSort';
+
 export class SearchBar extends Component{
   constructor(props){
     super(props);
     this.state = {searchbar : "search me"};
+  }
+
+  selectSort(e){
+    console.log(e.target.innerHTML);
   }
   render(){
     return(
@@ -17,7 +23,9 @@ export class SearchBar extends Component{
             </svg>
           </button>
         </div>
-
+<SelectSort selectSort={this.selectSort}/>
+        {
+        /*
         <div className="search__filter">
            <button className="search__btn">Filter </button>
            <ul className="filter__list">
@@ -27,6 +35,8 @@ export class SearchBar extends Component{
              <li className="filter__list-item"><button className="filter__list-link">oldcards</button></li>
            </ul>
         </div>
+        */
+        }
 
       </div>
     );

@@ -3,13 +3,15 @@
   top: 60%;
   background-color: #ccc;
   list-style: none;
-  margin-top:1rem;
+  margin-top:1.5rem;
   max-height: 200px;
-  width: 100px;
+  width: 120px;
   transform: scaleY(0);
   transform-origin: top;
+  border-bottom-left-radius: .5rem;
+  border-bottom-right-radius:  .5rem;
   // display: none;
-  transition: all 1s;
+  // transition: all 1s;
 
 
   // @media only screen and (max-width: 500px){
@@ -22,10 +24,13 @@
   }
   &-link{
     // text-decoration: none;
+    display: inline-block;
     border:none;
     padding: 1rem 2rem;
     flex:1;
     background-color: pink;
+    border-top-left-radius: 5px;
+    border-bottom-left-radius: 5px;
     transition: all 2s;
   }
   &-link:not(:hover){
