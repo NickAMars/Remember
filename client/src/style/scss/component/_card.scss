@@ -24,8 +24,9 @@
       background-color: pink;
     }
     &--back{
+
       width: 100%;
-      background-color: yellowgreen;
+      background-color: black;
       transform: rotateY(-180deg);
     }
   }
@@ -48,7 +49,7 @@
 
 
   &__title{
-    color: #eee;
+    color: #fff;
     font-size: 2.4rem;
     font-weight:  700;
     text-align: center;

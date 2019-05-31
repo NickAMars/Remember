@@ -392,7 +392,7 @@ body {
       background-color: pink; }
     .card__side--back {
       width: 100%;
-      background-color: yellowgreen;
+      background-color: black;
       transform: rotateY(-180deg); }
   .card:hover .card__side--front {
     transform: rotateY(180deg); }
@@ -406,7 +406,7 @@ body {
       fill: #fff;
       cursor: pointer; }
   .card__title {
-    color: #eee;
+    color: #fff;
     font-size: 2.4rem;
     font-weight: 700;
     text-align: center;
