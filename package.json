@@ -27,7 +27,7 @@
     "express-session": "^1.15.6",
     "jest": "^23.6.0",
     "jsonwebtoken": "^8.5.1",
-    "lodash": "^4.17.10",
+    "lodash": "^4.17.21",
     "mongoose": "^5.2.9",
     "passport": "^0.4.0",
     "passport-facebook": "^2.1.1",
