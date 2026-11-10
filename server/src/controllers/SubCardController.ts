@@ -71,8 +71,8 @@ export class SubCardController implements Controller {
       const rows: string[][] = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '' });
 
       const cards: { title: string; descriptions: string; link: string }[] = [];
-      const firstCell = rows.length > 0 ? String(rows[0][0]).toLowerCase() : '';
-      const startRow = (firstCell === 'title' || firstCell === 'question') ? 1 : 0;
+      const firstCell = rows.length > 0 ? String(rows[0][0]).toLowerCase().trim() : '';
+      const startRow = ['title', 'question'].includes(firstCell) ? 1 : 0;
       for (let i = startRow; i < rows.length; i++) {
         let title = String(rows[i][0] || '').trim();
         let descriptions = String(rows[i][1] || '').trim();

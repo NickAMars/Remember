@@ -91,17 +91,19 @@ export class SubCardService {
     return subCard;
   }
 
-  async addBulk(masterCardUuid: string, userUuid: string, cards: { title: string; descriptions: string; link?: string }[]): Promise<{ added: number; updated: number }> {
+  async addBulk(masterCardUuid: string, userUuid: string, inputCards: { title: string; descriptions: string; link?: string }[]): Promise<{ added: number; updated: number }> {
     const user = await this.users.findOneBy({ uuid: userUuid });
     if (!user) throw notFound('User not found');
 
     const masterCard = await this.masterCards.findOneBy({ uuid: masterCardUuid, userId: user.id });
     if (!masterCard) throw notFound('Master card not found');
 
-    // Check for duplicates within the incoming batch
-    const titles = cards.map(c => c.title);
-    const uniqueTitles = new Set(titles);
-    if (uniqueTitles.size !== titles.length) throw badRequest('Duplicate questions found in the provided cards');
+    // Deduplicate within the batch — last occurrence wins
+    const deduped = new Map<string, typeof inputCards[0]>();
+    for (const c of inputCards) {
+      deduped.set(c.title, c);
+    }
+    const cards = Array.from(deduped.values());
 
     // Split into new cards and existing cards to update
     const existingCards = await this.subCards.find({ where: { masterCardId: masterCard.id } });
