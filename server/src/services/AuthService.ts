@@ -113,43 +113,43 @@ export class AuthService {
     const tutorialCards = [
       {
         title: 'Welcome to Remember',
-        descriptions: 'Remember is a flashcard app that helps you memorize anything. Create decks, add cards, study them, and track your progress over time.',
+        descriptions: 'Remember is a flashcard app that helps you study and memorize anything. Create decks, add cards, study them, and track your progress over time.',
       },
       {
         title: 'Creating a Deck',
-        descriptions: 'Go to the Main page and scroll to the bottom. Enter a deck name in the "Create Master Card" section and click Create. This is your new topic.',
+        descriptions: 'Go to the Home page and scroll to the bottom. Enter a deck name and click Create Master Card. This creates a new topic deck you can fill with flashcards.',
       },
       {
         title: 'Adding Flashcards',
-        descriptions: 'Open a deck and click the + Add Cards button. You can add cards one at a time or upload an Excel/CSV file with columns for title and description.',
+        descriptions: 'Open a deck and click the + Add Cards button. Add cards one at a time with a title and description (up to 5000 characters), or upload an Excel/CSV file with Column A for titles and Column B for descriptions.',
       },
       {
         title: 'Studying Your Cards',
-        descriptions: 'Click any flashcard to flip it and reveal the answer. Try to recall the answer before flipping. Each flip is tracked as a view.',
+        descriptions: 'Click any flashcard to flip it and reveal the answer. Try to recall the answer before flipping. Each flip is tracked as a view and updates the pie chart in real time.',
       },
       {
         title: 'Editing & Deleting',
-        descriptions: 'Hover over a card to see the edit (pencil) and delete (X) icons. Edit opens a modal to update the title and description. Delete asks for confirmation.',
+        descriptions: 'Hover over a card to see the edit (pencil) and delete (X) icons. Edit opens a dialog to update the title and description. Delete asks for confirmation. Note: you cannot edit or delete cards that are currently shared publicly.',
       },
       {
         title: 'Card Size Control',
-        descriptions: 'Use the slider above your cards to change how many cards show per row. Choose between 4, 3, 2, or 1 cards per row to fit your preference.',
+        descriptions: 'Use the size controls above your cards to change how many cards show per row. Choose between 4, 3, 2, or 1 cards per row to fit your preference.',
       },
       {
         title: 'Tracking Progress',
-        descriptions: 'The Main page shows a histogram of your top 5 most-viewed decks. Inside each deck, a pie chart shows which cards you view the most.',
+        descriptions: 'The Home page shows a histogram of your top 5 most-viewed decks. Inside each deck, a pie chart shows which cards you view the most. Both update in real time as you study.',
       },
       {
         title: 'Sharing Cards Publicly',
-        descriptions: 'On the My Cards page, check the "Public" checkbox on any deck to share it with other users. You can share up to 5 decks at a time.',
+        descriptions: 'On the Study page, click the share icon on any deck to make it public. You can share up to 5 decks. On your 5th share you will see a warning that it is your last. Unshare a deck by clicking the share icon again. Copied decks cannot be re-shared.',
       },
       {
         title: 'Browsing Public Cards',
-        descriptions: 'Visit the Browse page to see decks shared by other users. Click any deck to study it. Your views are tracked separately from the owner.',
+        descriptions: 'Visit the Browse page to see decks shared by other users. Click any deck to study it. Your views are tracked separately. Use the copy button to add a public deck to your own Study collection.',
       },
       {
-        title: 'Navigation',
-        descriptions: 'Use the menu icon in the top-right to navigate between pages. The breadcrumb trail at the top of each page lets you go back to previous pages.',
+        title: 'Navigation & Settings',
+        descriptions: 'Use the bookmark icon in the top-right to open the side menu. Navigate between Home, Study, and Browse. Click System for Logout or Deactivate Account options. The breadcrumb trail in the header helps you navigate back.',
       },
     ];
 
