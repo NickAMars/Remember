@@ -17,18 +17,25 @@ export  default  {
       }
     },
     RegisterUser :(data) =>async dispatch => {
-       console.log("signup");
-       const passwordDigest = await sha256(data.password);
-       const res = await axios.post('/auth/signup', { username: data.username, passwordDigest });
-       setToken(res.data.token);
-       dispatch( {type: type.FETCH_USER, payload: res.data.user } );
+       try {
+         const passwordDigest = await sha256(data.password);
+         const res = await axios.post('/auth/signup', { username: data.username, passwordDigest });
+         setToken(res.data.token);
+         dispatch( {type: type.FETCH_USER, payload: res.data.user } );
+       } catch (err) {
+         console.error('Signup failed:', err.response ? err.response.data : err.message);
+       }
      }
 ,
     loginUser : (data) =>
       async dispatch => {
-        const passwordDigest = await sha256(data.password);
-        const res = await axios.post('/auth/login', { username: data.username, passwordDigest });
-        setToken(res.data.token);
-        dispatch( {type: type.FETCH_USER, payload: res.data.user } );
+        try {
+          const passwordDigest = await sha256(data.password);
+          const res = await axios.post('/auth/login', { username: data.username, passwordDigest });
+          setToken(res.data.token);
+          dispatch( {type: type.FETCH_USER, payload: res.data.user } );
+        } catch (err) {
+          console.error('Login failed:', err.response ? err.response.data : err.message);
+        }
       }
 }

@@ -1,4 +1,7 @@
-import 'dotenv/config';
+import { config as dotenvConfig } from 'dotenv';
+import { resolve } from 'path';
+
+dotenvConfig({ path: resolve(__dirname, '../../.env') });
 
 const env = (key: string, fallback?: string): string => {
   const value = process.env[key] ?? fallback;
@@ -7,7 +10,7 @@ const env = (key: string, fallback?: string): string => {
 };
 
 export const config = {
-  port: Number(env('PORT', '5000')),
+  port: Number(env('PORT', '5001')),
   databaseUrl: env('DATABASE_URL', 'postgres://remember:password@localhost:5556/remember'),
   jwtSecret: env('JWT_SECRET', process.env.NODE_ENV === 'production' ? undefined : 'dev-only-secret'),
   jwtTtl: env('JWT_TTL', '30d'),

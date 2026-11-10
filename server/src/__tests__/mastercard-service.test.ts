@@ -204,13 +204,13 @@ describe('MasterCardService', () => {
   });
 
   describe('getTopFive', () => {
-    it('returns top 5 by timespent', async () => {
+    it('returns top 5 by views', async () => {
       mockUsers.findOneBy.mockResolvedValue(user);
       const cards = Array.from({ length: 6 }, (_, i) => ({
         id: i + 1,
         uuid: `mc-${i}`,
         title: `Card ${i}`,
-        timespent: (i + 1) * 10,
+        views: (i + 1) * 10,
         createdAt: new Date(),
       }));
       mockMasterCards.find.mockResolvedValue(cards.slice(0, 5));
@@ -219,7 +219,7 @@ describe('MasterCardService', () => {
 
       expect(mockMasterCards.find).toHaveBeenCalledWith({
         where: { userId: user.id },
-        order: { timespent: 'DESC' },
+        order: { views: 'DESC' },
         take: 5,
       });
       expect(result).toHaveLength(5);

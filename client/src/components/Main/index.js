@@ -3,7 +3,7 @@ import {TopFiveCard} from '../Helper/Cards';
 import {CreateMaster} from '../Helper/Form';
 import {Chart} from  './chart';
 import { connect } from 'react-redux';
-import { fetchUser ,getMyCard } from '../../actions';
+import { fetchUser, getMyCard, getSmallCards } from '../../actions';
 
 class MasterCard extends Component{
   async componentDidMount(){
@@ -27,12 +27,16 @@ class MasterCard extends Component{
     this.setState({data});
   }
 
+  navigateToCard = (referenceID) => {
+    this.props.getSmallCards(referenceID);
+  }
+
   static getDerivedStateFromProps(props, state){
     // console.log(props.user);
     if(props.user === null) return null;
     // console.log(props.user)
     if(props.user){
-      return{ cards : props.user.topfiveMaster};
+      return{ cards : props.user.topfiveMaster || []};
     }else{
       console.log("null")
       return null;
@@ -48,17 +52,17 @@ class MasterCard extends Component{
 
         <div className="xcontainer-main u-mb-md">
             <div className="topcards">
-              <h4 className="heading__quaternary u-mb-sm">Top Five Cards </h4>
+              <h4 className="heading__quaternary u-mb-sm">View Cards</h4>
               <ul className="list">
                  {
                    this.state.cards.map( (master, index) =>{
-                      return ( <TopFiveCard onClick={this.getDataFromTopFive} key={master.referenceID} cards={master}/>  );
+                      return ( <TopFiveCard onNavigate={this.navigateToCard} key={master.referenceID} cards={master}/>  );
                     })
                  }
                </ul>
             </div>
 
-              <Chart data={this.state.data}/>
+              <Chart data={this.state.cards}/>
         </div>
         <CreateMaster/>
 
@@ -73,4 +77,4 @@ const mapStateToProps = (state) => {
     user: state.user
   };
 }
-export default connect(mapStateToProps, {fetchUser, getMyCard})(MasterCard);
+export default connect(mapStateToProps, {fetchUser, getMyCard, getSmallCards})(MasterCard);

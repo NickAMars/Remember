@@ -7,14 +7,15 @@ export const Description = () => {
         Remember
       </h1>
       <div className="app__description">
-        Lorem ipsum dolor sit amet, consectetur adipisicing elit.
-         Eum mollitia ipsam iste, consequatur numquam blanditiis ullam quam dolorem architecto,
-          accusantium consectetur aut voluptatem adipisci totam iure praesentium libero eos.
-           Tempore, debitis, facilis. Cupiditate delectus vero fugiat laborum nam necessitatibus aliquam,
-            facilis architecto sed impedit, nemo soluta modi fugit nihil, eveniet, ipsam. Quae, nostrum fugiat,
-             voluptatum voluptas quam, velit omnis consequatur laudantium, obcaecati animi dignissimos.
-              Fuga omnis officiis recusandae ratione ducimus laboriosam voluptas enim odio,
+        Build lasting knowledge with flashcards. Create study decks, track your progress,
+        and master any subject one card at a time. Share your best card sets with the
+        community or discover what others have created.
       </div>
+      <ul className="app__features">
+        <li>Create and organize flashcard decks</li>
+        <li>Track your study time and progress</li>
+        <li>Share cards with other learners</li>
+      </ul>
     </div>
   );
 

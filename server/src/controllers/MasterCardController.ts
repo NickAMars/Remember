@@ -1,12 +1,17 @@
 import { Router } from 'express';
+import multer from 'multer';
 import { inject, injectable } from 'inversify';
 import { z } from 'zod';
+import * as XLSX from 'xlsx';
 import { requireAuth, userUuid } from '../middleware/auth';
 import { handle, parse, uuidParam } from '../middleware/http';
+import { HttpError } from '../services/errors';
 import { AuthService } from '../services/AuthService';
 import { MasterCardService } from '../services/MasterCardService';
 import { TYPES } from '../types';
 import type { Controller } from '../interfaces/controller';
+
+const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 5 * 1024 * 1024 } });
 
 @injectable()
 export class MasterCardController implements Controller {
@@ -25,9 +30,45 @@ export class MasterCardController implements Controller {
       return this.service.getAllForUser(userUuid(req));
     }));
 
+    router.post('/upload', upload.single('file'), handle(async (req) => {
+      if (!req.file) throw new HttpError(400, 'No file uploaded');
+
+      const ext = req.file.originalname.split('.').pop()?.toLowerCase();
+      if (!ext || !['xlsx', 'xls', 'csv'].includes(ext)) {
+        throw new HttpError(400, 'File must be .xlsx, .xls, or .csv');
+      }
+
+      const workbook = XLSX.read(req.file.buffer, { type: 'buffer' });
+      const results: { title: string; cardCount: number }[] = [];
+
+      for (const sheetName of workbook.SheetNames) {
+        const sheet = workbook.Sheets[sheetName];
+        const rows: string[][] = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '' });
+
+        if (rows.length < 2) continue;
+
+        const cards: { title: string; description: string }[] = [];
+        for (let i = 1; i < rows.length; i++) {
+          const title = String(rows[i][0] || '').trim();
+          const description = String(rows[i][1] || '').trim();
+          if (title) cards.push({ title, description });
+        }
+
+        if (cards.length === 0) continue;
+
+        await this.service.create(userUuid(req), sheetName, cards);
+        results.push({ title: sheetName, cardCount: cards.length });
+      }
+
+      if (results.length === 0) {
+        throw new HttpError(400, 'No valid cards found. Use column A for title, column B for description. Row 1 is treated as a header.');
+      }
+
+      return { imported: results };
+    }));
+
     router.get('/:uuid', handle(async (req) => {
-      const card = await this.service.getOne(uuidParam(req));
-      return card.progress;
+      return this.service.getOne(uuidParam(req));
     }));
 
     router.post('/', handle(async (req) => {

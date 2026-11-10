@@ -78,9 +78,9 @@ describe('calculateTimeSpent', () => {
 });
 
 describe('topFiveCards', () => {
-  it('returns top 5 sorted by timespent', () => {
+  it('returns top 5 sorted by views', () => {
     const cards = Array.from({ length: 7 }, (_, i) => ({
-      timespent: (i + 1) * 10,
+      views: (i + 1) * 10,
       uuid: `uuid-${i}`,
       title: `Card ${i}`,
       createdAt: new Date(),
@@ -99,8 +99,8 @@ describe('topFiveCards', () => {
 
   it('handles fewer than 5 cards', () => {
     const cards = [
-      { timespent: 50, uuid: 'u-1', title: 'Only Card', createdAt: new Date() },
-      { timespent: 20, uuid: 'u-2', title: 'Second Card', createdAt: new Date() },
+      { views: 50, uuid: 'u-1', title: 'Only Card', createdAt: new Date() },
+      { views: 20, uuid: 'u-2', title: 'Second Card', createdAt: new Date() },
     ];
 
     const result = topFiveCards(cards);

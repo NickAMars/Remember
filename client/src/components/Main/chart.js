@@ -1,112 +1,194 @@
 import React, {Component} from 'react'
-import {beginDate} from  '../../constance'
-// data,
 import * as d3 from "d3"
 
-const width = 500;
-const height = 500;
-const margin = { top: 15, right: 15,
-                  bottom: 20,left: 30};
+const margin = { top: 40, right: 20, bottom: 70, left: 60 };
 
 export class Chart extends Component{
-    state = {
-      line: null,
-      xScale: d3.scaleTime().domain(beginDate(new Date())).range([margin.left, width - margin.right]),
-      yScale: d3.scaleLinear().range([height - margin.bottom, margin.top ]),
-      areaGenerator:d3.area().curve(d3.curveLinear)
-    };
-
     constructor(props){
       super(props);
-      this.updateD3 = this.updateD3.bind(this);
+      this.svgRef = React.createRef();
+      this.containerRef = React.createRef();
+      this.state = {
+        width: 500,
+        height: 350
+      };
     }
-          // areaGenerator: d3.line()
-    // .curve(d3.curveLinear)
-    // curve(d3.curveCardinal)
 
-
-    xAxis = d3.axisBottom().scale(this.state.xScale)
-            .ticks(7)
-            // .orient("bottom") doesnt work
-          .tickSize(0)
-          .tickFormat(d3.timeFormat("%m-%d"));
-    yAxis = d3.axisLeft().scale(this.state.yScale)
-          // .tickSize( 2)
-          .tickFormat(d3.format(".0s"));
   componentDidMount(){
-    this.updateD3();
-    // get information needed from the server to do this
+    this.handleResize();
+    window.addEventListener('resize', this.handleResize);
+    this.drawChart();
   }
-  static getDerivedStateFromProps(nextProps, prevState){
-     // if (!nextProps.data) return null;
-     const {data} = nextProps;
-     const {xScale, yScale,  areaGenerator} = prevState;
-      const maxTime = d3.max(data, d => d.time)/(1000); // in second
-      yScale.domain([0, maxTime]);
-     areaGenerator.x(d => xScale(new Date(d.daycreated.toString())));
-     areaGenerator.y0(height- margin.top);
-     areaGenerator.y1(d => yScale( d.time/1000) );
-     // areaGenerator.define(d => d.date !== null);
-     const line = areaGenerator(data);
-     return {line};
 
+  componentWillUnmount(){
+    window.removeEventListener('resize', this.handleResize);
   }
-    // manipulating the DOM (seems to only go when page load)
-  componentDidUpdate() {
-    this.updateD3();
-   }
-updateD3(){
-  d3.select(this.refs.xAxis).call(this.xAxis);
-  d3.select(this.refs.yAxis).call(this.yAxis);
-  // TITLE
-    d3.select(this.refs.svg)
-      .append("text")
-      .attr("x", width/2)
-      .attr("y", margin.top)
-      .attr("font-size", "1rem")
-      .attr("font-weight","900")
-      .attr("letter-spacing","10px")
+
+  componentDidUpdate(prevProps){
+    if(prevProps.data !== this.props.data){
+      this.drawChart();
+    }
+  }
+
+  handleResize = () => {
+    if(this.containerRef.current){
+      const containerWidth = this.containerRef.current.clientWidth;
+      const w = Math.min(containerWidth - 20, 600);
+      const h = Math.max(w * 0.6, 250);
+      this.setState({ width: w, height: h }, () => this.drawChart());
+    }
+  }
+
+  drawChart(){
+    const svg = d3.select(this.svgRef.current);
+    const {data} = this.props;
+    const {width, height} = this.state;
+
+    svg.selectAll("*").remove();
+
+    const chartWidth = width - margin.left - margin.right;
+    const chartHeight = height - margin.top - margin.bottom;
+
+    const g = svg.append("g")
+      .attr("transform", `translate(${margin.left},${margin.top})`);
+
+    if(!data || data.length === 0){
+      g.append("text")
+        .attr("x", chartWidth / 2)
+        .attr("y", chartHeight / 2)
+        .attr("fill", "#7a8299")
+        .attr("font-size", "14px")
+        .style("text-anchor", "middle")
+        .text("No card data yet");
+      return;
+    }
+
+    // X Scale - one bar per card title
+    const xScale = d3.scaleBand()
+      .domain(data.map(d => d.title))
+      .range([0, chartWidth])
+      .padding(0.3);
+
+    const maxViews = d3.max(data, d => d.maxTime) || 1;
+    const yScale = d3.scaleLinear()
+      .domain([0, maxViews])
+      .nice()
+      .range([chartHeight, 0]);
+
+    // Grid lines
+    g.append("g")
+      .selectAll("line")
+      .data(yScale.ticks(5))
+      .enter().append("line")
+      .attr("x1", 0)
+      .attr("x2", chartWidth)
+      .attr("y1", d => yScale(d))
+      .attr("y2", d => yScale(d))
+      .attr("stroke", "rgba(255,255,255,0.06)")
+      .attr("stroke-dasharray", "3,3");
+
+    // Gradient for bars
+    const defs = svg.append("defs");
+    const gradient = defs.append("linearGradient")
+      .attr("id", "barGradient")
+      .attr("x1", "0%").attr("y1", "0%")
+      .attr("x2", "0%").attr("y2", "100%");
+    gradient.append("stop")
+      .attr("offset", "0%")
+      .attr("stop-color", "#daa56c")
+      .attr("stop-opacity", 1);
+    gradient.append("stop")
+      .attr("offset", "100%")
+      .attr("stop-color", "#8b5e3c")
+      .attr("stop-opacity", 0.8);
+
+    // Bars
+    g.selectAll(".bar")
+      .data(data)
+      .enter().append("rect")
+      .attr("x", d => xScale(d.title))
+      .attr("y", d => yScale(d.maxTime))
+      .attr("width", xScale.bandwidth())
+      .attr("height", d => chartHeight - yScale(d.maxTime))
+      .attr("fill", "url(#barGradient)")
+      .attr("rx", 4)
+      .attr("ry", 4);
+
+    // Value labels on bars
+    g.selectAll(".bar-label")
+      .data(data)
+      .enter().append("text")
+      .attr("x", d => xScale(d.title) + xScale.bandwidth() / 2)
+      .attr("y", d => yScale(d.maxTime) - 8)
+      .attr("fill", "#c49a6c")
+      .attr("font-size", "12px")
+      .attr("font-weight", "600")
       .style("text-anchor", "middle")
-      .text("Top Five");
-    //DATE
-    d3.select(this.refs.svg)
-      .append("text")
-      .attr("x", width/2)
-      .attr("y",height)
-      .attr("font-size", "1rem")
-      .attr("font-weight","900")
-      .attr("letter-spacing","10px")
+      .text(d => d.maxTime);
+
+    // X Axis - card titles
+    g.append("g")
+      .attr("transform", `translate(0,${chartHeight})`)
+      .call(d3.axisBottom(xScale)
+        .tickSize(0))
+      .call(g => g.select(".domain").attr("stroke", "rgba(255,255,255,0.15)"))
+      .selectAll("text")
+      .attr("fill", "#b0b8cc")
+      .attr("font-size", "11px")
+      .attr("dy", "1em")
+      .attr("transform", "rotate(-25)")
+      .style("text-anchor", "end")
+      .each(function() {
+        const text = d3.select(this);
+        if (text.text().length > 14) {
+          text.text(text.text().substring(0, 12) + "...");
+        }
+      });
+
+    // Y Axis
+    g.append("g")
+      .call(d3.axisLeft(yScale)
+        .ticks(5)
+        .tickSize(0)
+        .tickFormat(d3.format("d")))
+      .call(g => g.select(".domain").attr("stroke", "rgba(255,255,255,0.15)"))
+      .selectAll("text")
+      .attr("fill", "#b0b8cc")
+      .attr("font-size", "11px");
+
+    // Title
+    svg.append("text")
+      .attr("x", width / 2)
+      .attr("y", 24)
+      .attr("fill", "#c49a6c")
+      .attr("font-size", "14px")
+      .attr("font-weight", "600")
+      .attr("letter-spacing", "3px")
       .style("text-anchor", "middle")
-      .text("DATE (mm/dd)");
-      //TIME
-    d3.select(this.refs.svg)
-      .append("text")
+      .text("CARD VIEWS");
+
+    // Y label
+    svg.append("text")
       .attr("transform", "rotate(-90)")
-      .attr("font-size", "1.4rem")
-      .attr("x", -height/2)
-      .attr("y", margin.left -5)
-      .attr("dy", "-1.1em")
-      .attr("letter-spacing","10px")
+      .attr("x", -height / 2)
+      .attr("y", 16)
+      .attr("fill", "#7a8299")
+      .attr("font-size", "11px")
       .style("text-anchor", "middle")
-      .text("TIME (sec)");
-}
+      .text("VIEWS");
+  }
 
   render(){
+    const {width, height} = this.state;
     return(
-      <div className="topcards__graph">
+      <div className="topcards__graph" ref={this.containerRef}>
         <svg
-          ref='svg'
+          ref={this.svgRef}
           width={width}
-          height={height}>
-          <path d= {this.state.line} fill= 'orangered' strokeWidth="0" />
-          <g>
-            <g ref='xAxis' transform={`translate(0, ${height - margin.top})`} />
-            <g ref='yAxis' transform={`translate(${margin.left}, 0)`} />
-          </g>
+          height={height}
+          style={{display: 'block', margin: '0 auto'}}>
         </svg>
       </div>
     )
   }
 }
-// stroke={'#EEE'}
-/* problem *The area goes under the graph so i apply a temorary fize */

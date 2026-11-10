@@ -54,10 +54,10 @@ export interface TopFiveEntry {
   timestamp: Date;
 }
 
-export function topFiveCards(cards: { timespent: number; uuid: string; title: string; createdAt: Date }[]): TopFiveEntry[] {
-  const sorted = [...cards].sort((a, b) => b.timespent - a.timespent);
+export function topFiveCards(cards: { views: number; uuid: string; title: string; createdAt: Date }[]): TopFiveEntry[] {
+  const sorted = [...cards].sort((a, b) => b.views - a.views);
   return sorted.slice(0, TOP_FIVE_LIMIT).map(card => ({
-    maxTime: card.timespent,
+    maxTime: card.views,
     referenceID: card.uuid,
     title: card.title,
     timestamp: card.createdAt,

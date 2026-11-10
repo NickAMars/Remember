@@ -10,14 +10,12 @@ import Modal from '../Modal'
 import {Register} from '../Form'
 
 
-let rerenderOnce  = false;
-
 class SignIn extends Component{
   constructor(props){
     super(props);
     this.state = {
-      username: "username",
-      password: "password",
+      username: "",
+      password: "",
       isOpen: false
     };
   }
@@ -30,26 +28,12 @@ class SignIn extends Component{
    onSubmit = async (e) => {
     e.preventDefault();
     const {username, password}=this.state;
-    try{
-      await  this.props.loginUser({username, password});
-      // this.setState({username: "", password: ""});
-      rerenderOnce = true;
-    }catch(e){
-      console.log(e);
-    }
+    await this.props.loginUser({username, password});
   }
 
   renderRedirect = () => {
-    if(rerenderOnce){
-      // re-render
-      // console.log()
-      rerenderOnce = false;
-      this.setState({username: "", password: ""});
-      console.log(rerenderOnce);
-    }
-    if (this.props.user) {
-      if(this.props.user.code)
-      return <Redirect to='/main' />
+    if (this.props.user && this.props.user.uuid) {
+      return <Redirect to='/' />
     }
   }
   // componentDidUpdate(props){

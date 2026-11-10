@@ -1,11 +1,11 @@
 import React, {PureComponent} from  'react';
-import { BrowserRouter as Router, Route} from 'react-router-dom';
+import { BrowserRouter as Router, Route, Redirect, Switch} from 'react-router-dom';
 import MultipleCards from './MultipleCards';
 import {Landing} from './Landing';
 import Main from './Main';
 import Mine from './Mine';
 import SmallCards from './SmallCards';
-import {Header} from './Header';
+import Header from './Header';
 // import { Redirect } from 'react-router-dom';
 import { connect } from 'react-redux';
 // import axios from 'axios';
@@ -26,9 +26,9 @@ class App extends PureComponent{
     return(
       <Router >
         <div>
-        {user && user.uuid && < Header />}
+        {user && user.uuid && <Header />}
 
-
+          <Switch>
             <Route exact path='/main/subcards/:title' component={MultipleCards} />
             <Route exact path='/smallcards/:idMaster'  component={SmallCards} />
             <Route exact path='/more' render={ ({location}) => {
@@ -38,16 +38,16 @@ class App extends PureComponent{
             } />
             <Route exact path='/mine'render={ ({location}) => {
               if(master.length === 0)
-                //"call this only once"
                 this.props.getMyCards(location.pathname);
-
 
               return <Mine pathname={location.pathname} visible={true}/>;
               }
             } />
-
             <Route exact path='/main' component={Main} />
-            <Route exact path='/' component={Landing} />
+            <Route exact path='/' render={() =>
+              user && user.uuid ? <Redirect to='/main' /> : <Landing />
+            } />
+          </Switch>
 
           </div>
         </Router>

@@ -11,4 +11,6 @@ export const FETCH_USER    = "FETCH_USER",
              MYCARDS       = "MYCARDS",
              POOLCARDS     = "POOLCARDS",
              GET_SUBCARDS  = "GET_SMALLCARDS",
-             UPDATE_TIME   = "UPDATE_TIME";
+             UPDATE_TIME   = "UPDATE_TIME",
+             LOGOUT        = "LOGOUT",
+             CLEAR_CARDS   = "CLEAR_CARDS";

@@ -18,6 +18,7 @@
     "migration:show": "tsx node_modules/typeorm/cli.js migration:show -d src/data-source.ts"
   },
   "dependencies": {
+    "@types/multer": "^2.3.0",
     "bcryptjs": "^2.4.3",
     "compression": "^1.8.2",
     "cookie-parser": "^1.4.7",
@@ -28,10 +29,12 @@
     "helmet": "^8.3.0",
     "inversify": "^6.2.2",
     "jsonwebtoken": "^9.0.3",
+    "multer": "^2.5.0",
     "pg": "^8.23.1",
     "reflect-metadata": "^0.2.2",
     "typeorm": "^0.3.31",
     "typeorm-naming-strategies": "^4.1.0",
+    "xlsx": "^0.18.5",
     "zod": "^3.25.76"
   },
   "devDependencies": {

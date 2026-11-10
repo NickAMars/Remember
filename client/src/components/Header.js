@@ -1,14 +1,10 @@
 import React, {Component} from  'react';
-import { Link } from 'react-router-dom';
+import { Link, withRouter } from 'react-router-dom';
+import { connect } from 'react-redux';
+import { clearToken } from '../utils/auth';
+import { LOGOUT } from '../actions/types';
 import cog from  '../img/SVG/bookmarks.svg';
-export class Header extends Component{
-  componentDidMount(){
-    // the header is to call the server to recieve  the person id one time
-
-    // store that id in the redux store. where i can get it at any time
-
-    //but i also need to stop from call the server all the time
-  }
+class Header extends Component{
   state = {
     buttonEvent: false
   }
@@ -17,7 +13,12 @@ export class Header extends Component{
     await this.setState({buttonEvent: !this.state.buttonEvent})
   }
 
-
+  onLogout = (e) => {
+    e.preventDefault();
+    clearToken();
+    this.props.dispatch({ type: LOGOUT });
+    this.props.history.push('/');
+  }
 
   render(){
     return (
@@ -47,10 +48,7 @@ export class Header extends Component{
                   <Link className="navbar-nav-2__link" to="/">Setting</Link>
                 </li>
                 <li className="navbar-nav-2__items">
-                  <a className="navbar-nav-2__link" href="/api/logout">Logout</a>
-                </li>
-                <li className="navbar-nav-2__items">
-                  <a className="navbar-nav-2__link" href="/api/logout">Delete Account</a>
+                  <a className="navbar-nav-2__link" href="/" onClick={this.onLogout}>Logout</a>
                 </li>
               </ul>
             </ul>
@@ -66,27 +64,5 @@ export class Header extends Component{
 
 
 }
-// <li className="nav-list__item"><Link to="/" className="nav-list__link">Profile</Link></li>
 
-
-
-// render(){
-//   return (
-//     <nav className="nav u-mb-sm">
-//       <ul className="nav-list">
-//       { /*main links after user has sign in the can see these*/ }
-//         <li className="nav-list__item"><Link to="/main" className="nav-list__link">Main</Link></li>
-//         <li className="nav-list__item"><Link  to="/mine" className="nav-list__link" >Mine</Link></li>
-//         <li className="nav-list__item"><Link  to="/more" className="nav-list__link" >More</Link></li>
-//       </ul>
-//       <div className="tool-bar">
-//         <img className="tool-bar__item" src={cog} alt='X'/>
-//         <ul className="nav-logout">
-//         {/*ask the user if the want log out*/}
-//           <li className="nav-logout__item"><a  href="/api/logout" className="nav-logout__link-log">LogOut</a></li>
-//           <li className="nav-logout__item"><Link  to="/" className="nav-logout__link-log">Setting</Link></li>
-//         </ul>
-//       </div>
-//     </nav>
-//   );
-// }
+export default withRouter(connect()(Header));

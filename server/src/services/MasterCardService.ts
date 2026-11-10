@@ -26,6 +26,8 @@ export class MasterCardService {
       relations: ['subCards', 'progress'],
     });
     if (!card) throw notFound('Master card not found');
+    await this.masterCards.increment({ uuid }, 'views', 1);
+    card.views += 1;
     return card;
   }
 
@@ -138,7 +140,7 @@ export class MasterCardService {
 
     const cards = await this.masterCards.find({
       where: { userId: user.id },
-      order: { timespent: 'DESC' },
+      order: { views: 'DESC' },
       take: 5,
     });
 

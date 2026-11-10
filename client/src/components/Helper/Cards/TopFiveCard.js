@@ -1,18 +1,14 @@
 import React from  'react';
-// import { Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
-// functional component that display one card item
 export  const TopFiveCard = (props)=>{
-  const {referenceID ,title, createdAt } = props.cards;
-  const {onClick} = props;
-  // onClick={()=>onClick(referenceID)}
-// let date  = new Date(timestamp.toString());
+  const {referenceID, title, maxTime } = props.cards;
   return (
     <li className="list__items">
-      <button onClick={()=>onClick(referenceID)} className="list__links">
-        <span className="list__title ">{title}</span>
-        <span className="list__date">{createdAt}</span>
-      </button>
+      <Link to={`/smallcards/${referenceID}`} className="list__links" onClick={()=>props.onNavigate(referenceID)}>
+        <span className="list__title">{title}</span>
+        <span className="list__views">{maxTime}</span>
+      </Link>
     </li>
   );
 };

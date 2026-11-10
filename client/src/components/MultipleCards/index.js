@@ -1,14 +1,13 @@
 import React, {Component} from 'react'
 import { connect } from 'react-redux'
 import {deleteCard,  updateForm, submitCard} from '../../actions'
+import { CLEAR_CARDS } from '../../actions/types'
 // import {Header} from '../Header';
 import {Card} from './Card'
 import {Form} from '../Helper/Form'
 import PropTypes from 'prop-types'
 
 export class MultipleCards extends Component{
-  submitClick = false;
-
   render(){
     // console.log(this.submitClick);
     return (
@@ -34,19 +33,15 @@ export class MultipleCards extends Component{
   }
   Submit = async () => {
      const {title} = this.props.match.params;
-     // const user = this.props.user;
      const { cards } = this.props;
      if(cards.length  !== 0){
        this.props.submitCard( title, cards);
-       this.submitClick = true;
      }
-    this.props.history.push('/main');
+     this.props.dispatch({ type: CLEAR_CARDS });
+     this.props.history.push('/main');
   }
   componentWillUnmount(){
-    // const { cards } = this.props;
-    // console.log(this.submitClick);
-    if(this.props.cards.length && !this.submitClick )
-      this.Submit();
+    this.props.dispatch({ type: CLEAR_CARDS });
   }
 
 
@@ -71,4 +66,11 @@ export const mapStateToProps = (state) => {
   };
 }
 
-export default connect(mapStateToProps,{deleteCard, updateForm, submitCard})(MultipleCards);
+const mapDispatchToProps = (dispatch) => ({
+  deleteCard: (...args) => dispatch(deleteCard(...args)),
+  updateForm: (...args) => dispatch(updateForm(...args)),
+  submitCard: (...args) => dispatch(submitCard(...args)),
+  dispatch,
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(MultipleCards);
