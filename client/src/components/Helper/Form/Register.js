@@ -1,33 +1,23 @@
   import React, {PureComponent } from 'react'
   import {RegisterUser} from '../../../actions'
-  import {validatePsw} from  '../Validate';
     import { connect } from 'react-redux';
   class Register extends PureComponent{
 
     constructor(props){
       super(props);
-      this.state = {username : "", password : "", pwdCheck: ""};
+      this.state = {username : "", password : ""};
     }
   UpdateUserName = (e) =>{this.setState({username: e.target.value}); }
   Updatepwd = (e) =>{this.setState({password: e.target.value});}
-  UpdatepwdCheck = (e) =>{this.setState({pwdCheck: e.target.value});}
 
 
   onSubmit = (e) =>{
     e.preventDefault();
-    const {username ,password, pwdCheck} =  this.state;
-    if(username !== "" && password !== "" && pwdCheck !== ""){
-      // check if user name is already Their in server
-
-      if(validatePsw(password,pwdCheck)){
-        // send to server
-        const data =  {username, password};
-        // dont need to go to reducer
-        this.props.closeForm();
-        this.props.RegisterUser(data);
-      }else{
-        console.log(" invalid password ");
-      }
+    const {username ,password} =  this.state;
+    if(username !== "" && password !== ""){
+      const data =  {username, password};
+      this.props.closeForm();
+      this.props.RegisterUser(data);
     }else{
       console.log("A field has not been inputed");
     }
@@ -37,7 +27,6 @@
     e.preventDefault();
     this.props.closeForm();
   }
-  // onSubmit={this.onSubmit}
     render(){
       return(
         <div className="modal__form">
@@ -53,10 +42,6 @@
                 <input id="psw"  className="form__input" type="password" value={this.state.password} onChange={this.Updatepwd} />
                 <label className="form__label" htmlFor="psw">Password</label>
               </div>
-              <div className="form__group">
-                <input id="checkpsw" className="form__input" type="password" value={this.state.pwdCheck} onChange={this.UpdatepwdCheck} />
-                <label className="form__label" htmlFor="checkpsw">Password Check</label>
-              </div>
 
               <div className="form__group--btn">
                 <button className="form__btn form__btn--submit"  onClick = {this.onSubmit}>Submit</button>
@@ -69,10 +54,4 @@
 
   }
 
-              // <Link className="" to="/">Submit</Link>
-  // export default Register;
   export default connect(null, {RegisterUser})(Register);
-
-  // this.userRef      = React.createRef();
-  // this.passRef      = React.createRef();
-  // this.passCheckRef = React.createRef();

@@ -5,6 +5,7 @@ import { clearToken } from '../utils/auth';
 import { LOGOUT } from '../actions/types';
 import axios from '../utils/api';
 import cog from  '../img/SVG/bookmarks.svg';
+import { showToast } from '../utils/toast';
 
 class Header extends Component{
   state = {
@@ -43,7 +44,7 @@ class Header extends Component{
       this.props.dispatch({ type: LOGOUT });
       this.props.history.push('/');
     } catch (err) {
-      console.error('Deactivation failed', err);
+      showToast(err.response ? err.response.data.error : 'Deactivation failed');
     }
   }
 
@@ -87,7 +88,7 @@ class Header extends Component{
                 <Link className="navbar-nav__link" to="/main">Main</Link>
               </li>
               <li className="navbar-nav__items">
-                <Link className="navbar-nav__link" to="/mine">My Cards</Link>
+                <Link className="navbar-nav__link" to="/mine">Study</Link>
               </li>
               <li className="navbar-nav__items">
                 <Link className="navbar-nav__link" to="/more">Browse</Link>

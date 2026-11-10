@@ -1,6 +1,7 @@
 import axios from '../utils/api';
 import { sha256, setToken, clearToken } from '../utils/auth';
 import * as type from '../actions/types';
+import { showToast } from '../utils/toast';
 
 
 // get user id
@@ -22,8 +23,9 @@ export  default  {
          const res = await axios.post('/auth/signup', { username: data.username, passwordDigest });
          setToken(res.data.token);
          dispatch( {type: type.FETCH_USER, payload: res.data.user } );
+         showToast('Account created successfully');
        } catch (err) {
-         console.error('Signup failed:', err.response ? err.response.data : err.message);
+         showToast(err.response ? err.response.data.error : 'Registration failed');
        }
      }
 ,
@@ -35,7 +37,7 @@ export  default  {
           setToken(res.data.token);
           dispatch( {type: type.FETCH_USER, payload: res.data.user } );
         } catch (err) {
-          console.error('Login failed:', err.response ? err.response.data : err.message);
+          showToast(err.response ? err.response.data.error : 'Login failed');
         }
       }
 }

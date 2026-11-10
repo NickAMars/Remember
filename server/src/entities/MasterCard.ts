@@ -27,6 +27,9 @@ export class MasterCard {
   @Column({ type: 'boolean', default: false })
   isDefault: boolean;
 
+  @Column({ type: 'boolean', default: false })
+  isCopied: boolean;
+
   @ManyToOne('User', 'masterCards', { onDelete: 'CASCADE' })
   user: User;
 

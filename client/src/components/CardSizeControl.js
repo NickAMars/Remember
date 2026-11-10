@@ -8,10 +8,10 @@ const subcardSizes = [
 ];
 
 const masterSizes = [
-  { label: '4', min: '14rem', height: '12rem' },
-  { label: '3', min: '20rem', height: '14rem' },
-  { label: '2', min: '28rem', height: '16rem' },
-  { label: '1', min: '100%', height: '10rem' },
+  { label: '4', cols: 4, height: '12rem' },
+  { label: '3', cols: 3, height: '14rem' },
+  { label: '2', cols: 2, height: '16rem' },
+  { label: '1', cols: 1, height: '10rem' },
 ];
 
 export class CardSizeControl extends React.Component {
@@ -43,7 +43,7 @@ export class CardSizeControl extends React.Component {
     const sizes = this.getSizes();
     const s = sizes[idx];
     if (this.props.variant === 'master') {
-      document.documentElement.style.setProperty('--master-card-min', s.min);
+      document.documentElement.style.setProperty('--master-card-cols', s.cols);
       document.documentElement.style.setProperty('--master-card-height', s.height);
     } else {
       document.documentElement.style.setProperty('--card-cols', s.cols);

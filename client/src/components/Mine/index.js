@@ -45,11 +45,9 @@ poolCardMatchUser(poolcard){
    return (
      <div className="remember">
        <SearchBar onSearch={(search) => this.setState({ search })}/>
-       {
-        visible ?
-          <MasterForm title={title} _id={uuid} toggleMasterForm ={this.toggleMasterForm}/>
-          : <noscript/>
-       }
+       <div style={{ visibility: visible ? 'visible' : 'hidden' }}>
+         <MasterForm title={title} _id={uuid} toggleMasterForm ={this.toggleMasterForm}/>
+       </div>
        <CardSizeControl variant="master"/>
        <div className="master">
          <ul className="master__container">
@@ -65,6 +63,7 @@ poolCardMatchUser(poolcard){
                toggleMasterForm={this.toggleMasterForm}
                pathname={pathname}
                showCheckBox={this.poolCardMatchUser(elem)}
+               editingUuid={visible ? uuid : null}
                />
              )
           }

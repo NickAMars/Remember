@@ -3,7 +3,7 @@ import { Link, withRouter } from 'react-router-dom';
 
 const routeNames = {
   '/main': 'Home',
-  '/mine': 'My Cards',
+  '/mine': 'Study',
   '/more': 'Browse',
 };
 
@@ -12,15 +12,15 @@ const Breadcrumb = ({ location, match }) => {
   const crumbs = [{ label: 'Home', to: '/main' }];
 
   if (path === '/mine') {
-    crumbs.push({ label: 'My Cards', to: null });
+    crumbs.push({ label: 'Study', to: null });
   } else if (path === '/more') {
     crumbs.push({ label: 'Browse', to: null });
   } else if (path.startsWith('/smallcards/')) {
     const from = location.query && location.query.prevent ? '/more' : '/mine';
-    crumbs.push({ label: from === '/more' ? 'Browse' : 'My Cards', to: from });
+    crumbs.push({ label: from === '/more' ? 'Browse' : 'Study', to: from });
     crumbs.push({ label: 'Cards', to: null });
   } else if (path.startsWith('/main/subcards/')) {
-    crumbs.push({ label: 'My Cards', to: '/mine' });
+    crumbs.push({ label: 'Study', to: '/mine' });
     const title = match.params.title || 'New Deck';
     crumbs.push({ label: title, to: null });
   } else if (path === '/main') {

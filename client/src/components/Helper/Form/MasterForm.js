@@ -24,14 +24,14 @@ class MasterForm extends Component{
 
   render(){
     return (
-      <div className="create__contrainer "  >
-        <form className="create__cards  u-mt-sm">
-
+      <div className="create__contrainer">
+        <form className="create__cards">
           <div className="create__field">
-              <input type="text" ref= {this.inputRef} placeholder={this.props.title} className="input__master-title" maxLength="128" />
+            <input type="text" ref={this.inputRef} placeholder={this.props.title} className="input__master-title" maxLength="128" />
           </div>
-          <div className="create__cta u-mb-sm">
-            <button onClick= {this.updateMasterCard} className="create__cta-btn "> Update Master Card </button>
+          <div className="create__cta">
+            <button onClick={this.updateMasterCard} className="create__cta-btn">Update</button>
+            <button type="button" onClick={this.props.toggleMasterForm} className="create__cta-btn create__cta-btn--cancel">Cancel</button>
           </div>
         </form>
       </div>

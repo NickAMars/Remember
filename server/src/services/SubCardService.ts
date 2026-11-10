@@ -2,7 +2,7 @@ import { inject, injectable } from 'inversify';
 import { DataSource, Repository } from 'typeorm';
 import { MasterCard, SubCard, User } from '../entities';
 import { TYPES } from '../types';
-import { notFound } from './errors';
+import { notFound, badRequest } from './errors';
 
 @injectable()
 export class SubCardService {
@@ -28,6 +28,7 @@ export class SubCardService {
 
     const masterCard = await this.masterCards.findOneBy({ uuid: masterCardUuid, userId: user.id });
     if (!masterCard) throw notFound('Master card not found');
+    if (masterCard.isDefault) throw badRequest('Cannot add cards to the default tutorial deck');
 
     const subCard = this.subCards.create({ title, descriptions, masterCardId: masterCard.id });
     await this.subCards.save(subCard);
@@ -44,6 +45,7 @@ export class SubCardService {
     });
     if (!subCard) throw notFound('Sub card not found');
     if (subCard.masterCard.userId !== user.id) throw notFound('Sub card not found');
+    if (subCard.masterCard.isDefault) throw badRequest('Cannot edit cards in the default tutorial deck');
 
     subCard.title = title;
     subCard.descriptions = descriptions;
@@ -111,6 +113,7 @@ export class SubCardService {
     });
     if (!subCard) throw notFound('Sub card not found');
     if (subCard.masterCard.userId !== user.id) throw notFound('Sub card not found');
+    if (subCard.masterCard.isDefault) throw badRequest('Cannot delete cards from the default tutorial deck');
 
     await this.subCards.remove(subCard);
   }

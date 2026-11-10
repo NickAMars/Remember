@@ -2,7 +2,7 @@ import { inject, injectable } from 'inversify';
 import { DataSource, Repository } from 'typeorm';
 import { MasterCard, SubCard, Progress, User, PoolCard } from '../entities';
 import { TYPES } from '../types';
-import { notFound } from './errors';
+import { notFound, badRequest } from './errors';
 import { currentDate, previousEight, mixdate, calculateTimeSpent, topFiveCards, type TopFiveEntry } from './helpers';
 import { MAX_PROGRESS_DAYS } from '../constants';
 
@@ -64,6 +64,7 @@ export class MasterCardService {
 
     const card = await this.masterCards.findOneBy({ uuid, userId: user.id });
     if (!card) throw notFound('Master card not found');
+    if (card.isDefault) throw badRequest('Cannot edit the default tutorial card');
 
     card.title = title;
     if (date) card.createdAt = new Date(date);
@@ -77,6 +78,7 @@ export class MasterCardService {
 
     const card = await this.masterCards.findOneBy({ uuid, userId: user.id });
     if (!card) throw notFound('Master card not found');
+    if (card.isDefault) throw badRequest('Cannot delete the default tutorial card');
 
     // Also remove any associated pool card (public copy)
     const poolCard = await this.poolCards.findOneBy({ author: userUuid, title: card.title });

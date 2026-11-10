@@ -36,6 +36,11 @@ export class PoolCardService {
       throw badRequest('Cannot make the default tutorial card public');
     }
 
+    // Don't allow copied cards to be re-shared
+    if (masterCard.isCopied) {
+      throw badRequest('Cannot share a copied card');
+    }
+
     // Don't allow cards with no subcards to be made public
     if (!masterCard.subCards || masterCard.subCards.length === 0) {
       throw badRequest('Cannot make a card public without any subcards');
@@ -81,7 +86,7 @@ export class PoolCardService {
     });
     if (!poolCard) throw notFound('Pool card not found');
 
-    const masterCard = this.masterCards.create({ title: poolCard.title, userId: user.id });
+    const masterCard = this.masterCards.create({ title: poolCard.title, userId: user.id, isCopied: true });
     await this.masterCards.save(masterCard);
 
     const subCards = poolCard.subCards.map(sub =>

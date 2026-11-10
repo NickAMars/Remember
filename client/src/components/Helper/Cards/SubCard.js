@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import { getSmallCards } from '../../../actions';
 import axios from '../../../utils/api';
 import {UpdateButton, RemoveButton} from '../Buttons';
+import { showToast } from '../../../utils/toast';
 
 class SubCard extends Component {
   state = {
@@ -51,10 +52,12 @@ class SubCard extends Component {
     } catch (err) {
       const msg = err.response ? err.response.data.error : 'Update failed';
       this.setState({ updateError: msg });
+      showToast(msg);
       return;
     }
     this.setState({ showUpdateModal: false, flipped: false });
     this.props.getSmallCards(masterCardUuid);
+    showToast(`"${editTitle}" updated successfully`);
   }
 
   openDeleteConfirm = () => {
@@ -70,8 +73,9 @@ class SubCard extends Component {
     try {
       await axios.delete(`/api/profile/MasterCard/subcards/${uuid}`);
       this.props.getSmallCards(masterCardUuid);
+      showToast(`"${this.props.title}" deleted successfully`);
     } catch (err) {
-      console.error('Delete failed', err);
+      showToast(err.response ? err.response.data.error : `Failed to delete "${this.props.title}"`);
     }
   }
 
@@ -91,7 +95,7 @@ class SubCard extends Component {
             <div className="card__title card__title--center">{this.props.title}</div>
           </div>
           <div className="card__side card__side--back">
-            {this.props.isOwner !== false && <div className="card__svg u-br-bt">
+            {this.props.isOwner !== false && !this.props.isDefault && <div className="card__svg u-br-bt">
               <UpdateButton onClick={this.openUpdateModal} masterinfo={{uuid: this.props.uuid, title: this.props.title}}/>
               <RemoveButton onClick={this.openDeleteConfirm} ID={this.props.uuid} />
             </div>}
@@ -139,6 +143,7 @@ class SubCard extends Component {
                 <textarea
                   className="dialog__textarea"
                   placeholder="Description"
+                  maxLength="5000"
                   value={editDescriptions}
                   onChange={(e) => this.setState({ editDescriptions: e.target.value })}
                 />
