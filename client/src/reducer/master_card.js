@@ -14,9 +14,9 @@ export default  function (state = [], action) {
     case MYCARDS:
     return action.payload;
     case UPDATE_MASTER:
-    return [action.payload,...state.filter(card=> card._id !== action.payload._id)];
+    return [action.payload,...state.filter(card=> card.uuid !== action.payload.uuid)];
     case DELETE_MASTER:
-      return state.filter(card => card._id !== action.payload);
+      return state.filter(card => card.uuid !== action.payload);
     case  UPDATE_TIME:
       return action.payload;
     default:

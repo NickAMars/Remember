@@ -1,4 +1,5 @@
-import axios from 'axios';
+import axios from '../utils/api';
+import { sha256, setToken, clearToken } from '../utils/auth';
 import * as type from '../actions/types';
 
 
@@ -7,31 +8,27 @@ import * as type from '../actions/types';
 export  default  {
   fetchUser : () =>
     async dispatch => {
-      const res = await axios.get('/api/profile');
-      // console.log(res.data);
-      dispatch( {type: type.FETCH_USER, payload: res.data } );
+      try {
+        const res = await axios.get('/api/profile');
+        dispatch( {type: type.FETCH_USER, payload: res.data } );
+      } catch (err) {
+        clearToken();
+        dispatch( {type: type.FETCH_USER, payload: null } );
+      }
     },
     RegisterUser :(data) =>async dispatch => {
        console.log("signup");
-       const res = await axios.post('/auth/signup', data );
-       // console.log(res.data);
-       dispatch( {type: type.FETCH_USER, payload: res.data } );
+       const passwordDigest = await sha256(data.password);
+       const res = await axios.post('/auth/signup', { username: data.username, passwordDigest });
+       setToken(res.data.token);
+       dispatch( {type: type.FETCH_USER, payload: res.data.user } );
      }
 ,
     loginUser : (data) =>
       async dispatch => {
-        // console.log("hellow");
-        const res = await axios.post('/auth/login', data );
-        // console.log(res.data);
-        dispatch( {type: type.FETCH_USER, payload: res.data } );
+        const passwordDigest = await sha256(data.password);
+        const res = await axios.post('/auth/login', { username: data.username, passwordDigest });
+        setToken(res.data.token);
+        dispatch( {type: type.FETCH_USER, payload: res.data.user } );
       }
 }
-
-// app.post('/auth/signup',authController.signup);
-
-// export const serverTest = (newCard)=>{
-//  return async dispatch => {
-//     const res = await axios.get('/api/profile/MasterCard');
-//     dispatch( {type: type.TEST_CARD, payload: res.data } );
-//   }
-// }

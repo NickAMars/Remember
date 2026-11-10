@@ -11,7 +11,7 @@ class Mine extends Component{
       visible: false,
       searchBar:"search",
       title: "",
-      _id:"",
+      uuid:"",
       cards:[]
     }
   }
@@ -28,7 +28,7 @@ static getDerivedStateFromProps(nextProps, state){
 
 poolCardMatchUser(poolcard){
   if(this.props.user !== null)
-  if(this.props.user._id === poolcard.author)
+  if(this.props.user.uuid === poolcard.author)
     return true;
   else
     return false;
@@ -36,7 +36,7 @@ poolCardMatchUser(poolcard){
 
 
  render(){
-    const {visible,_id, title} =this.state;
+    const {visible,uuid, title} =this.state;
     const {pathname} = this.props;
    return (
      <div className="remember">
@@ -46,7 +46,7 @@ poolCardMatchUser(poolcard){
        <SearchBar/>
        {
         visible ?
-          <MasterForm title={title} _id={_id} toggleMasterForm ={this.toggleMasterForm}/>
+          <MasterForm title={title} _id={uuid} toggleMasterForm ={this.toggleMasterForm}/>
           : <noscript/>
        }
        <div className="master">
@@ -54,7 +54,7 @@ poolCardMatchUser(poolcard){
           {
             this.state.cards.map(elem =>
                <MasterCard
-               key={elem._id}
+               key={elem.uuid}
                masterinfo={elem}
                visible={this.props.visible}
                showMasterForm={this.showMasterForm}
@@ -70,8 +70,8 @@ poolCardMatchUser(poolcard){
      </div>
    );
  }
- showMasterForm  = (_id,title) => {
-   this.setState({title, _id});
+ showMasterForm  = (uuid,title) => {
+   this.setState({title, uuid});
  }
  toggleMasterForm = () =>{
    this.setState({visible:!this.state.visible});

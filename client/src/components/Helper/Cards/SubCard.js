@@ -3,7 +3,7 @@ import React from  'react';
 // import update from  '../../img/SVG/compose.svg';
 import {UpdateButton, RemoveButton} from '../Buttons';
 export const SubCard  = (props)=>{
-  const {_id,title, descriptions} = props;
+  const {uuid,title, descriptions} = props;
 
     return (
       <div className="container-card">
@@ -13,8 +13,8 @@ export const SubCard  = (props)=>{
           </div>
           <div className="card__side card__side--back">
             <div className=" card__svg u-br-bt">
-              < UpdateButton onClick={updateCard} masterinfo={{_id, title}}/>
-              < RemoveButton onClick={deleteCard} ID={_id} />
+              < UpdateButton onClick={updateCard} masterinfo={{uuid, title}}/>
+              < RemoveButton onClick={deleteCard} ID={uuid} />
             </div>
             <div className="card__description">
               {descriptions}

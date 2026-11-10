@@ -21,41 +21,41 @@ class MasterCard extends Component{
     }
         // {!this.state.visible && this.props.visible &&  <Buttons {...this.props}/>}
     render(){
-      const {title, date,_id} = this.props.masterinfo;
+      const {title, createdAt, uuid} = this.props.masterinfo;
       const {pathname} = this.props;
       return (
             <li className="master__items">
               <div  className="master__svg ">
                 {  this.props.visible &&  <UpdateButton onClick={ this.UpdateButton} masterinfo={this.props.masterinfo}/>}
-                { (this.props.showCheckBox || this.props.visible) &&  <RemoveButton onClick={this.RemoveButton} ID={_id}/>}
+                { (this.props.showCheckBox || this.props.visible) &&  <RemoveButton onClick={this.RemoveButton} ID={uuid}/>}
               </div>
             { !this.props.showCheckBox && <CbPublic  pubinfo={this.props.masterinfo} addPoolCard={pathname === '/mine'?this.props.addPoolCard:this.addPoolToMine} />}
-              <Link  to={{ pathname:`/smallcards/${_id}`, query: { prevent:pathname === '/more'? true:false  }}} className="master__links"
-               onClick={()=> pathname === '/more' ?this.props.getPoolSubCard(_id) :this.props.getSmallCards(_id)}>
+              <Link  to={{ pathname:`/smallcards/${uuid}`, query: { prevent:pathname === '/more'? true:false  }}} className="master__links"
+               onClick={()=> pathname === '/more' ?this.props.getPoolSubCard(uuid) :this.props.getSmallCards(uuid)}>
 
                 <span className="master__title">{title}</span>
-                <span className="master__date">{date}</span>
+                <span className="master__date">{createdAt}</span>
               </Link>
             </li>
           );
     }
     UpdateButton  = () => {
-      const {_id,title} = this.props.masterinfo;
-      this.props.showMasterForm(_id,title);
+      const {uuid,title} = this.props.masterinfo;
+      this.props.showMasterForm(uuid,title);
       this.props.toggleMasterForm();
     }
     RemoveButton  = () => {
-      const {_id} = this.props.masterinfo;
+      const {uuid} = this.props.masterinfo;
       const {pathname} = this.props;
       // console.log(pathname)
       if(pathname === '/more')
-        this.props.deletePoolCard(_id);
+        this.props.deletePoolCard(uuid);
       else
-        this.props.deleteMaster(_id);
+        this.props.deleteMaster(uuid);
     }
     addPoolToMine  = () => {
-      const {_id} = this.props.masterinfo;
-      this.props.storePoolToMaster(_id);
+      const {uuid} = this.props.masterinfo;
+      this.props.storePoolToMaster(uuid);
     }
   }
 

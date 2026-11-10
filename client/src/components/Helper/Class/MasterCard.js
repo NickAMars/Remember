@@ -3,8 +3,8 @@
     this.id = "";
     this.author= ""; // user code
     this.title= "";
-    this.subcards = [];
-    this.timestamp= new Date();
+    this.subCards = [];
+    this.createdAt= new Date();
     this.count = 0;// the amount of cards
   }
   setID(id){
@@ -19,12 +19,12 @@
     this.title= title;
     return this;
   }
-  setSubCards(subcards){
-    this.subcards= subcards;
+  setSubCards(subCards){
+    this.subCards= subCards;
     return this;
   }
-  setTimestamp(timestamp){
-    this.timestamp= timestamp;
+  setCreatedAt(createdAt){
+    this.createdAt= createdAt;
     return this;
   }
   setCount(count){
@@ -35,8 +35,8 @@
   getID(){return this.id;}
   getAuthor(){ return this.author;}
   getTitle(){ return this.title;}
-  getSubCards(){return this.subcards;}
-  getTimestamp(){ return this.timestamp;}
+  getSubCards(){return this.subCards;}
+  getCreatedAt(){ return this.createdAt;}
   getCount(){ return this.count;}
 
   incrementCount(){this.count++;}
@@ -46,7 +46,7 @@
   }
 
   get CardInfo(){
-    const string = `Creater: ${this.author}; Title: ${this.title};  Timestamp: ${this.timestamp}`;
+    const string = `Creater: ${this.author}; Title: ${this.title};  CreatedAt: ${this.createdAt}`;
     return string;
   }
 }

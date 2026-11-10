@@ -6,9 +6,9 @@ export  const CbPublic  = (props)=>{
   const publicCheckBox = () =>{
 
     if(!checkbox){
-      const {_id,title,user,subcards} = props.pubinfo;
+      const {uuid,title,user,subCards} = props.pubinfo;
       const Master = new MasterCard();
-      Master.setID(_id).setAuthor(user).setTitle(title).setSubCards(subcards);
+      Master.setID(uuid).setAuthor(user).setTitle(title).setSubCards(subCards);
       props.addPoolCard(Master);
       checkbox = true;
     }else{

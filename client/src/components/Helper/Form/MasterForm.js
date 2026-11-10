@@ -14,12 +14,10 @@ class MasterForm extends Component{
   // componentDidUpdate(prevProps, prevState){}
   updateMasterCard(event){
     event.preventDefault();
-    let date = new Date().toDateString();
     this.props.updateMaster(
       this.props._id,
        {
-         title:this.inputRef.current.value,
-         date
+         title:this.inputRef.current.value
        });
     this.props.toggleMasterForm();
   }

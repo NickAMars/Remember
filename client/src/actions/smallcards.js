@@ -1,4 +1,4 @@
- import axios from 'axios';
+ import axios from '../utils/api';
 import * as type from '../actions/types';
 // Initially making all the small cards
 // const smallcards=
@@ -7,7 +7,7 @@ export default {// subCardRouts
     return async dispatch => {
        const res = await axios.get(`/api/profile/MasterCard/${id}`);
        // console.log(res.data);
-       dispatch( {type: type.GET_SUBCARDS, payload: res.data.subcards } );
+       dispatch( {type: type.GET_SUBCARDS, payload: res.data.subCards } );
      }
   },
   addCard : (card)=>{

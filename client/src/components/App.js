@@ -26,7 +26,7 @@ class App extends PureComponent{
     return(
       <Router >
         <div>
-        {user && user._id && < Header />}
+        {user && user.uuid && < Header />}
 
 
             <Route exact path='/main/subcards/:title' component={MultipleCards} />

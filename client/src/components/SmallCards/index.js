@@ -45,7 +45,7 @@ static getDerivedStateFromProps(nextProps){
         <div className="row">
         {
          /*creating card components*/
-         this.props.showsubcards.map((smallcard, index) => <SubCard  key={smallcard._id}  {...smallcard} />)
+         this.props.showsubcards.map((smallcard, index) => <SubCard  key={smallcard.uuid}  {...smallcard} />)
         }
         </div>
       </div>
