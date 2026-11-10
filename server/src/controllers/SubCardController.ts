@@ -1,12 +1,17 @@
 import { Router } from 'express';
+import multer from 'multer';
 import { inject, injectable } from 'inversify';
 import { z } from 'zod';
+import * as XLSX from 'xlsx';
 import { requireAuth, userUuid } from '../middleware/auth';
 import { handle, parse, uuidParam } from '../middleware/http';
+import { HttpError } from '../services/errors';
 import { AuthService } from '../services/AuthService';
 import { SubCardService } from '../services/SubCardService';
 import { TYPES } from '../types';
 import type { Controller } from '../interfaces/controller';
+
+const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 5 * 1024 * 1024 } });
 
 @injectable()
 export class SubCardController implements Controller {
@@ -27,18 +32,46 @@ export class SubCardController implements Controller {
 
     router.post('/:uuid/subcards', handle(async (req) => {
       const { title, descriptions } = parse(z.object({
-        title: z.string().min(1).max(255),
+        title: z.string().min(1).max(128),
         descriptions: z.string().max(2000).default(''),
       }), req.body);
       return this.service.add(uuidParam(req), userUuid(req), title, descriptions);
     }));
 
+    router.put('/subcards/:uuid/view', handle(async (req) => {
+      await this.service.incrementViews(uuidParam(req));
+      return { ok: true };
+    }));
+
     router.put('/subcards/:uuid', handle(async (req) => {
       const { title, descriptions } = parse(z.object({
-        title: z.string().min(1).max(255),
+        title: z.string().min(1).max(128),
         descriptions: z.string().max(2000).default(''),
       }), req.body);
       return this.service.update(uuidParam(req), userUuid(req), title, descriptions);
+    }));
+
+    router.post('/:uuid/subcards/upload', upload.single('file'), handle(async (req) => {
+      if (!req.file) throw new HttpError(400, 'No file uploaded');
+      const ext = req.file.originalname.split('.').pop()?.toLowerCase();
+      if (!ext || !['xlsx', 'xls', 'csv'].includes(ext)) {
+        throw new HttpError(400, 'File must be .xlsx, .xls, or .csv');
+      }
+      const workbook = XLSX.read(req.file.buffer, { type: 'buffer' });
+      const sheet = workbook.Sheets[workbook.SheetNames[0]];
+      const rows: string[][] = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '' });
+
+      const cards: { title: string; descriptions: string }[] = [];
+      const startRow = rows.length > 0 && String(rows[0][0]).toLowerCase() === 'title' ? 1 : 0;
+      for (let i = startRow; i < rows.length; i++) {
+        const title = String(rows[i][0] || '').trim();
+        const descriptions = String(rows[i][1] || '').trim();
+        if (title) cards.push({ title, descriptions });
+      }
+      if (cards.length === 0) throw new HttpError(400, 'No valid cards found');
+
+      await this.service.addBulk(uuidParam(req), userUuid(req), cards);
+      return { count: cards.length };
     }));
 
     router.delete('/subcards/:uuid', handle(async (req) => {

@@ -8,23 +8,16 @@ import { fetchUser, getMyCard, getSmallCards } from '../../actions';
 class MasterCard extends Component{
   async componentDidMount(){
    await this.props.fetchUser();
-   // console.log("fetchUSer")
-   // console.log(this.props)
-   // console.log("/main : ",this.props)
   }
   constructor(props){
     super(props);
-
     this.state = {
-      line :null,
-      data : [],
-      cards: []
+      line: null,
+      data: [],
+      allCards: [],
+      visibleCount: 5,
+      search: '',
     };
-  }
-
-  getDataFromTopFive = async (oneTopFive) => {
-    let data = await this.props.getMyCard(oneTopFive);
-    this.setState({data});
   }
 
   navigateToCard = (referenceID) => {
@@ -32,40 +25,52 @@ class MasterCard extends Component{
   }
 
   static getDerivedStateFromProps(props, state){
-    // console.log(props.user);
     if(props.user === null) return null;
-    // console.log(props.user)
     if(props.user){
-      return{ cards : props.user.topfiveMaster || []};
-    }else{
-      console.log("null")
-      return null;
+      return { allCards: props.user.allCardsByViews || [] };
     }
+    return null;
   }
+
+  showMore = () => {
+    this.setState(prev => ({ visibleCount: prev.visibleCount + 5 }));
+  }
+
   render(){
-    // console.log(this.props.user);
+    const { allCards, visibleCount, search } = this.state;
+    const filtered = search
+      ? allCards.filter(c => c.title.toLowerCase().includes(search.toLowerCase()))
+      : allCards;
+    const visible = filtered.slice(0, visibleCount);
+    const chartData = allCards.slice(0, 5);
+    const hasMore = visibleCount < filtered.length;
+
     return (
       <div>
-        <div className="header-box">
-          <h1 className="heading__primary heading__primary--pink u-mt-sm ">Remember</h1>
-        </div>
-
         <div className="xcontainer-main u-mb-md">
             <div className="topcards">
               <h4 className="heading__quaternary u-mb-sm">View Cards</h4>
+              <input
+                className="search-cards__input"
+                type="text"
+                placeholder="Search master cards..."
+                value={search}
+                onChange={(e) => this.setState({ search: e.target.value, visibleCount: 5 })}
+                maxLength="128"
+              />
               <ul className="list">
                  {
-                   this.state.cards.map( (master, index) =>{
+                   visible.map((master, index) => {
                       return ( <TopFiveCard onNavigate={this.navigateToCard} key={master.referenceID} cards={master}/>  );
                     })
                  }
                </ul>
+               {hasMore && <button className="show-more-btn" onClick={this.showMore}>Show More</button>}
             </div>
 
-              <Chart data={this.state.cards}/>
+              <Chart data={chartData}/>
         </div>
         <CreateMaster/>
-
       </div>
     );
   }

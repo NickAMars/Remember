@@ -54,7 +54,7 @@ class CreateMaster extends Component{
         <div className="create__contrainer">
           <div className="create__cards u-mb-sm">
             <div className="create__field">
-              <input onChange={(event) => this.setState({title: event.target.value})} type="text" value={this.state.title} placeholder="Enter card title" id="title" className="input__master-title" maxLength="32" />
+              <input onChange={(event) => this.setState({title: event.target.value})} type="text" value={this.state.title} placeholder="Enter card title" id="title" className="input__master-title" maxLength="128" />
             </div>
 
             <div className="create__cta u-mb-sm">

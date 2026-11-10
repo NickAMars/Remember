@@ -1,21 +1,44 @@
-import React from  'react';
-import MasterCard from  '../Class/MasterCard';
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import { addPoolCard, deletePoolCard } from '../../../actions';
 
-export  const CbPublic  = (props)=>{
-  let checkbox = false;
-  const publicCheckBox = () =>{
+class CbPublic extends Component {
+  findPoolCard = () => {
+    const { pubinfo, poolcards, user } = this.props;
+    if (!user || !poolcards) return null;
+    return poolcards.find(p => p.author === user.uuid && p.title === pubinfo.title);
+  }
 
-    if(!checkbox){
-      const {uuid,title,user,subCards} = props.pubinfo;
-      const Master = new MasterCard();
-      Master.setID(uuid).setAuthor(user).setTitle(title).setSubCards(subCards);
-      props.addPoolCard(Master);
-      checkbox = true;
-    }else{
-      checkbox = false;
+  isPublic = () => {
+    return !!this.findPoolCard();
+  }
+
+  toggle = (e) => {
+    e.stopPropagation();
+    const poolCard = this.findPoolCard();
+    if (poolCard) {
+      this.props.deletePoolCard(poolCard.uuid);
+    } else {
+      this.props.addPoolCard({ uuid: this.props.pubinfo.uuid });
     }
   }
-  return (
-    <input  type="checkbox" id="create" onClick={publicCheckBox} className="master__checkbox"/>
-  );
-};
+
+  render() {
+    return (
+      <input
+        type="checkbox"
+        checked={this.isPublic()}
+        onChange={this.toggle}
+        className="master__checkbox"
+        title="Toggle public visibility"
+      />
+    );
+  }
+}
+
+const mapStateToProps = (state) => ({
+  poolcards: state.poolcards || [],
+  user: state.user,
+});
+
+export default connect(mapStateToProps, { addPoolCard, deletePoolCard })(CbPublic);

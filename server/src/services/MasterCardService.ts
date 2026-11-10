@@ -1,6 +1,6 @@
 import { inject, injectable } from 'inversify';
 import { DataSource, Repository } from 'typeorm';
-import { MasterCard, SubCard, Progress, User } from '../entities';
+import { MasterCard, SubCard, Progress, User, PoolCard } from '../entities';
 import { TYPES } from '../types';
 import { notFound } from './errors';
 import { currentDate, previousEight, mixdate, calculateTimeSpent, topFiveCards, type TopFiveEntry } from './helpers';
@@ -12,12 +12,14 @@ export class MasterCardService {
   private subCards: Repository<SubCard>;
   private progressRepo: Repository<Progress>;
   private users: Repository<User>;
+  private poolCards: Repository<PoolCard>;
 
   constructor(@inject(TYPES.DataSource) dataSource: DataSource) {
     this.masterCards = dataSource.getRepository(MasterCard);
     this.subCards = dataSource.getRepository(SubCard);
     this.progressRepo = dataSource.getRepository(Progress);
     this.users = dataSource.getRepository(User);
+    this.poolCards = dataSource.getRepository(PoolCard);
   }
 
   async getOne(uuid: string): Promise<MasterCard> {
@@ -75,6 +77,12 @@ export class MasterCardService {
 
     const card = await this.masterCards.findOneBy({ uuid, userId: user.id });
     if (!card) throw notFound('Master card not found');
+
+    // Also remove any associated pool card (public copy)
+    const poolCard = await this.poolCards.findOneBy({ author: userUuid, title: card.title });
+    if (poolCard) {
+      await this.poolCards.remove(poolCard);
+    }
 
     await this.masterCards.remove(card);
   }
@@ -142,6 +150,18 @@ export class MasterCardService {
       where: { userId: user.id },
       order: { views: 'DESC' },
       take: 5,
+    });
+
+    return topFiveCards(cards);
+  }
+
+  async getAllByViews(userUuid: string): Promise<TopFiveEntry[]> {
+    const user = await this.users.findOneBy({ uuid: userUuid });
+    if (!user) return [];
+
+    const cards = await this.masterCards.find({
+      where: { userId: user.id },
+      order: { views: 'DESC' },
     });
 
     return topFiveCards(cards);

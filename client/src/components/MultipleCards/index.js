@@ -5,6 +5,7 @@ import { CLEAR_CARDS } from '../../actions/types'
 // import {Header} from '../Header';
 import {Card} from './Card'
 import {Form} from '../Helper/Form'
+import {CardSizeControl} from '../CardSizeControl'
 import PropTypes from 'prop-types'
 
 export class MultipleCards extends Component{
@@ -12,13 +13,8 @@ export class MultipleCards extends Component{
     // console.log(this.submitClick);
     return (
       <div className="remember">
-        <div className="header-box">
-          <h1 className="heading__primary heading__primary--pink u-mt-sm ">Remember</h1>
-        </div>
-      { /*  < Header />*/}
-      {/*<h4 className="heading__tertiary u-mt-sm ">Create</h4>*/}
-
         <Form Submit ={this.Submit}/>
+        <CardSizeControl/>
         <hr className="u-mt-sm u-mb-sm"/>
         <div className="row">
         {

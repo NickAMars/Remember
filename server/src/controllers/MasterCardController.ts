@@ -67,30 +67,32 @@ export class MasterCardController implements Controller {
       return { imported: results };
     }));
 
-    router.get('/:uuid', handle(async (req) => {
+    const uuidPattern = '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}';
+
+    router.get(`/:uuid(${uuidPattern})`, handle(async (req) => {
       return this.service.getOne(uuidParam(req));
     }));
 
     router.post('/', handle(async (req) => {
       const { title, cards } = parse(z.object({
-        title: z.string().min(1).max(255),
+        title: z.string().min(1).max(128),
         cards: z.array(z.object({
-          title: z.string().min(1).max(255),
+          title: z.string().min(1).max(128),
           description: z.string().max(2000).default(''),
         })),
       }), req.body);
       return this.service.create(userUuid(req), title, cards);
     }));
 
-    router.put('/:uuid', handle(async (req) => {
+    router.put(`/:uuid(${uuidPattern})`, handle(async (req) => {
       const { title, date } = parse(z.object({
-        title: z.string().min(1).max(255),
+        title: z.string().min(1).max(128),
         date: z.string().optional(),
       }), req.body);
       return this.service.update(uuidParam(req), userUuid(req), title, date);
     }));
 
-    router.delete('/:uuid', handle(async (req) => {
+    router.delete(`/:uuid(${uuidPattern})`, handle(async (req) => {
       await this.service.delete(uuidParam(req), userUuid(req));
       return { ok: true };
     }));

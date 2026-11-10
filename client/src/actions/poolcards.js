@@ -11,7 +11,7 @@ export default {
   },
   addPoolCard: (mastercard)=>{
    return async dispatch => {
-      const res = await axios.post('/api/poolcards', {mastercard});//POOLCARDS
+      const res = await axios.post('/api/poolcards', {mastercard: { uuid: mastercard.uuid }});
       dispatch( {type: type.POOLCARDS, payload: res.data} );
     }
   },

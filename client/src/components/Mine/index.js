@@ -2,18 +2,22 @@ import React,{Component} from 'react'
 import { connect } from 'react-redux'
 import  {MasterCard} from '../Helper/Cards'
 import {MasterForm,SearchBar} from '../Helper/Form'
-import {showMasterForm} from '../../actions';
+import {CardSizeControl} from '../CardSizeControl'
+import {showMasterForm, getPoolCards} from '../../actions';
 class Mine extends Component{
   //
   constructor(props){
     super(props)
     this.state ={
       visible: false,
-      searchBar:"search",
+      search: "",
       title: "",
       uuid:"",
       cards:[]
     }
+  }
+  componentDidMount(){
+    this.props.getPoolCards();
   }
 static getDerivedStateFromProps(nextProps, state){
   const {pathname, master, poolcards} = nextProps
@@ -40,19 +44,19 @@ poolCardMatchUser(poolcard){
     const {pathname} = this.props;
    return (
      <div className="remember">
-       <div className="header-box">
-         <h1 className="heading__primary heading__primary--pink u-mt-sm ">Remember</h1>
-       </div>
-       <SearchBar/>
+       <SearchBar onSearch={(search) => this.setState({ search })}/>
        {
         visible ?
           <MasterForm title={title} _id={uuid} toggleMasterForm ={this.toggleMasterForm}/>
           : <noscript/>
        }
+       <CardSizeControl variant="master"/>
        <div className="master">
          <ul className="master__container">
           {
-            this.state.cards.map(elem =>
+            this.state.cards
+              .filter(elem => !this.state.search || elem.title.toLowerCase().includes(this.state.search.toLowerCase()))
+              .map(elem =>
                <MasterCard
                key={elem.uuid}
                masterinfo={elem}
@@ -85,7 +89,7 @@ const mapStateToProps = (state) => {
   };
 }
 
-export default connect(mapStateToProps,{showMasterForm})(Mine);
+export default connect(mapStateToProps,{showMasterForm, getPoolCards})(Mine);
 // {getMyCards}
 
 

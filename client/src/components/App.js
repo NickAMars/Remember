@@ -6,6 +6,7 @@ import Main from './Main';
 import Mine from './Mine';
 import SmallCards from './SmallCards';
 import Header from './Header';
+import Breadcrumb from './Breadcrumb';
 // import { Redirect } from 'react-router-dom';
 import { connect } from 'react-redux';
 // import axios from 'axios';
@@ -27,6 +28,7 @@ class App extends PureComponent{
       <Router >
         <div>
         {user && user.uuid && <Header />}
+        {user && user.uuid && <Breadcrumb />}
 
           <Switch>
             <Route exact path='/main/subcards/:title' component={MultipleCards} />

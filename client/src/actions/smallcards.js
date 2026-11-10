@@ -5,9 +5,13 @@ import * as type from '../actions/types';
 export default {// subCardRouts
   getSmallCards : (id) =>{
     return async dispatch => {
-       const res = await axios.get(`/api/profile/MasterCard/${id}`);
-       // console.log(res.data);
-       dispatch( {type: type.GET_SUBCARDS, payload: res.data.subCards || [] } );
+      try {
+       const res = await axios.get(`/api/profile/MasterCard/${id}/subcards`);
+       dispatch( {type: type.GET_SUBCARDS, payload: res.data || [] } );
+      } catch (err) {
+        console.error('getSmallCards failed', err);
+        dispatch( {type: type.GET_SUBCARDS, payload: [] } );
+      }
      }
   },
   addCard : (card)=>{

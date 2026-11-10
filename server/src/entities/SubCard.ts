@@ -19,6 +19,9 @@ export class SubCard {
   @ManyToOne('MasterCard', 'subCards', { onDelete: 'CASCADE' })
   masterCard: MasterCard;
 
+  @Column({ type: 'int', default: 0 })
+  views: number;
+
   @Column({ type: 'int' })
   masterCardId: number;
 

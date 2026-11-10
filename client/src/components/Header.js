@@ -32,6 +32,12 @@ class Header extends Component{
         <nav
         style={ { width: this.state.buttonEvent ? '20rem' : 0 } }
         className="navbar" >
+            {this.props.user && this.props.user.name && (
+              <div className="navbar__user">
+                <div className="navbar__user-avatar">{this.props.user.name.charAt(0).toUpperCase()}</div>
+                <span className="navbar__user-name">{this.props.user.name}</span>
+              </div>
+            )}
             <h1 className="navigation__header"> Select</h1>
             <ul className="navbar-nav">
               <li className="navbar-nav__items">
@@ -65,4 +71,8 @@ class Header extends Component{
 
 }
 
-export default withRouter(connect()(Header));
+const mapStateToProps = (state) => ({
+  user: state.user,
+});
+
+export default withRouter(connect(mapStateToProps)(Header));

@@ -9,7 +9,7 @@ export  const Input  = (props)=>{
       type={TEXT}
       onChange={onChange}
       value={value}
-      maxLength="32"
+      maxLength="128"
     />
   );
 }
