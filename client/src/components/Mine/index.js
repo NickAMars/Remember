@@ -21,9 +21,9 @@ class Mine extends Component{
   }
 static getDerivedStateFromProps(nextProps, state){
   const {pathname, master, poolcards} = nextProps
-  if(pathname === '/mine'){
+  if(pathname === '/study'){
     return{cards: [...master] };
-  }else if(pathname === '/more'){
+  }else if(pathname === '/browse'){
     return {cards: [...poolcards] };
   }else{
     return null;

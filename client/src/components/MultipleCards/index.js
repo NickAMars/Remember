@@ -34,7 +34,7 @@ export class MultipleCards extends Component{
        this.props.submitCard( title, cards);
      }
      this.props.dispatch({ type: CLEAR_CARDS });
-     this.props.history.push('/main');
+     this.props.history.push('/home');
   }
   componentWillUnmount(){
     this.props.dispatch({ type: CLEAR_CARDS });

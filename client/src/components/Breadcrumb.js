@@ -2,28 +2,28 @@ import React from 'react';
 import { Link, withRouter } from 'react-router-dom';
 
 const routeNames = {
-  '/main': 'Home',
-  '/mine': 'Study',
-  '/more': 'Browse',
+  '/home': 'Home',
+  '/study': 'Study',
+  '/browse': 'Browse',
 };
 
 const Breadcrumb = ({ location, match }) => {
   const path = location.pathname;
-  const crumbs = [{ label: 'Home', to: '/main' }];
+  const crumbs = [{ label: 'Home', to: '/home' }];
 
-  if (path === '/mine') {
+  if (path === '/study') {
     crumbs.push({ label: 'Study', to: null });
-  } else if (path === '/more') {
+  } else if (path === '/browse') {
     crumbs.push({ label: 'Browse', to: null });
   } else if (path.startsWith('/smallcards/')) {
-    const from = location.query && location.query.prevent ? '/more' : '/mine';
-    crumbs.push({ label: from === '/more' ? 'Browse' : 'Study', to: from });
+    const from = location.query && location.query.prevent ? '/browse' : '/study';
+    crumbs.push({ label: from === '/browse' ? 'Browse' : 'Study', to: from });
     crumbs.push({ label: 'Cards', to: null });
-  } else if (path.startsWith('/main/subcards/')) {
-    crumbs.push({ label: 'Study', to: '/mine' });
+  } else if (path.startsWith('/home/subcards/')) {
+    crumbs.push({ label: 'Study', to: '/study' });
     const title = match.params.title || 'New Deck';
     crumbs.push({ label: title, to: null });
-  } else if (path === '/main') {
+  } else if (path === '/home') {
     return null;
   }
 

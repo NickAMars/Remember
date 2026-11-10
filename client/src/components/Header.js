@@ -15,7 +15,11 @@ class Header extends Component{
   }
 
   navClick = () => {
-    this.setState(prev => ({ buttonEvent: !prev.buttonEvent, settingsOpen: false }));
+    this.setState(prev => {
+      const next = !prev.buttonEvent;
+      document.body.classList.toggle('nav-open', next);
+      return { buttonEvent: next, settingsOpen: false };
+    });
   }
 
   toggleSettings = (e) => {
@@ -85,13 +89,13 @@ class Header extends Component{
             )}
             <ul className="navbar-nav">
               <li className="navbar-nav__items">
-                <Link className="navbar-nav__link" to="/main">Main</Link>
+                <Link className="navbar-nav__link" to="/home">Home</Link>
               </li>
               <li className="navbar-nav__items">
-                <Link className="navbar-nav__link" to="/mine">Study</Link>
+                <Link className="navbar-nav__link" to="/study">Study</Link>
               </li>
               <li className="navbar-nav__items">
-                <Link className="navbar-nav__link" to="/more">Browse</Link>
+                <Link className="navbar-nav__link" to="/browse">Browse</Link>
               </li>
             </ul>
 

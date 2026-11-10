@@ -52,12 +52,14 @@ class SmallCards extends PureComponent{
             this.props.getSmallCards(ownCard.uuid);
             this.props.history.replace({ pathname: `/smallcards/${ownCard.uuid}`, query: {} });
             this.setState({ masterTitle: ownCard.title, isOwner: true, prevent: false, isDefaultCard: !!ownCard.isDefault });
+            document.title = `${ownCard.title} - Remember`;
             this.timer = setInterval(() =>
               this.setState({ time: Date.now() - this.state.current })
             , 1);
             return;
           }
           this.setState({ masterTitle: poolCard.title });
+          document.title = `${poolCard.title} - Remember`;
         }
       } catch (err) {}
       this.props.getPoolSubCard(masterUuid);
@@ -65,6 +67,7 @@ class SmallCards extends PureComponent{
       try {
         const res = await axios.get(`/api/profile/MasterCard/${masterUuid}`);
         this.setState({ masterTitle: res.data.title, isDefaultCard: !!res.data.isDefault });
+        document.title = `${res.data.title} - Remember`;
         this.props.getSmallCards(masterUuid);
       } catch (err) {
         // Not an owner card — try pool endpoint

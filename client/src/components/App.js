@@ -27,28 +27,37 @@ class App extends PureComponent{
     return(
       <Router >
         <div>
+        {user && user.uuid && <div className="topbar">
+          <span className="topbar__brand">Remember</span>
+          <Breadcrumb />
+        </div>}
         {user && user.uuid && <Header />}
-        {user && user.uuid && <Breadcrumb />}
 
           <Switch>
-            <Route exact path='/main/subcards/:title' component={MultipleCards} />
+            <Route exact path='/home/subcards/:title' component={MultipleCards} />
             <Route exact path='/smallcards/:idMaster'  component={SmallCards} />
-            <Route exact path='/more' render={ ({location}) => {
+            <Route exact path='/browse' render={ ({location}) => {
+              document.title = 'Browse - Remember';
               this.props.getPoolCards(location.pathname);
               return <Mine pathname={location.pathname}  visible={false}/>;
               }
             } />
-            <Route exact path='/mine'render={ ({location}) => {
+            <Route exact path='/study'render={ ({location}) => {
+              document.title = 'Study - Remember';
               if(master.length === 0)
                 this.props.getMyCards(location.pathname);
 
               return <Mine pathname={location.pathname} visible={true}/>;
               }
             } />
-            <Route exact path='/main' component={Main} />
-            <Route exact path='/' render={() =>
-              user && user.uuid ? <Redirect to='/main' /> : <Landing />
-            } />
+            <Route exact path='/home' render={() => {
+              document.title = 'Home - Remember';
+              return <Main />;
+            }} />
+            <Route exact path='/' render={() => {
+              document.title = 'Remember';
+              return user && user.uuid ? <Redirect to='/home' /> : <Landing />;
+            }} />
           </Switch>
 
           </div>

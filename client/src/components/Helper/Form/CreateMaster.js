@@ -36,7 +36,7 @@ class CreateMaster extends Component{
       const imported = res.data.imported;
       const msg = imported.map(i => `${i.title} (${i.cardCount} cards)`).join(', ');
       this.setState({ uploadMsg: 'Imported: ' + msg });
-      this.props.getMyCards('/mine');
+      this.props.getMyCards('/study');
     } catch (err) {
       const errMsg = err.response ? err.response.data.error : 'Upload failed';
       this.setState({ uploadMsg: errMsg });
@@ -58,7 +58,7 @@ class CreateMaster extends Component{
             </div>
 
             <div className="create__cta u-mb-sm">
-              <Link to={`/main/subcards/${this.state.title}`} className="create__cta-btn"> Create Master Card </Link>
+              <Link to={`/home/subcards/${this.state.title}`} className="create__cta-btn"> Create Master Card </Link>
             </div>
           </div>
 

@@ -14,13 +14,13 @@ class MasterCard extends Component{
 
     static getDerivedStateFromProps(nextProps, state){
       const {masterinfo, user, pathname} = nextProps;
-      if(masterinfo.author === user || pathname === '/mine') return {visible : true};
+      if(masterinfo.author === user || pathname === '/study') return {visible : true};
       else return {visible : false};
     }
 
     isOwnPoolCard = () => {
       const { pathname, masterinfo, user } = this.props;
-      return pathname === '/more' && user && user.uuid === masterinfo.author;
+      return pathname === '/browse' && user && user.uuid === masterinfo.author;
     }
 
     getOwnMasterUuid = () => {
@@ -69,7 +69,7 @@ class MasterCard extends Component{
       const isOwn = this.isOwnPoolCard();
       const ownUuid = isOwn ? this.getOwnMasterUuid() : null;
       const linkUuid = ownUuid || uuid;
-      const isBrowse = pathname === '/more';
+      const isBrowse = pathname === '/browse';
       const isPoolView = isBrowse && !isOwn;
       const shared = this.isPublic();
       const isEditing = editingUuid === uuid;
@@ -80,7 +80,7 @@ class MasterCard extends Component{
                 {  this.props.visible && !this.props.masterinfo.isDefault && !editingUuid && !shared &&  <UpdateButton onClick={ this.UpdateButton} masterinfo={this.props.masterinfo}/>}
                 { (this.props.showCheckBox || this.props.visible) && !this.props.masterinfo.isDefault && !editingUuid && !shared &&  <RemoveButton onClick={this.RemoveButton} ID={uuid}/>}
               </div>
-              { this.props.visible && !this.props.masterinfo.isDefault && !this.props.masterinfo.isCopied && pathname !== '/more' && !editingUuid && this.showShareBtn() && (
+              { this.props.visible && !this.props.masterinfo.isDefault && !this.props.masterinfo.isCopied && pathname !== '/browse' && !editingUuid && this.showShareBtn() && (
                 <button className={`master__share-btn ${shared ? 'master__share-btn--active' : ''}`} onClick={this.toggleShare} title={shared ? 'Unshare' : 'Share publicly'}>
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
@@ -94,7 +94,7 @@ class MasterCard extends Component{
                 <span className="master__title">{title}</span>
                 <span className="master__date">{createdAt}</span>
               </Link>
-            { pathname === '/more' && !isOwn && (
+            { pathname === '/browse' && !isOwn && (
               <button className="master__copy-btn" onClick={this.addPoolToMine} title="Copy to Study">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
@@ -113,7 +113,7 @@ class MasterCard extends Component{
     RemoveButton  = () => {
       const {uuid, title} = this.props.masterinfo;
       const {pathname} = this.props;
-      if(pathname === '/more')
+      if(pathname === '/browse')
         this.props.deletePoolCard(uuid);
       else
         this.props.deleteMaster(uuid, title);
