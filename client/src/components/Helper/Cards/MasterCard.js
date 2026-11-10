@@ -64,7 +64,8 @@ class MasterCard extends Component{
     }
 
     render(){
-      const {title, createdAt, uuid} = this.props.masterinfo;
+      const {title, createdAt: rawDate, uuid} = this.props.masterinfo;
+      const createdAt = rawDate ? new Date(rawDate).toLocaleString('en-US', { timeZone: 'America/New_York', month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit', timeZoneName: 'short' }) : '';
       const {pathname, editingUuid} = this.props;
       const isOwn = this.isOwnPoolCard();
       const ownUuid = isOwn ? this.getOwnMasterUuid() : null;
@@ -91,6 +92,7 @@ class MasterCard extends Component{
               <Link  to={editingUuid ? '#' : { pathname:`/smallcards/${uuid}`, query: { prevent: isBrowse }}} className="master__links"
                onClick={(e)=> { if(editingUuid){ e.preventDefault(); return; } isBrowse ? this.props.getPoolSubCard(uuid) : this.props.getSmallCards(linkUuid); }}>
 
+                <span className="master__count">{this.props.masterinfo.subCards ? this.props.masterinfo.subCards.length : 0} cards</span>
                 <span className="master__title">{title}</span>
                 <span className="master__date">{createdAt}</span>
               </Link>
