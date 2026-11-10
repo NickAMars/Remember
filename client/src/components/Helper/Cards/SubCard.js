@@ -136,7 +136,7 @@ class SubCard extends Component {
                   className="dialog__input"
                   type="text"
                   placeholder="Question"
-                  maxLength="128"
+                  maxLength="1000"
                   value={editTitle}
                   onChange={(e) => this.setState({ editTitle: e.target.value })}
                 />

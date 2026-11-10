@@ -10,7 +10,7 @@ export class PoolSubCard {
   @Column({ type: 'uuid', unique: true })
   uuid: string;
 
-  @Column({ type: 'varchar', length: 255 })
+  @Column({ type: 'varchar', length: 1000 })
   title: string;
 
   @Column({ type: 'text', default: '' })

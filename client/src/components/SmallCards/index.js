@@ -197,7 +197,7 @@ static getDerivedStateFromProps(nextProps, prevState){
                     className="dialog__input"
                     type="text"
                     placeholder="Question"
-                    maxLength="128"
+                    maxLength="1000"
                     value={title}
                     onChange={(e) => this.setState({ title: e.target.value })}
                   />

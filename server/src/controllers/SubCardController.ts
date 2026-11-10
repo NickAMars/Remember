@@ -32,7 +32,7 @@ export class SubCardController implements Controller {
 
     router.post('/:uuid/subcards', handle(async (req) => {
       const { title, descriptions } = parse(z.object({
-        title: z.string().min(1).max(128),
+        title: z.string().min(1).max(1000),
         descriptions: z.string().max(5000).default(''),
       }), req.body);
       return this.service.add(uuidParam(req), userUuid(req), title, descriptions);
@@ -45,7 +45,7 @@ export class SubCardController implements Controller {
 
     router.put('/subcards/:uuid', handle(async (req) => {
       const { title, descriptions } = parse(z.object({
-        title: z.string().min(1).max(128),
+        title: z.string().min(1).max(1000),
         descriptions: z.string().max(5000).default(''),
       }), req.body);
       return this.service.update(uuidParam(req), userUuid(req), title, descriptions);
@@ -62,15 +62,12 @@ export class SubCardController implements Controller {
       const rows: string[][] = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '' });
 
       const cards: { title: string; descriptions: string }[] = [];
-      const startRow = rows.length > 0 && String(rows[0][0]).toLowerCase() === 'title' ? 1 : 0;
+      const firstCell = rows.length > 0 ? String(rows[0][0]).toLowerCase() : '';
+      const startRow = (firstCell === 'title' || firstCell === 'question') ? 1 : 0;
       for (let i = startRow; i < rows.length; i++) {
         let title = String(rows[i][0] || '').trim();
         let descriptions = String(rows[i][1] || '').trim();
-        if (title.length > 128) {
-          const overflow = title.slice(128);
-          title = title.slice(0, 128);
-          descriptions = descriptions ? overflow + '\n' + descriptions : overflow;
-        }
+        if (title.length > 1000) title = title.slice(0, 1000);
         if (descriptions.length > 5000) descriptions = descriptions.slice(0, 5000);
         if (title) cards.push({ title, descriptions });
       }

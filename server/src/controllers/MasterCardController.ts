@@ -38,19 +38,28 @@ export class MasterCardController implements Controller {
         throw new HttpError(400, 'File must be .xlsx, .xls, or .csv');
       }
 
-      const workbook = XLSX.read(req.file.buffer, { type: 'buffer' });
+      let workbook: XLSX.WorkBook;
+      try {
+        workbook = XLSX.read(req.file.buffer, { type: 'buffer' });
+      } catch {
+        throw new HttpError(400, 'Could not read file. Make sure it is a valid Excel or CSV file.');
+      }
       const results: { title: string; cardCount: number }[] = [];
 
       for (const sheetName of workbook.SheetNames) {
         const sheet = workbook.Sheets[sheetName];
-        const rows: string[][] = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '' });
+        const rows: unknown[][] = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '' });
 
         if (rows.length < 2) continue;
 
         const cards: { title: string; description: string }[] = [];
         for (let i = 1; i < rows.length; i++) {
-          const title = String(rows[i][0] || '').trim();
-          const description = String(rows[i][1] || '').trim();
+          const row = rows[i];
+          if (!row || !Array.isArray(row)) continue;
+          let title = String(row[0] ?? '').trim();
+          let description = String(row[1] ?? '').trim();
+          if (title.length > 1000) title = title.slice(0, 1000);
+          if (description.length > 5000) description = description.slice(0, 5000);
           if (title) cards.push({ title, description });
         }
 
@@ -61,7 +70,7 @@ export class MasterCardController implements Controller {
       }
 
       if (results.length === 0) {
-        throw new HttpError(400, 'No valid cards found. Use column A for title, column B for description. Row 1 is treated as a header.');
+        throw new HttpError(400, 'No valid cards found. Use column A for questions, column B for answers. Row 1 is treated as a header.');
       }
 
       return { imported: results };
@@ -77,8 +86,8 @@ export class MasterCardController implements Controller {
       const { title, cards } = parse(z.object({
         title: z.string().min(1).max(128),
         cards: z.array(z.object({
-          title: z.string().min(1).max(128),
-          description: z.string().max(2000).default(''),
+          title: z.string().min(1).max(1000),
+          description: z.string().max(5000).default(''),
         })),
       }), req.body);
       return this.service.create(userUuid(req), title, cards);

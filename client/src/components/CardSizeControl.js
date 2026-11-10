@@ -1,10 +1,10 @@
 import React from 'react';
 
 const subcardSizes = [
-  { label: 'S', cols: '25%', min: '14rem', height: '15rem' },
-  { label: 'M', cols: '33.33%', min: '18rem', height: '19rem' },
-  { label: 'L', cols: '50%', min: '22rem', height: '24rem' },
-  { label: 'XL', cols: '100%', min: '100%', height: '30rem' },
+  { label: 'S', cols: '25%', min: '14rem', height: '26rem' },
+  { label: 'M', cols: '33.33%', min: '18rem', height: '30rem' },
+  { label: 'L', cols: '50%', min: '22rem', height: '34rem' },
+  { label: 'XL', cols: '100%', min: '100%', height: '40rem' },
 ];
 
 const masterSizes = [
