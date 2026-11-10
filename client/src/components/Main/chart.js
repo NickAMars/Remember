@@ -87,20 +87,8 @@ export class Chart extends Component{
       .attr("stroke", "rgba(255,255,255,0.06)")
       .attr("stroke-dasharray", "3,3");
 
-    // Gradient for bars
-    const defs = svg.append("defs");
-    const gradient = defs.append("linearGradient")
-      .attr("id", "barGradient")
-      .attr("x1", "0%").attr("y1", "0%")
-      .attr("x2", "0%").attr("y2", "100%");
-    gradient.append("stop")
-      .attr("offset", "0%")
-      .attr("stop-color", "#daa56c")
-      .attr("stop-opacity", 1);
-    gradient.append("stop")
-      .attr("offset", "100%")
-      .attr("stop-color", "#8b5e3c")
-      .attr("stop-opacity", 0.8);
+    // Bar colors
+    const barColors = ["#d4924a", "#5b9bd5", "#e06060", "#6bc76b", "#b07cc6"];
 
     // Bars
     g.selectAll(".bar")
@@ -110,21 +98,10 @@ export class Chart extends Component{
       .attr("y", d => yScale(d.maxTime))
       .attr("width", xScale.bandwidth())
       .attr("height", d => chartHeight - yScale(d.maxTime))
-      .attr("fill", "url(#barGradient)")
+      .attr("fill", (d, i) => barColors[i % barColors.length])
       .attr("rx", 4)
-      .attr("ry", 4);
-
-    // Value labels on bars
-    g.selectAll(".bar-label")
-      .data(data)
-      .enter().append("text")
-      .attr("x", d => xScale(d.title) + xScale.bandwidth() / 2)
-      .attr("y", d => yScale(d.maxTime) - 8)
-      .attr("fill", "#c49a6c")
-      .attr("font-size", "12px")
-      .attr("font-weight", "600")
-      .style("text-anchor", "middle")
-      .text(d => d.maxTime);
+      .attr("ry", 4)
+      .attr("opacity", 0.9);
 
     // X Axis - card titles
     g.append("g")

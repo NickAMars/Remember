@@ -67,8 +67,8 @@ export class PieChart extends Component {
     const color = d3.scaleOrdinal()
       .domain(data.map(d => d.title))
       .range([
-        "#d4924a", "#8b5e3c", "#c49a6c", "#a67544", "#daa56c",
-        "#6b4226", "#e8b87a", "#7a5230", "#b8813c", "#946030"
+        "#d4924a", "#5b9bd5", "#e06060", "#6bc76b", "#b07cc6",
+        "#e8b44a", "#4dc9c9", "#e87da0", "#7a9e4f", "#c78347"
       ]);
 
     const pie = d3.pie()

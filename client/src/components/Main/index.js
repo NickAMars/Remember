@@ -36,6 +36,10 @@ class MasterCard extends Component{
     this.setState(prev => ({ visibleCount: prev.visibleCount + 5 }));
   }
 
+  showLess = () => {
+    this.setState({ visibleCount: 5 });
+  }
+
   render(){
     const { allCards, visibleCount, search } = this.state;
     const filtered = search
@@ -58,14 +62,17 @@ class MasterCard extends Component{
                 onChange={(e) => this.setState({ search: e.target.value, visibleCount: 5 })}
                 maxLength="128"
               />
-              <ul className="list">
-                 {
-                   visible.map((master, index) => {
-                      return ( <TopFiveCard onNavigate={this.navigateToCard} key={master.referenceID} cards={master}/>  );
-                    })
-                 }
-               </ul>
-               {hasMore && <button className="show-more-btn" onClick={this.showMore}>Show More</button>}
+              <div className={`list-scroll ${visibleCount > 5 ? 'list-scroll--expanded' : ''}`}>
+                <ul className="list">
+                   {
+                     visible.map((master, index) => {
+                        return ( <TopFiveCard onNavigate={this.navigateToCard} key={master.referenceID} cards={master}/>  );
+                      })
+                   }
+                 </ul>
+              </div>
+              {hasMore && <button className="show-more-btn" onClick={this.showMore}>Show More</button>}
+              {!hasMore && filtered.length > 5 && <button className="show-more-btn" onClick={this.showLess}>Show Less</button>}
             </div>
 
               <Chart data={chartData}/>

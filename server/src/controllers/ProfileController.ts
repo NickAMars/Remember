@@ -38,6 +38,12 @@ export class ProfileController implements Controller {
       };
     }));
 
+    router.delete('/deactivate', handle(async (req) => {
+      const uuid = userUuid(req);
+      await this.auth.deactivateAccount(uuid);
+      return { ok: true };
+    }));
+
     return router;
   }
 }

@@ -22,8 +22,9 @@ class SubCard extends Component {
       if (!wasFlipped) {
         if (this.props.isOwner !== false) {
           axios.put(`/api/profile/MasterCard/subcards/${this.props.uuid}/view`).catch(() => {});
-        } else {
-          this.setState(prev => ({ localViews: prev.localViews + 1 }));
+        }
+        if (this.props.onView) {
+          this.props.onView(this.props.uuid);
         }
       }
     }

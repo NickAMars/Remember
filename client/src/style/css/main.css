@@ -803,7 +803,7 @@ ul { list-style: none; }
 }
 
 .remember {
-  padding: 0 2rem 4rem;
+  padding: 2rem 2rem 4rem;
   max-width: 1100px;
   margin: 0 auto;
 }
@@ -963,18 +963,34 @@ ul { list-style: none; }
 }
 .search-cards__input::placeholder { color: var(--color-text-muted); }
 
+.list-scroll {
+  margin-top: 0.5rem;
+  padding-right: 0.3rem;
+}
+.list-scroll--expanded {
+  max-height: 22rem;
+  overflow-y: auto;
+}
+.list-scroll::-webkit-scrollbar { width: 5px; }
+.list-scroll::-webkit-scrollbar-track { background: transparent; }
+.list-scroll::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 4px;
+}
+.list-scroll::-webkit-scrollbar-thumb:hover { background: var(--color-primary); }
 .show-more-btn {
   display: block;
   width: 100%;
   margin-top: 0.8rem;
-  padding: 0.5rem;
+  padding: 0.6rem 1rem;
   background: none;
   border: 1px solid var(--color-border-light);
   border-radius: var(--radius-sm);
   color: var(--color-primary);
-  font-size: 1rem;
+  font-size: 0.95rem;
+  font-weight: 600;
   cursor: pointer;
-  transition: background var(--transition-fast);
+  transition: all var(--transition-fast);
 }
 .show-more-btn:hover { background: rgba(212,146,74,0.1); }
 
@@ -1295,6 +1311,24 @@ ul { list-style: none; }
   color: var(--color-primary);
   margin-top: 0.3rem;
 }
+.master__copy-btn {
+  position: absolute;
+  z-index: 5;
+  bottom: 0.6rem;
+  left: 0.8rem;
+  background: var(--color-primary);
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  padding: 0.35rem 0.5rem;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity var(--transition-fast), background 0.2s ease;
+  display: flex;
+  align-items: center;
+}
+.master__items:hover .master__copy-btn { opacity: 1; }
+.master__copy-btn:hover { background: var(--color-primary-dark); }
 
 /* ==========================================================================
    MODAL
@@ -1441,29 +1475,61 @@ ul { list-style: none; }
 }
 .navbar-nav__link:hover { color: var(--color-primary); }
 
-.navbar-nav-2 {
-  display: flex;
-  flex-direction: column;
-  border-top: 1px solid var(--color-border);
-  padding-top: 0.8rem;
+.navbar__system {
   margin-top: auto;
+  border-top: 1px solid var(--color-border);
+  padding: 0.8rem 0;
+  position: relative;
 }
-.navbar-nav-2__items {
-  text-align: left;
-  border-bottom: 1px solid var(--color-border);
-}
-.navbar-nav-2__link, .navbar-nav-2__link:link, .navbar-nav-2__link:visited {
-  display: block;
-  padding: 1rem 1.8rem;
-  text-decoration: none;
+.navbar__system-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  width: 100%;
+  padding: 0.9rem 1.8rem;
+  background: none;
+  border: none;
   color: var(--color-text-secondary);
-  font-size: 1.3rem;
+  font-size: 1.2rem;
+  cursor: pointer;
   white-space: nowrap;
   transition: all var(--transition-fast);
 }
-.navbar-nav-2__link:hover { color: var(--color-text); background: rgba(255,255,255,0.03); }
-.navbar-nav-2__items:last-child .navbar-nav-2__link { color: var(--color-danger); }
-.navbar-nav-2__items:last-child .navbar-nav-2__link:hover { background: rgba(217,83,79,0.1); }
+.navbar__system-btn:hover { color: var(--color-text); background: rgba(255,255,255,0.03); }
+.navbar__system-menu {
+  list-style: none;
+  padding: 0.4rem 0;
+  margin: 0;
+  background: var(--color-surface);
+  border-top: 1px solid var(--color-border);
+}
+.navbar__system-item {
+  display: block;
+  width: 100%;
+  padding: 0.8rem 2.4rem;
+  background: none;
+  border: none;
+  color: var(--color-text-secondary);
+  font-size: 1.1rem;
+  text-align: left;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all var(--transition-fast);
+}
+.navbar__system-item:hover { color: var(--color-text); background: rgba(255,255,255,0.05); }
+.navbar__system-item--danger { color: var(--color-danger); }
+.navbar__system-item--danger:hover { background: rgba(217,83,79,0.1); }
+.dialog__confirm-btn--primary {
+  background: var(--color-primary);
+  color: #fff;
+  border: none;
+  padding: 0.6rem 1.4rem;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background 0.2s ease;
+}
+.dialog__confirm-btn--primary:hover { opacity: 0.9; }
 
 /* ==========================================================================
    CHART AXIS STYLING

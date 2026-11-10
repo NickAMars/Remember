@@ -2,7 +2,7 @@ import { inject, injectable } from 'inversify';
 import { DataSource, Repository } from 'typeorm';
 import { MasterCard, SubCard, PoolCard, PoolSubCard, User } from '../entities';
 import { TYPES } from '../types';
-import { notFound } from './errors';
+import { notFound, badRequest } from './errors';
 
 @injectable()
 export class PoolCardService {
@@ -30,6 +30,22 @@ export class PoolCardService {
       relations: ['subCards'],
     });
     if (!masterCard) throw notFound('Master card not found');
+
+    // Don't allow default tutorial cards to be made public
+    if (masterCard.isDefault) {
+      throw badRequest('Cannot make the default tutorial card public');
+    }
+
+    // Don't allow cards with no subcards to be made public
+    if (!masterCard.subCards || masterCard.subCards.length === 0) {
+      throw badRequest('Cannot make a card public without any subcards');
+    }
+
+    // Limit to 5 public cards per user
+    const userPoolCount = await this.poolCards.countBy({ author: userUuid });
+    if (userPoolCount >= 5) {
+      throw badRequest('You can have at most 5 public cards');
+    }
 
     const poolCard = this.poolCards.create({ author: userUuid, title: masterCard.title });
     await this.poolCards.save(poolCard);

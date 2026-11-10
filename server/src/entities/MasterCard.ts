@@ -24,6 +24,9 @@ export class MasterCard {
   @Column({ type: 'int', default: 0 })
   views: number;
 
+  @Column({ type: 'boolean', default: false })
+  isDefault: boolean;
+
   @ManyToOne('User', 'masterCards', { onDelete: 'CASCADE' })
   user: User;
 

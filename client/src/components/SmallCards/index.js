@@ -15,6 +15,7 @@ class SmallCards extends PureComponent{
       current: Date.now(),
       prevent: true,
       isOwner: true,
+      localViews: {},
       dialogOpen: false,
       dialogTab: 'single',
       title: '',
@@ -43,6 +44,12 @@ static getDerivedStateFromProps(nextProps, prevState){
   }
   return null;
 }
+
+  onCardView = (uuid) => {
+    this.setState(prev => ({
+      localViews: { ...prev.localViews, [uuid]: (prev.localViews[uuid] || 0) + 1 }
+    }));
+  }
 
   openDialog = () => this.setState({ dialogOpen: true, dialogTab: 'single', title: '', descriptions: '', uploadMsg: '' });
   closeDialog = () => this.setState({ dialogOpen: false });
@@ -90,23 +97,29 @@ static getDerivedStateFromProps(nextProps, prevState){
   render(){
     if(this.state.prevent)
       clearInterval( this.timer );
-    const { dialogOpen, dialogTab, title, descriptions, uploading, uploadMsg } = this.state;
-    const pieData = this.props.showsubcards
-      .filter(sc => sc.views > 0)
-      .sort((a, b) => b.views - a.views)
-      .slice(0, 6);
+    const { dialogOpen, dialogTab, title, descriptions, uploading, uploadMsg, isOwner, localViews } = this.state;
+    const pieData = isOwner
+      ? this.props.showsubcards
+          .filter(sc => sc.views > 0)
+          .sort((a, b) => b.views - a.views)
+          .slice(0, 6)
+      : this.props.showsubcards
+          .map(sc => ({ ...sc, views: localViews[sc.uuid] || 0 }))
+          .filter(sc => sc.views > 0)
+          .sort((a, b) => b.views - a.views)
+          .slice(0, 6);
     return (
       <div className="remember">
         {this.state.masterTitle && <div className="header-box">
           <h2 className="heading__secondary">{this.state.masterTitle}</h2>
         </div>}
-        {this.state.isOwner && <div className="subcards-toolbar">
+        <div className="subcards-toolbar">
           <PieChart data={pieData}/>
-          <button className="add-cards-btn" onClick={this.openDialog} title="Add cards">
+          {isOwner && <button className="add-cards-btn" onClick={this.openDialog} title="Add cards">
             <svg width="18" height="18" viewBox="0 0 16 16" fill="none"><path d="M8 1v14M1 8h14" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/></svg>
             <span>Add Cards</span>
-          </button>
-        </div>}
+          </button>}
+        </div>
 
         {dialogOpen && <div className="dialog-overlay" onClick={this.closeDialog}>
           <div className="dialog" onClick={(e) => e.stopPropagation()}>
@@ -159,7 +172,7 @@ static getDerivedStateFromProps(nextProps, prevState){
         <hr className="u-mt-sm u-mb-sm"/>
         <div className="row">
         {
-         this.props.showsubcards.map((smallcard, index) => <SubCard  key={smallcard.uuid}  {...smallcard} masterCardUuid={this.props.match.params.idMaster} isOwner={this.state.isOwner} />)
+         this.props.showsubcards.map((smallcard, index) => <SubCard  key={smallcard.uuid}  {...smallcard} masterCardUuid={this.props.match.params.idMaster} isOwner={isOwner} onView={this.onCardView} />)
         }
         </div>
       </div>

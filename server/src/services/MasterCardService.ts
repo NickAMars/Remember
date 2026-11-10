@@ -164,6 +164,11 @@ export class MasterCardService {
       order: { views: 'DESC' },
     });
 
-    return topFiveCards(cards);
+    return cards.map(card => ({
+      maxTime: card.views,
+      referenceID: card.uuid,
+      title: card.title,
+      timestamp: card.createdAt,
+    }));
   }
 }

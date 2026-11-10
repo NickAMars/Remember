@@ -5,7 +5,7 @@ import { DataSource, Repository } from 'typeorm';
 import { config } from '../config';
 import { BCRYPT_SALT_ROUNDS } from '../constants';
 import type { UserClaims } from '../interfaces/auth';
-import { User, MasterCard, SubCard } from '../entities';
+import { User, MasterCard, SubCard, PoolCard } from '../entities';
 import { TYPES } from '../types';
 import { HttpError, badRequest } from './errors';
 
@@ -16,11 +16,13 @@ export class AuthService {
   private users: Repository<User>;
   private masterCards: Repository<MasterCard>;
   private subCards: Repository<SubCard>;
+  private poolCards: Repository<PoolCard>;
 
   constructor(@inject(TYPES.DataSource) dataSource: DataSource) {
     this.users = dataSource.getRepository(User);
     this.masterCards = dataSource.getRepository(MasterCard);
     this.subCards = dataSource.getRepository(SubCard);
+    this.poolCards = dataSource.getRepository(PoolCard);
   }
 
   async signup(username: string, passwordDigest: string) {
@@ -90,83 +92,70 @@ export class AuthService {
     return createHash('sha256').update(plaintext).digest('hex');
   }
 
+  async deactivateAccount(userUuid: string): Promise<void> {
+    const user = await this.users.findOneBy({ uuid: userUuid });
+    if (!user) throw new HttpError(404, 'User not found');
+
+    // Remove all pool cards authored by this user
+    const poolCards = await this.poolCards.findBy({ author: userUuid });
+    if (poolCards.length > 0) {
+      await this.poolCards.remove(poolCards);
+    }
+
+    // Removing the user cascades to master cards, subcards, progress
+    await this.users.remove(user);
+  }
+
   private async createWelcomeCards(userId: number): Promise<void> {
-    const welcomeData = [
+    const masterCard = this.masterCards.create({ title: 'How to Use Remember', userId, isDefault: true });
+    await this.masterCards.save(masterCard);
+
+    const tutorialCards = [
       {
-        title: 'Getting Started',
-        subCards: [
-          {
-            title: 'Welcome to Remember',
-            descriptions: 'Remember is a flashcard app designed to help you memorize anything. Create cards, study them, and track your progress over time.',
-          },
-          {
-            title: 'How Cards Work',
-            descriptions: 'Each master card is a topic or subject. Inside each master card you can create sub cards which are individual flashcards with a front and back side.',
-          },
-        ],
+        title: 'Welcome to Remember',
+        descriptions: 'Remember is a flashcard app that helps you memorize anything. Create decks, add cards, study them, and track your progress over time.',
       },
       {
-        title: 'Creating Cards',
-        subCards: [
-          {
-            title: 'Create a Master Card',
-            descriptions: "Go to the Main page and use the 'Create Master Card' section at the bottom. Give your topic a name and click create.",
-          },
-          {
-            title: 'Add Sub Cards',
-            descriptions: 'Once inside a master card, use the + button to add flashcards. Enter a title for the front and a description for the back.',
-          },
-        ],
+        title: 'Creating a Deck',
+        descriptions: 'Go to the Main page and scroll to the bottom. Enter a deck name in the "Create Master Card" section and click Create. This is your new topic.',
       },
       {
-        title: 'Studying',
-        subCards: [
-          {
-            title: 'Flip to Reveal',
-            descriptions: 'Hover over any flashcard to flip it and reveal the answer on the back side. Test yourself before flipping!',
-          },
-          {
-            title: 'Track Your Time',
-            descriptions: 'The app tracks how long you spend studying each card set. Your top 5 most studied topics appear on the main dashboard.',
-          },
-        ],
+        title: 'Adding Flashcards',
+        descriptions: 'Open a deck and click the + Add Cards button. You can add cards one at a time or upload an Excel/CSV file with columns for title and description.',
       },
       {
-        title: 'Your Collection',
-        subCards: [
-          {
-            title: 'Mine Page',
-            descriptions: 'The Mine page shows all your master cards. Click any card to view and edit its flashcards.',
-          },
-          {
-            title: 'Edit and Delete',
-            descriptions: 'Use the pencil icon to rename a master card and the X icon to delete it. You can also delete individual sub cards.',
-          },
-        ],
+        title: 'Studying Your Cards',
+        descriptions: 'Click any flashcard to flip it and reveal the answer. Try to recall the answer before flipping. Each flip is tracked as a view.',
       },
       {
-        title: 'Pool Cards',
-        subCards: [
-          {
-            title: 'Share with Others',
-            descriptions: 'Use the checkbox on any of your cards in the Mine page to share it to the public pool for other users to find.',
-          },
-          {
-            title: 'Browse the Pool',
-            descriptions: 'Visit the More page to browse cards shared by other users. You can copy any pool card to your own collection.',
-          },
-        ],
+        title: 'Editing & Deleting',
+        descriptions: 'Hover over a card to see the edit (pencil) and delete (X) icons. Edit opens a modal to update the title and description. Delete asks for confirmation.',
+      },
+      {
+        title: 'Card Size Control',
+        descriptions: 'Use the slider above your cards to change how many cards show per row. Choose between 4, 3, 2, or 1 cards per row to fit your preference.',
+      },
+      {
+        title: 'Tracking Progress',
+        descriptions: 'The Main page shows a histogram of your top 5 most-viewed decks. Inside each deck, a pie chart shows which cards you view the most.',
+      },
+      {
+        title: 'Sharing Cards Publicly',
+        descriptions: 'On the My Cards page, check the "Public" checkbox on any deck to share it with other users. You can share up to 5 decks at a time.',
+      },
+      {
+        title: 'Browsing Public Cards',
+        descriptions: 'Visit the Browse page to see decks shared by other users. Click any deck to study it. Your views are tracked separately from the owner.',
+      },
+      {
+        title: 'Navigation',
+        descriptions: 'Use the menu icon in the top-right to navigate between pages. The breadcrumb trail at the top of each page lets you go back to previous pages.',
       },
     ];
 
-    for (const data of welcomeData) {
-      const masterCard = this.masterCards.create({ title: data.title, userId });
-      await this.masterCards.save(masterCard);
-
-      const subCards = data.subCards.map(sc =>
-        this.subCards.create({ title: sc.title, descriptions: sc.descriptions, masterCardId: masterCard.id }),
-      );
-      await this.subCards.save(subCards);
-    }
+    const subCards = tutorialCards.map(sc =>
+      this.subCards.create({ title: sc.title, descriptions: sc.descriptions, masterCardId: masterCard.id }),
+    );
+    await this.subCards.save(subCards);
   }
 }
