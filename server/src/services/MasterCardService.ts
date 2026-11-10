@@ -62,6 +62,9 @@ export class MasterCardService {
     const user = await this.users.findOneBy({ uuid: userUuid });
     if (!user) throw notFound('User not found');
 
+    const existing = await this.masterCards.findOneBy({ title, userId: user.id });
+    if (existing) throw badRequest('You already have a deck with this title');
+
     const masterCard = this.masterCards.create({ title, userId: user.id });
     await this.masterCards.save(masterCard);
 
@@ -80,6 +83,11 @@ export class MasterCardService {
     const card = await this.masterCards.findOneBy({ uuid, userId: user.id });
     if (!card) throw notFound('Master card not found');
     if (card.isDefault) throw badRequest('Cannot edit the default tutorial card');
+
+    if (title !== card.title) {
+      const duplicate = await this.masterCards.findOneBy({ title, userId: user.id });
+      if (duplicate) throw badRequest('You already have a deck with this title');
+    }
 
     card.title = title;
     if (date) card.createdAt = new Date(date);

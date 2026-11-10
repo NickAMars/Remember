@@ -78,6 +78,9 @@ body.nav-open .topbar {
   right: 20rem;
 }
 .topbar__brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
   font-size: 1.6rem;
   font-weight: 700;
   color: var(--color-primary);
@@ -85,6 +88,7 @@ body.nav-open .topbar {
   margin-right: 2rem;
   white-space: nowrap;
 }
+.topbar__icon { stroke: var(--color-primary); flex-shrink: 0; }
 
 ::selection { color: #fff; background: var(--color-primary-dark); }
 a { color: inherit; }
@@ -1729,7 +1733,9 @@ ul { list-style: none; }
 }
 .navbar-nav__items:hover::before { transform: scaleY(1); }
 .navbar-nav__link {
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
   text-decoration: none;
   text-transform: uppercase;
   font-size: 1.4rem;
@@ -1740,7 +1746,9 @@ ul { list-style: none; }
   transition: color var(--transition-fast);
   white-space: nowrap;
 }
+.navbar-nav__link svg { opacity: 0.6; transition: opacity var(--transition-fast); }
 .navbar-nav__link:hover { color: var(--color-primary); }
+.navbar-nav__link:hover svg { opacity: 1; }
 
 .navbar__system {
   margin-top: auto;
