@@ -1,12 +1,11 @@
 import { GET_SUBCARDS }  from '../actions/types';
 
+const initialState = { items: [], total: 0 };
 
-// send a true value to the form field which  display icon button to update card
-// @params boolean , card
-export default  function (state = [], action) {
+export default  function (state = initialState, action) {
   switch(action.type){
     case GET_SUBCARDS:
-    return action.payload;
+    return { items: action.payload, total: action.total !== undefined ? action.total : (action.payload || []).length };
     default:
       return state;
   }

@@ -83,6 +83,9 @@ class SubCard extends Component {
     if (prevProps.title !== this.props.title || prevProps.descriptions !== this.props.descriptions) {
       this.setState({ editTitle: this.props.title, editDescriptions: this.props.descriptions });
     }
+    if (prevProps.resetFlip !== this.props.resetFlip) {
+      this.setState({ flipped: false });
+    }
   }
 
   render() {

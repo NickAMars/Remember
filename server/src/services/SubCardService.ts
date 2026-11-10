@@ -16,10 +16,39 @@ export class SubCardService {
     this.users = dataSource.getRepository(User);
   }
 
-  async getForMasterCard(masterCardUuid: string): Promise<SubCard[]> {
+  async getForMasterCard(masterCardUuid: string, page?: number, pageSize?: number, search?: string): Promise<{ items: SubCard[]; total: number }> {
     const masterCard = await this.masterCards.findOneBy({ uuid: masterCardUuid });
     if (!masterCard) throw notFound('Master card not found');
-    return this.subCards.find({ where: { masterCardId: masterCard.id } });
+
+    const qb = this.subCards.createQueryBuilder('sc')
+      .where('sc.masterCardId = :id', { id: masterCard.id });
+
+    if (search) {
+      qb.andWhere('LOWER(sc.title) LIKE :search', { search: `%${search.toLowerCase()}%` });
+    }
+
+    const total = await qb.getCount();
+
+    qb.orderBy('sc.createdAt', 'ASC');
+
+    if (page !== undefined && pageSize !== undefined) {
+      qb.skip(page * pageSize).take(pageSize);
+    }
+
+    const items = await qb.getMany();
+    return { items, total };
+  }
+
+  async getTopViewed(masterCardUuid: string, limit = 6): Promise<{ uuid: string; title: string; views: number }[]> {
+    const masterCard = await this.masterCards.findOneBy({ uuid: masterCardUuid });
+    if (!masterCard) throw notFound('Master card not found');
+
+    const cards = await this.subCards.find({
+      where: { masterCardId: masterCard.id },
+      order: { views: 'DESC' },
+      take: limit,
+    });
+    return cards.filter(c => c.views > 0).map(c => ({ uuid: c.uuid, title: c.title, views: c.views }));
   }
 
   async add(masterCardUuid: string, userUuid: string, title: string, descriptions: string): Promise<SubCard> {
