@@ -64,7 +64,7 @@ class CreateMaster extends Component{
 
           <div className="create__upload">
             <p className="create__upload-label">Or import from a spreadsheet</p>
-            <p className="create__upload-hint">Excel or CSV with columns: Title (A), Description (B). Each sheet becomes a card deck.</p>
+            <p className="create__upload-hint">Excel or CSV with columns: Question (A), Answer (B). Each sheet becomes a card deck.</p>
             <div className="create__upload-row">
               <input
                 ref={this.fileInput}

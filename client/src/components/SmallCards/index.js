@@ -25,6 +25,7 @@ class SmallCards extends PureComponent{
       uploadMsg: '',
       masterTitle: '',
       isDefaultCard: false,
+      searchQuery: '',
     }
     this.fileInput = React.createRef();
   }
@@ -150,7 +151,11 @@ static getDerivedStateFromProps(nextProps, prevState){
   render(){
     if(this.state.prevent)
       clearInterval( this.timer );
-    const { dialogOpen, dialogTab, title, descriptions, uploading, uploadMsg, isOwner, localViews, isDefaultCard } = this.state;
+    const { dialogOpen, dialogTab, title, descriptions, uploading, uploadMsg, isOwner, localViews, isDefaultCard, searchQuery } = this.state;
+    const query = searchQuery.toLowerCase();
+    const filteredCards = query
+      ? this.props.showsubcards.filter(sc => sc.title.toLowerCase().includes(query))
+      : this.props.showsubcards;
     const pieData = isOwner
       ? this.props.showsubcards
           .map(sc => ({ ...sc, views: sc.views + (localViews[sc.uuid] || 0) }))
@@ -191,14 +196,14 @@ static getDerivedStateFromProps(nextProps, prevState){
                   <input
                     className="dialog__input"
                     type="text"
-                    placeholder="Card title"
+                    placeholder="Question"
                     maxLength="128"
                     value={title}
                     onChange={(e) => this.setState({ title: e.target.value })}
                   />
                   <textarea
                     className="dialog__textarea"
-                    placeholder="Description"
+                    placeholder="Answer"
                     maxLength="5000"
                     value={descriptions}
                     onChange={(e) => this.setState({ descriptions: e.target.value })}
@@ -207,7 +212,7 @@ static getDerivedStateFromProps(nextProps, prevState){
                 </div>
               ) : (
                 <div className="dialog__upload">
-                  <p className="dialog__upload-hint">Upload an Excel or CSV file. Column A = title, Column B = description.</p>
+                  <p className="dialog__upload-hint">Upload an Excel or CSV file. Column A = question, Column B = answer.</p>
                   <input
                     ref={this.fileInput}
                     type="file"
@@ -224,10 +229,23 @@ static getDerivedStateFromProps(nextProps, prevState){
         </div>}
 
         <CardSizeControl/>
+        <div className="search-bar">
+          <svg className="search-bar__icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+          <input
+            className="search-bar__input"
+            type="text"
+            placeholder="Search questions..."
+            value={searchQuery}
+            onChange={(e) => this.setState({ searchQuery: e.target.value })}
+          />
+          {searchQuery && <button className="search-bar__clear" onClick={() => this.setState({ searchQuery: '' })}>&times;</button>}
+        </div>
         <hr className="u-mt-sm u-mb-sm"/>
         <div className="row">
         {
-         this.props.showsubcards.map((smallcard, index) => <SubCard  key={smallcard.uuid}  {...smallcard} masterCardUuid={this.props.match.params.idMaster} isOwner={isOwner} isDefault={isDefaultCard} onView={this.onCardView} />)
+         filteredCards.map((smallcard, index) => <SubCard  key={smallcard.uuid}  {...smallcard} masterCardUuid={this.props.match.params.idMaster} isOwner={isOwner} isDefault={isDefaultCard} onView={this.onCardView} />)
         }
         </div>
       </div>
