@@ -55,15 +55,17 @@ export class MasterCardController implements Controller {
 
         if (rows.length < 2) continue;
 
-        const cards: { title: string; description: string }[] = [];
+        const cards: { title: string; description: string; link: string }[] = [];
         for (let i = 1; i < rows.length; i++) {
           const row = rows[i];
           if (!row || !Array.isArray(row)) continue;
           let title = String(row[0] ?? '').trim();
           let description = String(row[1] ?? '').trim();
+          let link = String(row[2] ?? '').trim();
           if (title.length > 1000) title = title.slice(0, 1000);
           if (description.length > 5000) description = description.slice(0, 5000);
-          if (title) cards.push({ title, description });
+          if (link.length > 2000) link = link.slice(0, 2000);
+          if (title) cards.push({ title, description, link });
         }
 
         if (cards.length === 0) continue;
@@ -91,6 +93,7 @@ export class MasterCardController implements Controller {
         cards: z.array(z.object({
           title: z.string().min(1).max(1000),
           description: z.string().max(5000).default(''),
+          link: z.string().max(2000).default(''),
         })),
       }), req.body);
       return this.service.create(userUuid(req), title, cards);

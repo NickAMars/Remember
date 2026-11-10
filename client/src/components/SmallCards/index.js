@@ -208,14 +208,25 @@ static getDerivedStateFromProps(nextProps, prevState){
     }
   }
 
-  onFileUpload = async () => {
+  onFileSelect = () => {
     const file = this.fileInput.current.files[0];
     if (!file) return;
     const ext = file.name.split('.').pop().toLowerCase();
     if (!['xlsx', 'xls', 'csv'].includes(ext)) {
-      this.setState({ uploadMsg: 'Please upload an .xlsx, .xls, or .csv file' });
+      this.setState({ uploadMsg: 'Please upload an .xlsx, .xls, or .csv file', selectedFileName: '' });
       return;
     }
+    this.setState({ selectedFileName: file.name, uploadMsg: '' });
+  }
+
+  cancelFileSelect = () => {
+    this.setState({ selectedFileName: '', uploadMsg: '' });
+    if (this.fileInput.current) this.fileInput.current.value = '';
+  }
+
+  onFileUpload = async () => {
+    const file = this.fileInput.current.files[0];
+    if (!file) return;
     const masterUuid = this.props.match.params.idMaster;
     const formData = new FormData();
     formData.append('file', file);
@@ -224,9 +235,14 @@ static getDerivedStateFromProps(nextProps, prevState){
       const res = await axios.post(`/api/profile/MasterCard/${masterUuid}/subcards/upload`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
-      this.setState({ uploadMsg: `Added ${res.data.count} cards`, dialogOpen: false, page: 0 });
+      const { added, updated } = res.data;
+      const parts = [];
+      if (added > 0) parts.push(`${added} added`);
+      if (updated > 0) parts.push(`${updated} updated`);
+      const msg = parts.join(', ') || `${res.data.count} cards processed`;
+      this.setState({ uploadMsg: msg, dialogOpen: false, page: 0, selectedFileName: '' });
       this.fetchCards();
-      showToast(`${res.data.count} cards uploaded successfully`);
+      showToast(msg);
     } catch (err) {
       const errMsg = err.response ? err.response.data.error : 'Upload failed';
       this.setState({ uploadMsg: errMsg });
@@ -307,15 +323,33 @@ static getDerivedStateFromProps(nextProps, prevState){
                 </div>
               ) : (
                 <div className="dialog__upload">
-                  <p className="dialog__upload-hint">Upload an Excel or CSV file. Column A = question, Column B = answer.</p>
+                  <p className="dialog__upload-hint">Upload an Excel or CSV file. Column A = question, Column B = answer, Column C = link (optional).</p>
                   <input
                     ref={this.fileInput}
                     type="file"
                     accept=".xlsx,.xls,.csv"
-                    className="dialog__upload-input"
-                    onChange={this.onFileUpload}
+                    className="dialog__upload-native"
+                    onChange={this.onFileSelect}
                     disabled={uploading}
                   />
+                  {!this.state.selectedFileName ? (
+                    <button className="dialog__upload-btn" onClick={() => this.fileInput.current.click()} disabled={uploading}>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
+                      </svg>
+                      <span>Choose File</span>
+                    </button>
+                  ) : (
+                    <div className="dialog__upload-selected">
+                      <span className="dialog__upload-file">{this.state.selectedFileName}</span>
+                      <div className="dialog__upload-actions">
+                        <button className="dialog__submit" onClick={this.onFileUpload} disabled={uploading}>
+                          {uploading ? 'Uploading...' : 'Upload'}
+                        </button>
+                        <button className="dialog__confirm-btn dialog__confirm-btn--cancel" onClick={this.cancelFileSelect} disabled={uploading}>Cancel</button>
+                      </div>
+                    </div>
+                  )}
                   {uploadMsg && <p className="dialog__upload-msg">{uploadMsg}</p>}
                 </div>
               )}

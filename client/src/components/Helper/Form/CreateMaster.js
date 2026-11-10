@@ -43,7 +43,8 @@ class CreateMaster extends Component{
         for (let i = startRow; i < rows.length; i++) {
           const question = String(rows[i][0] || '').trim();
           const answer = String(rows[i][1] || '').trim();
-          if (question) cards.push({ title: question, description: answer });
+          const link = String(rows[i][2] || '').trim();
+          if (question) cards.push({ title: question, description: answer, link });
         }
 
         if (cards.length === 0) {

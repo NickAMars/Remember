@@ -747,9 +747,43 @@ ul { list-style: none; }
   color: var(--color-text-secondary);
   font-size: 1rem;
 }
-.dialog__upload-input {
+.dialog__upload-native {
+  display: none;
+}
+.dialog__upload-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.7rem 1.4rem;
+  background: var(--color-surface, #2a2a2e);
   color: var(--color-text);
+  border: 1.5px dashed var(--color-accent, #d4924a);
+  border-radius: var(--radius-md, 0.6rem);
   font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+}
+.dialog__upload-btn:hover {
+  background: var(--color-surface-hover, #333);
+  border-color: var(--color-primary);
+}
+.dialog__upload-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.dialog__upload-selected {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+.dialog__upload-file {
+  color: var(--color-accent, #d4924a);
+  font-size: 0.95rem;
+  word-break: break-all;
+}
+.dialog__upload-actions {
+  display: flex;
+  gap: 0.8rem;
 }
 .dialog__upload-msg {
   color: var(--color-primary);

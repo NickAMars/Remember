@@ -70,20 +70,22 @@ export class SubCardController implements Controller {
       const sheet = workbook.Sheets[workbook.SheetNames[0]];
       const rows: string[][] = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '' });
 
-      const cards: { title: string; descriptions: string }[] = [];
+      const cards: { title: string; descriptions: string; link: string }[] = [];
       const firstCell = rows.length > 0 ? String(rows[0][0]).toLowerCase() : '';
       const startRow = (firstCell === 'title' || firstCell === 'question') ? 1 : 0;
       for (let i = startRow; i < rows.length; i++) {
         let title = String(rows[i][0] || '').trim();
         let descriptions = String(rows[i][1] || '').trim();
+        let link = String(rows[i][2] || '').trim();
         if (title.length > 1000) title = title.slice(0, 1000);
         if (descriptions.length > 5000) descriptions = descriptions.slice(0, 5000);
-        if (title) cards.push({ title, descriptions });
+        if (link.length > 2000) link = link.slice(0, 2000);
+        if (title) cards.push({ title, descriptions, link });
       }
       if (cards.length === 0) throw new HttpError(400, 'No valid cards found');
 
-      await this.service.addBulk(uuidParam(req), userUuid(req), cards);
-      return { count: cards.length };
+      const result = await this.service.addBulk(uuidParam(req), userUuid(req), cards);
+      return { count: cards.length, added: result.added, updated: result.updated };
     }));
 
     router.delete('/subcards/:uuid', handle(async (req) => {

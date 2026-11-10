@@ -91,7 +91,7 @@ export class SubCardService {
     return subCard;
   }
 
-  async addBulk(masterCardUuid: string, userUuid: string, cards: { title: string; descriptions: string }[]): Promise<SubCard[]> {
+  async addBulk(masterCardUuid: string, userUuid: string, cards: { title: string; descriptions: string; link?: string }[]): Promise<{ added: number; updated: number }> {
     const user = await this.users.findOneBy({ uuid: userUuid });
     if (!user) throw notFound('User not found');
 
@@ -103,17 +103,31 @@ export class SubCardService {
     const uniqueTitles = new Set(titles);
     if (uniqueTitles.size !== titles.length) throw badRequest('Duplicate questions found in the provided cards');
 
-    // Check for duplicates against existing cards
-    const existingCards = await this.subCards.find({ where: { masterCardId: masterCard.id }, select: ['title'] });
-    const existingTitles = new Set(existingCards.map(c => c.title));
-    const duplicates = titles.filter(t => existingTitles.has(t));
-    if (duplicates.length > 0) throw badRequest(`These questions already exist in this deck: ${duplicates.slice(0, 3).join(', ')}${duplicates.length > 3 ? '...' : ''}`);
+    // Split into new cards and existing cards to update
+    const existingCards = await this.subCards.find({ where: { masterCardId: masterCard.id } });
+    const existingByTitle = new Map(existingCards.map(c => [c.title, c]));
 
-    const subCards = cards.map(c =>
-      this.subCards.create({ title: c.title, descriptions: c.descriptions, masterCardId: masterCard.id }),
-    );
-    await this.subCards.save(subCards);
-    return subCards;
+    const toCreate: { title: string; descriptions: string; link: string; masterCardId: number }[] = [];
+    const toUpdate: SubCard[] = [];
+
+    for (const c of cards) {
+      const existing = existingByTitle.get(c.title);
+      if (existing) {
+        existing.descriptions = c.descriptions;
+        existing.link = c.link || '';
+        toUpdate.push(existing);
+      } else {
+        toCreate.push({ title: c.title, descriptions: c.descriptions, link: c.link || '', masterCardId: masterCard.id });
+      }
+    }
+
+    if (toUpdate.length > 0) await this.subCards.save(toUpdate);
+    if (toCreate.length > 0) {
+      const newCards = toCreate.map(c => this.subCards.create(c));
+      await this.subCards.save(newCards);
+    }
+
+    return { added: toCreate.length, updated: toUpdate.length };
   }
 
   async incrementViews(subCardUuid: string): Promise<void> {

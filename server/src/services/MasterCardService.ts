@@ -58,7 +58,7 @@ export class MasterCardService {
     return { items, total };
   }
 
-  async create(userUuid: string, title: string, cards: { title: string; description: string }[]): Promise<MasterCard[]> {
+  async create(userUuid: string, title: string, cards: { title: string; description: string; link?: string }[]): Promise<MasterCard[]> {
     const user = await this.users.findOneBy({ uuid: userUuid });
     if (!user) throw notFound('User not found');
 
@@ -74,7 +74,7 @@ export class MasterCardService {
     await this.masterCards.save(masterCard);
 
     const subCards = cards.map(card =>
-      this.subCards.create({ title: card.title, descriptions: card.description, masterCardId: masterCard.id }),
+      this.subCards.create({ title: card.title, descriptions: card.description, link: card.link || '', masterCardId: masterCard.id }),
     );
     await this.subCards.save(subCards);
 
