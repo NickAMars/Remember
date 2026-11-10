@@ -361,7 +361,7 @@ export const mapStateToProps = (state) => {
   return {
     smallcards: state.smallcards,
     showsubcards: state.showsubcards,
-    masterCards: state.master_card || [],
+    masterCards: (state.master_card && state.master_card.items) || (Array.isArray(state.master_card) ? state.master_card : []),
   };
 }
 

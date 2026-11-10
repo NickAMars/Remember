@@ -127,7 +127,7 @@ class MasterCard extends Component{
 const mapStateToProps = (state) => {
     return {
       user: state.user,
-      masterCards: state.master_card || [],
+      masterCards: (state.master_card && state.master_card.items) || (Array.isArray(state.master_card) ? state.master_card : []),
       poolcards: state.poolcards || [],
     };
   }

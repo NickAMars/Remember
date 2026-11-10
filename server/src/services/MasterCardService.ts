@@ -33,14 +33,29 @@ export class MasterCardService {
     return card;
   }
 
-  async getAllForUser(userUuid: string): Promise<MasterCard[]> {
+  async getAllForUser(userUuid: string, page?: number, pageSize?: number, search?: string): Promise<{ items: MasterCard[]; total: number }> {
     const user = await this.users.findOneBy({ uuid: userUuid });
     if (!user) throw notFound('User not found');
-    return this.masterCards.find({
-      where: { userId: user.id },
-      relations: ['subCards', 'progress'],
-      order: { createdAt: 'DESC' },
-    });
+
+    const qb = this.masterCards.createQueryBuilder('mc')
+      .leftJoinAndSelect('mc.subCards', 'sc')
+      .leftJoinAndSelect('mc.progress', 'p')
+      .where('mc.userId = :userId', { userId: user.id });
+
+    if (search) {
+      qb.andWhere('LOWER(mc.title) LIKE :search', { search: `%${search.toLowerCase()}%` });
+    }
+
+    const total = await qb.getCount();
+
+    qb.orderBy('mc.createdAt', 'DESC');
+
+    if (page !== undefined && pageSize !== undefined) {
+      qb.skip(page * pageSize).take(pageSize);
+    }
+
+    const items = await qb.getMany();
+    return { items, total };
   }
 
   async create(userUuid: string, title: string, cards: { title: string; description: string }[]): Promise<MasterCard[]> {

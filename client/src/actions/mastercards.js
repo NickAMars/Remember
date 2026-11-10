@@ -11,10 +11,15 @@ export default {
     }
   },
 
-  getMyCards : (pathname)=> async dispatch => {
+  getMyCards : (pathname, { page, pageSize, search } = {})=> async dispatch => {
     try {
-      const res = await axios.get('/api/profile/MasterCard');
-      dispatch( {type: type.MYCARDS, payload: res.data } );
+      const params = {};
+      if (page !== undefined) params.page = page;
+      if (pageSize !== undefined) params.pageSize = pageSize;
+      if (search) params.search = search;
+      const res = await axios.get('/api/profile/MasterCard', { params });
+      const data = res.data || {};
+      dispatch( {type: type.MYCARDS, payload: data.items || data, total: data.total } );
     } catch (err) {
       showToast(err.response ? err.response.data.error : 'Failed to load cards');
     }

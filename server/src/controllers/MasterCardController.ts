@@ -27,7 +27,10 @@ export class MasterCardController implements Controller {
     router.use(requireAuth(this.auth));
 
     router.get('/', handle(async (req) => {
-      return this.service.getAllForUser(userUuid(req));
+      const page = req.query.page !== undefined ? parseInt(req.query.page as string, 10) : undefined;
+      const pageSize = req.query.pageSize !== undefined ? parseInt(req.query.pageSize as string, 10) : undefined;
+      const search = req.query.search ? String(req.query.search) : undefined;
+      return this.service.getAllForUser(userUuid(req), page, pageSize, search);
     }));
 
     router.post('/upload', upload.single('file'), handle(async (req) => {

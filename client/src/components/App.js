@@ -44,7 +44,7 @@ class App extends PureComponent{
             } />
             <Route exact path='/study'render={ ({location}) => {
               document.title = 'Study - Remember';
-              if(master.length === 0)
+              if(!master.items || master.items.length === 0)
                 this.props.getMyCards(location.pathname);
 
               return <Mine pathname={location.pathname} visible={true}/>;
