@@ -38,11 +38,12 @@ export class SubCardController implements Controller {
     }));
 
     router.post('/:uuid/subcards', handle(async (req) => {
-      const { title, descriptions } = parse(z.object({
+      const { title, descriptions, link } = parse(z.object({
         title: z.string().min(1).max(1000),
         descriptions: z.string().max(5000).default(''),
+        link: z.string().max(2000).default(''),
       }), req.body);
-      return this.service.add(uuidParam(req), userUuid(req), title, descriptions);
+      return this.service.add(uuidParam(req), userUuid(req), title, descriptions, link);
     }));
 
     router.put('/subcards/:uuid/view', handle(async (req) => {
@@ -51,11 +52,12 @@ export class SubCardController implements Controller {
     }));
 
     router.put('/subcards/:uuid', handle(async (req) => {
-      const { title, descriptions } = parse(z.object({
+      const { title, descriptions, link } = parse(z.object({
         title: z.string().min(1).max(1000),
         descriptions: z.string().max(5000).default(''),
+        link: z.string().max(2000).default(''),
       }), req.body);
-      return this.service.update(uuidParam(req), userUuid(req), title, descriptions);
+      return this.service.update(uuidParam(req), userUuid(req), title, descriptions, link);
     }));
 
     router.post('/:uuid/subcards/upload', upload.single('file'), handle(async (req) => {

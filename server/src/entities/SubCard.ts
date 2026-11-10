@@ -16,6 +16,9 @@ export class SubCard {
   @Column({ type: 'text', default: '' })
   descriptions: string;
 
+  @Column({ type: 'varchar', length: 2000, default: '' })
+  link: string;
+
   @ManyToOne('MasterCard', 'subCards', { onDelete: 'CASCADE' })
   masterCard: MasterCard;
 

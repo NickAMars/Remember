@@ -51,7 +51,7 @@ export class SubCardService {
     return cards.filter(c => c.views > 0).map(c => ({ uuid: c.uuid, title: c.title, views: c.views }));
   }
 
-  async add(masterCardUuid: string, userUuid: string, title: string, descriptions: string): Promise<SubCard> {
+  async add(masterCardUuid: string, userUuid: string, title: string, descriptions: string, link: string = ''): Promise<SubCard> {
     const user = await this.users.findOneBy({ uuid: userUuid });
     if (!user) throw notFound('User not found');
 
@@ -59,12 +59,15 @@ export class SubCardService {
     if (!masterCard) throw notFound('Master card not found');
     if (masterCard.isDefault) throw badRequest('Cannot add cards to the default tutorial deck');
 
-    const subCard = this.subCards.create({ title, descriptions, masterCardId: masterCard.id });
+    const existing = await this.subCards.findOneBy({ title, masterCardId: masterCard.id });
+    if (existing) throw badRequest('A card with this question already exists in this deck');
+
+    const subCard = this.subCards.create({ title, descriptions, link, masterCardId: masterCard.id });
     await this.subCards.save(subCard);
     return subCard;
   }
 
-  async update(subCardUuid: string, userUuid: string, title: string, descriptions: string): Promise<SubCard> {
+  async update(subCardUuid: string, userUuid: string, title: string, descriptions: string, link: string = ''): Promise<SubCard> {
     const user = await this.users.findOneBy({ uuid: userUuid });
     if (!user) throw notFound('User not found');
 
@@ -76,8 +79,14 @@ export class SubCardService {
     if (subCard.masterCard.userId !== user.id) throw notFound('Sub card not found');
     if (subCard.masterCard.isDefault) throw badRequest('Cannot edit cards in the default tutorial deck');
 
+    if (title !== subCard.title) {
+      const duplicate = await this.subCards.findOneBy({ title, masterCardId: subCard.masterCard.id });
+      if (duplicate) throw badRequest('A card with this question already exists in this deck');
+    }
+
     subCard.title = title;
     subCard.descriptions = descriptions;
+    subCard.link = link;
     await this.subCards.save(subCard);
     return subCard;
   }
@@ -88,6 +97,17 @@ export class SubCardService {
 
     const masterCard = await this.masterCards.findOneBy({ uuid: masterCardUuid, userId: user.id });
     if (!masterCard) throw notFound('Master card not found');
+
+    // Check for duplicates within the incoming batch
+    const titles = cards.map(c => c.title);
+    const uniqueTitles = new Set(titles);
+    if (uniqueTitles.size !== titles.length) throw badRequest('Duplicate questions found in the provided cards');
+
+    // Check for duplicates against existing cards
+    const existingCards = await this.subCards.find({ where: { masterCardId: masterCard.id }, select: ['title'] });
+    const existingTitles = new Set(existingCards.map(c => c.title));
+    const duplicates = titles.filter(t => existingTitles.has(t));
+    if (duplicates.length > 0) throw badRequest(`These questions already exist in this deck: ${duplicates.slice(0, 3).join(', ')}${duplicates.length > 3 ? '...' : ''}`);
 
     const subCards = cards.map(c =>
       this.subCards.create({ title: c.title, descriptions: c.descriptions, masterCardId: masterCard.id }),

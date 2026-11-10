@@ -191,16 +191,16 @@ static getDerivedStateFromProps(nextProps, prevState){
     );
   }
 
-  openDialog = () => this.setState({ dialogOpen: true, dialogTab: 'single', title: '', descriptions: '', uploadMsg: '' });
+  openDialog = () => this.setState({ dialogOpen: true, dialogTab: 'single', title: '', descriptions: '', link: '', uploadMsg: '' });
   closeDialog = () => this.setState({ dialogOpen: false });
 
   addSubCard = async () => {
-    const { title, descriptions } = this.state;
+    const { title, descriptions, link } = this.state;
     if (!title.trim()) return;
     const masterUuid = this.props.match.params.idMaster;
     try {
-      await axios.post(`/api/profile/MasterCard/${masterUuid}/subcards`, { title, descriptions });
-      this.setState({ title: '', descriptions: '', dialogOpen: false });
+      await axios.post(`/api/profile/MasterCard/${masterUuid}/subcards`, { title, descriptions, link });
+      this.setState({ title: '', descriptions: '', link: '', dialogOpen: false });
       this.fetchCards();
       showToast(`"${title}" added successfully`);
     } catch (err) {
@@ -294,6 +294,14 @@ static getDerivedStateFromProps(nextProps, prevState){
                     maxLength="5000"
                     value={descriptions}
                     onChange={(e) => this.setState({ descriptions: e.target.value })}
+                  />
+                  <input
+                    className="dialog__input"
+                    type="url"
+                    placeholder="Reference link (optional)"
+                    maxLength="2000"
+                    value={this.state.link || ''}
+                    onChange={(e) => this.setState({ link: e.target.value })}
                   />
                   <button className="dialog__submit" onClick={this.addSubCard}>Add Card</button>
                 </div>

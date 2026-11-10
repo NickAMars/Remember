@@ -13,6 +13,7 @@ class SubCard extends Component {
     showDeleteConfirm: false,
     editTitle: this.props.title,
     editDescriptions: this.props.descriptions,
+    editLink: this.props.link || '',
     updateError: '',
   }
 
@@ -36,6 +37,7 @@ class SubCard extends Component {
       showUpdateModal: true,
       editTitle: this.props.title,
       editDescriptions: this.props.descriptions,
+      editLink: this.props.link || '',
       updateError: '',
     });
   }
@@ -46,9 +48,9 @@ class SubCard extends Component {
 
   onUpdate = async () => {
     const { uuid, masterCardUuid } = this.props;
-    const { editTitle, editDescriptions } = this.state;
+    const { editTitle, editDescriptions, editLink } = this.state;
     try {
-      await axios.put(`/api/profile/MasterCard/subcards/${uuid}`, { title: editTitle, descriptions: editDescriptions });
+      await axios.put(`/api/profile/MasterCard/subcards/${uuid}`, { title: editTitle, descriptions: editDescriptions, link: editLink });
     } catch (err) {
       const msg = err.response ? err.response.data.error : 'Update failed';
       this.setState({ updateError: msg });
@@ -80,8 +82,8 @@ class SubCard extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    if (prevProps.title !== this.props.title || prevProps.descriptions !== this.props.descriptions) {
-      this.setState({ editTitle: this.props.title, editDescriptions: this.props.descriptions });
+    if (prevProps.title !== this.props.title || prevProps.descriptions !== this.props.descriptions || prevProps.link !== this.props.link) {
+      this.setState({ editTitle: this.props.title, editDescriptions: this.props.descriptions, editLink: this.props.link || '' });
     }
     if (prevProps.resetFlip !== this.props.resetFlip) {
       this.setState({ flipped: false });
@@ -105,6 +107,14 @@ class SubCard extends Component {
             <div className="card__description">
               {this.props.descriptions}
             </div>
+            {this.props.link && (
+              <a className="card__link" href={this.props.link} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
+                </svg>
+                <span>Reference Link</span>
+              </a>
+            )}
             <button className="card__flip-btn card__flip-btn--back" onClick={this.toggleFlip} title="Flip card">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M17 1l4 4-4 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/><path d="M3 11V9a4 4 0 014-4h14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/><path d="M7 23l-4-4 4-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/><path d="M21 13v2a4 4 0 01-4 4H3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
             </button>
@@ -149,6 +159,14 @@ class SubCard extends Component {
                   maxLength="5000"
                   value={editDescriptions}
                   onChange={(e) => this.setState({ editDescriptions: e.target.value })}
+                />
+                <input
+                  className="dialog__input"
+                  type="url"
+                  placeholder="Reference link (optional)"
+                  maxLength="2000"
+                  value={this.state.editLink}
+                  onChange={(e) => this.setState({ editLink: e.target.value })}
                 />
                 {this.state.updateError && <p style={{color:'#c0392b',fontSize:'1rem'}}>{this.state.updateError}</p>}
                 <button className="dialog__submit" onClick={this.onUpdate}>Save</button>

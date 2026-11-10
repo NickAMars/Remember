@@ -16,6 +16,9 @@ export class PoolSubCard {
   @Column({ type: 'text', default: '' })
   descriptions: string;
 
+  @Column({ type: 'varchar', length: 2000, default: '' })
+  link: string;
+
   @ManyToOne('PoolCard', 'subCards', { onDelete: 'CASCADE' })
   poolCard: PoolCard;
 

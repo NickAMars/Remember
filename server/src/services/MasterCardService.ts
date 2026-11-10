@@ -65,6 +65,11 @@ export class MasterCardService {
     const existing = await this.masterCards.findOneBy({ title, userId: user.id });
     if (existing) throw badRequest('You already have a deck with this title');
 
+    // Check for duplicate questions within the provided cards
+    const titles = cards.map(c => c.title);
+    const uniqueTitles = new Set(titles);
+    if (uniqueTitles.size !== titles.length) throw badRequest('Duplicate questions found in the provided cards');
+
     const masterCard = this.masterCards.create({ title, userId: user.id });
     await this.masterCards.save(masterCard);
 

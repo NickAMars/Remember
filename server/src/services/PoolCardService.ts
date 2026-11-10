@@ -56,7 +56,7 @@ export class PoolCardService {
     await this.poolCards.save(poolCard);
 
     const poolSubCards = masterCard.subCards.map(sub =>
-      this.poolSubCards.create({ title: sub.title, descriptions: sub.descriptions, poolCardId: poolCard.id }),
+      this.poolSubCards.create({ title: sub.title, descriptions: sub.descriptions, link: sub.link || '', poolCardId: poolCard.id }),
     );
     await this.poolSubCards.save(poolSubCards);
 
@@ -90,7 +90,7 @@ export class PoolCardService {
     await this.masterCards.save(masterCard);
 
     const subCards = poolCard.subCards.map(sub =>
-      this.subCards.create({ title: sub.title, descriptions: sub.descriptions, masterCardId: masterCard.id }),
+      this.subCards.create({ title: sub.title, descriptions: sub.descriptions, link: sub.link || '', masterCardId: masterCard.id }),
     );
     await this.subCards.save(subCards);
 

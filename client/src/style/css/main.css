@@ -501,6 +501,21 @@ ul { list-style: none; }
 .card--flipped .card__side--front { transform: rotateY(180deg); }
 .card--flipped .card__side--back { transform: rotateY(0deg); }
 
+.card__link {
+  position: absolute;
+  bottom: 0.6rem;
+  left: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--color-accent, #d4924a);
+  font-size: 0.8rem;
+  text-decoration: none;
+  opacity: 0.8;
+  transition: opacity var(--transition-fast);
+}
+.card__link:hover { opacity: 1; text-decoration: underline; }
+
 .card__flip-btn--back {
   position: absolute;
   bottom: 0.6rem;
