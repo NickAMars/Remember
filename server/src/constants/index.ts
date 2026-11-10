@@ -1,0 +1,9 @@
+export const BCRYPT_SALT_ROUNDS = 12;
+export const LOGIN_RATE_LIMIT_WINDOW_MS = 15 * 60_000;
+export const MAX_LOGIN_ATTEMPTS = 10;
+export const JSON_BODY_LIMIT = '200kb';
+export const MAX_PROGRESS_DAYS = 8;
+export const TOP_FIVE_LIMIT = 5;
+export const MILLISECONDS_PER_DAY = 86_400_000;
+export const MAX_TITLE_LENGTH = 255;
+export const MAX_DESCRIPTION_LENGTH = 2000;

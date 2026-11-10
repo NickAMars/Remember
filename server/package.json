@@ -1,0 +1,51 @@
+{
+  "name": "remember-api",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Remember flashcard API: TypeORM, Inversify, PostgreSQL",
+  "main": "dist/index.js",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/index.js",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "jest --verbose",
+    "test:watch": "jest --watch",
+    "migration:generate": "tsx node_modules/typeorm/cli.js migration:generate -d src/data-source.ts",
+    "migration:create": "tsx node_modules/typeorm/cli.js migration:create",
+    "migration:run": "tsx node_modules/typeorm/cli.js migration:run -d src/data-source.ts",
+    "migration:revert": "tsx node_modules/typeorm/cli.js migration:revert -d src/data-source.ts",
+    "migration:show": "tsx node_modules/typeorm/cli.js migration:show -d src/data-source.ts"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "compression": "^1.8.2",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.6",
+    "dotenv": "^16.6.1",
+    "express": "^4.22.3",
+    "express-rate-limit": "^7.5.1",
+    "helmet": "^8.3.0",
+    "inversify": "^6.2.2",
+    "jsonwebtoken": "^9.0.3",
+    "pg": "^8.23.1",
+    "reflect-metadata": "^0.2.2",
+    "typeorm": "^0.3.31",
+    "typeorm-naming-strategies": "^4.1.0",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "@types/compression": "^1.8.1",
+    "@types/cookie-parser": "^1.4.10",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^4.17.25",
+    "@types/jest": "^30.0.0",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/node": "^22.20.5",
+    "jest": "^30.5.2",
+    "ts-jest": "^29.4.14",
+    "tsx": "^4.23.15",
+    "typescript": "^5.9.3"
+  }
+}
