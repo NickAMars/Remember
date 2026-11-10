@@ -464,9 +464,7 @@ ul { list-style: none; }
    FLIP CARDS
    ========================================================================== */
 .container-card {
-  flex: 1 1 calc(var(--card-cols, 25%) - 1.2rem);
-  min-width: var(--card-min, 18rem);
-  max-width: calc(var(--card-cols, 25%) - 1.2rem);
+  min-width: 0;
 }
 
 .card {
@@ -931,8 +929,8 @@ ul { list-style: none; }
    LAYOUT
    ========================================================================== */
 .row {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(var(--card-columns, 2), 1fr);
   gap: 1.5rem;
   padding: 2rem;
 }
@@ -1194,7 +1192,7 @@ ul { list-style: none; }
 .topcards__graph svg { display: block; max-width: 100%; height: auto; }
 .topcards__graph text { fill: var(--color-text-secondary); }
 @media (max-width: 900px) { .topcards__graph { width: 100%; max-width: 460px; } }
-@media (max-width: 600px) { .container-card { flex: 1 1 100%; max-width: 100%; } }
+@media (max-width: 600px) { .row { grid-template-columns: 1fr; } }
 
 .search-cards__input {
   width: 100%;

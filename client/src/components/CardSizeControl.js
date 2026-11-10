@@ -1,10 +1,10 @@
 import React from 'react';
 
 const subcardSizes = [
-  { label: 'S', cols: '25%', min: '14rem', height: '26rem' },
-  { label: 'M', cols: '33.33%', min: '18rem', height: '30rem' },
-  { label: 'L', cols: '50%', min: '22rem', height: '34rem' },
-  { label: 'XL', cols: '100%', min: '100%', height: '40rem' },
+  { label: 'S', cols: 4, height: '26rem' },
+  { label: 'M', cols: 3, height: '30rem' },
+  { label: 'L', cols: 2, height: '34rem' },
+  { label: 'XL', cols: 1, height: '40rem' },
 ];
 
 const masterSizes = [
@@ -15,7 +15,7 @@ const masterSizes = [
 ];
 
 export class CardSizeControl extends React.Component {
-  state = { sizeIndex: 0 }
+  state = { sizeIndex: this.props.variant === 'master' ? 0 : 2 }
 
   getSizes() {
     return this.props.variant === 'master' ? masterSizes : subcardSizes;
@@ -35,7 +35,9 @@ export class CardSizeControl extends React.Component {
         this.applySize(idx);
       }
     } else {
-      this.applySize(0);
+      const defaultIdx = this.props.variant === 'master' ? 0 : 2;
+      this.setState({ sizeIndex: defaultIdx });
+      this.applySize(defaultIdx);
     }
   }
 
@@ -46,8 +48,7 @@ export class CardSizeControl extends React.Component {
       document.documentElement.style.setProperty('--master-card-cols', s.cols);
       document.documentElement.style.setProperty('--master-card-height', s.height);
     } else {
-      document.documentElement.style.setProperty('--card-cols', s.cols);
-      document.documentElement.style.setProperty('--card-min', s.min);
+      document.documentElement.style.setProperty('--card-columns', s.cols);
       document.documentElement.style.setProperty('--card-height', s.height);
     }
   }
