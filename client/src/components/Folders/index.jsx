@@ -221,7 +221,7 @@ class Folders extends Component {
         {!loading && folders.length === 0 && (
           <div className="folders__empty">
             <p>You don't have any folders yet.</p>
-            <p>Create one above, for example "AWS SAA-C03", and add your decks to it.</p>
+            <p>Create one above, for example "Study Notes", and add your decks to it.</p>
           </div>
         )}
 
