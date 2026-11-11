@@ -10,9 +10,13 @@
     "dev": "concurrently \"npm run server\" \"npm run client\"",
     "db": "docker-compose up -d db",
     "test": "npm --prefix server test",
-    "build": "npm --prefix server run build && npm run build --prefix client"
+    "build": "npm --prefix server run build && npm run build --prefix client",
+    "deploy:build": "npm --prefix server ci --include=dev && npm --prefix client ci --include=dev && npm run build"
   },
   "dependencies": {
     "concurrently": "^10.0.7"
+  },
+  "engines": {
+    "node": ">=20"
   }
 }

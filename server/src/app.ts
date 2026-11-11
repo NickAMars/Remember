@@ -36,6 +36,11 @@ export function createApp(container: Container) {
   }));
   app.use(compression()); // perf Increase: gzip every response
 
+  // For the host's health check. It does not touch the database, so it never wakes a sleeping one.
+  app.get('/healthz', (_request, response) => {
+    response.json({ status: 'ok' });
+  });
+
   if (!config.production) {
     app.use(cors({ origin: config.clientOrigin, credentials: true }));
   }

@@ -14,9 +14,11 @@ export const AppDataSource = new DataSource({
   migrations: [join(__dirname, 'migrations', '*{.ts,.js}')],
   migrationsRun: true,
   logging: ['error', 'warn', 'migration'],
+  ssl: config.databaseSsl ? { rejectUnauthorized: true } : false,
   extra: {
-    max: 10,
-    min: 2,
+    max: config.databasePoolMax,
+    // No idle connections are kept, so a free database that sleeps when unused (like Neon) can sleep.
+    min: 0,
     idleTimeoutMillis: 30_000,
     connectionTimeoutMillis: 5_000,
   },

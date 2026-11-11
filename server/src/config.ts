@@ -1,7 +1,15 @@
 import { config as loadDotenv } from 'dotenv';
 import { resolve } from 'path';
 
-loadDotenv({ path: resolve(__dirname, '../../.env') });
+// Load environment-specific overrides first, then fall back to .env defaults.
+// .env.production.local  → production (Neon)
+// .env                   → local development (Docker Postgres)
+const envRoot = resolve(__dirname, '../..');
+const envFile = process.env.NODE_ENV === 'production'
+  ? '.env.production.local'
+  : '.env';
+loadDotenv({ path: resolve(envRoot, envFile) });
+loadDotenv({ path: resolve(envRoot, '.env') }); // defaults for any missing vars
 
 const readEnvironment = (key: string, fallback?: string): string => {
   const value = process.env[key] ?? fallback;
@@ -23,6 +31,13 @@ export const config = {
    * Needed so rate limits see each visitor's real IP instead of the proxy's. 0 = none.
    */
   trustProxyHops: Number(readEnvironment('TRUST_PROXY_HOPS', '0')),
+  /**
+   * Use SSL for the database connection. Hosted Postgres (Neon, Supabase, Render) needs it.
+   * Defaults to on in production and off locally. Set DATABASE_SSL=false to turn it off.
+   */
+  databaseSsl: readEnvironment('DATABASE_SSL', isProduction ? 'true' : 'false') === 'true',
+  /** Most database connections the app keeps open. Free Postgres plans allow only a few. */
+  databasePoolMax: Number(readEnvironment('DATABASE_POOL_MAX', '10')),
 
   // Google and Facebook sign-in are turned off. To bring them back, uncomment these
   // and the matching code in AuthService and the SignIn form.

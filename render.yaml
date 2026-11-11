@@ -1,0 +1,26 @@
+# Render Blueprint: one free web service that runs the API and serves the built React app.
+# The database lives on Neon (free). Paste its connection string as DATABASE_URL when Render asks.
+services:
+  - type: web
+    name: remember
+    runtime: node
+    plan: free
+    buildCommand: npm run deploy:build
+    startCommand: npm start
+    healthCheckPath: /healthz
+    autoDeploy: true
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        sync: false # you paste this in the Render dashboard
+      - key: JWT_SECRET
+        generateValue: true # Render makes a long random secret
+      - key: JWT_TTL
+        value: 30d
+      - key: TRUST_PROXY_HOPS
+        value: "1"
+      - key: DATABASE_POOL_MAX
+        value: "5"
