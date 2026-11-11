@@ -1,35 +1,32 @@
-This project was bootstrapped with [Create React App](https://github.com/facebookincubator/create-react-app).
+# Remember - Client
 
-I don't need excuses I have result. Find the time and just do it.
-First Fully Own full stack project.
+React frontend for the Remember flashcard application.
 
+## Setup
 
+```bash
+npm install
+npm start
+```
 
-https://stackoverflow.com/questions/45429963/onenter-prop-in-react-router-v4
-No more onEnter, onChange, onLeave are deprecated in react-router v4
+Runs on http://localhost:3000 and proxies API requests to the backend server.
 
+## Key Components
 
+- **App** - Root component with React Router, top bar with brand icon, breadcrumb navigation
+- **Main** - Home page with study progress chart (D3.js bar chart) and top viewed cards
+- **Mine** - Study and Browse pages displaying master card grids with server-side pagination and search
+- **SmallCards** - Sub card view with flip animations, pie chart, search, shuffle, pagination, and card size control
+- **Folders** - Folder management (create, rename, delete) and folder detail view showing associated decks
+- **Quiz** - Quiz mode with multiple-choice questions generated from folder contents
+- **CreateMaster** - Deck creation with client-side Excel/CSV parsing and card preview
+- **CardSizeControl** - Slider to adjust sub card grid columns (S=4, M=3, L=2, XL=1), persisted in localStorage
+- **Header** - Side navigation with user avatar, page links (Home, Study, Browse), and system menu (logout, deactivate)
 
-Going to need a delete or update on the main cards. So a user can get ride of the card if they don't want it any more or they made an accident creating it.
+## State Management
 
-Need to add a check box for the main card.
-which is to show the user that they can make their cards public. More the Mine route.
-and  The more out a check box will be to add the cards to your storage.
-
-
-Then, the design portion of the application will be ready.
-
-Then, I can start connecting my routes and work on the server.
-
-Then, create a middle ware so the user cant go back to the main page unless they have log out.
-
-Then I can focus on scaling with redis for the mongodb database and cluster for multiple children.
-
-
-//Then, after that I work on the graph point rather I find a way to do it with d3.js or a graphing library //but I would need a skip which can go through these cards showing the time increase and decrease of use.
-
-
-***Current problems I can work around for now***
-//Well react store doesn't update after creating a master card quick enough
-//The small card state doesn't seem to go away after I submit. even though i manually empty it.
-//The remove doesn't work immediately anymore
+Redux with thunk middleware. Key reducers:
+- `master_card` - `{ items, total }` shape for paginated master cards
+- `showsubcards` - `{ items, total }` shape for paginated sub cards
+- `user` - Current user profile
+- `poolcards` - Public pool cards
