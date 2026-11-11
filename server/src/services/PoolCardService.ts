@@ -77,7 +77,7 @@ export class PoolCardService {
 
     const cards = await this.subCards.find({
       where: { masterCardId: deck.id },
-      select: ['title', 'descriptions', 'link'],
+      select: ['title', 'descriptions', 'link', 'wrongAnswers'],
     });
     if (cards.length === 0) throw badRequest('Cannot make a card public without any subcards');
 
@@ -87,7 +87,11 @@ export class PoolCardService {
       const publicDeck = await publicDeckRepository.save(publicDeckRepository.create({ author: userUuid, title: deck.title }));
       await publicCardRepository.save(
         cards.map((card) => publicCardRepository.create({
-          title: card.title, descriptions: card.descriptions, link: card.link || '', poolCardId: publicDeck.id,
+          title: card.title,
+          descriptions: card.descriptions,
+          link: card.link || '',
+          wrongAnswers: card.wrongAnswers || [],
+          poolCardId: publicDeck.id,
         })),
         { chunk: DATABASE_INSERT_CHUNK_SIZE },
       );
@@ -128,7 +132,11 @@ export class PoolCardService {
       const newDeck = await deckRepository.save(deckRepository.create({ title: publicDeck.title, userId, isCopied: true }));
       await cardRepository.save(
         publicDeck.subCards.map((card) => cardRepository.create({
-          title: card.title, descriptions: card.descriptions, link: card.link || '', masterCardId: newDeck.id,
+          title: card.title,
+          descriptions: card.descriptions,
+          link: card.link || '',
+          wrongAnswers: card.wrongAnswers || [],
+          masterCardId: newDeck.id,
         })),
         { chunk: DATABASE_INSERT_CHUNK_SIZE },
       );

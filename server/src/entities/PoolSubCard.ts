@@ -19,6 +19,10 @@ export class PoolSubCard {
   @Column({ type: 'varchar', length: 2000, default: '' })
   link: string;
 
+  /** Similar but incorrect answers, used as the wrong choices in Quiz mode. */
+  @Column({ type: 'text', array: true, default: () => "'{}'" })
+  wrongAnswers: string[];
+
   @ManyToOne('PoolCard', 'subCards', { onDelete: 'CASCADE' })
   poolCard: PoolCard;
 

@@ -1,15 +1,20 @@
 import { Readable } from 'node:stream';
 import ExcelJS from 'exceljs';
-import { MAX_ANSWER_LENGTH, MAX_CARDS_PER_REQUEST, MAX_QUESTION_LENGTH } from '../constants';
+import { MAX_ANSWER_LENGTH, MAX_CARDS_PER_REQUEST, MAX_QUESTION_LENGTH, MAX_WRONG_ANSWERS } from '../constants';
 import { HttpError } from '../services/errors';
-import { normalizeLink } from './validation';
+import { cleanWrongAnswers, normalizeLink } from './validation';
 
 /** One question/answer row read from a spreadsheet. */
 export interface SpreadsheetCard {
   title: string;
   descriptions: string;
   link: string;
+  /** Columns D and onward: similar but incorrect answers for Quiz mode. */
+  wrongAnswers: string[];
 }
+
+/** Column D is the first wrong answer. */
+export const FIRST_WRONG_ANSWER_COLUMN = 4;
 
 export interface SpreadsheetSheet {
   sheetName: string;
@@ -69,7 +74,8 @@ export function isHeaderRow(questionText: string, answerText: string): boolean {
 
 /**
  * Read every sheet of a workbook into cards.
- * Column A = question, column B = answer, column C = optional link.
+ * Column A = question, column B = answer, column C = optional link,
+ * columns D and onward = optional wrong answers for Quiz mode.
  * A header row (see isHeaderRow) is skipped.
  */
 export async function readSpreadsheet(buffer: Buffer, extension: 'xlsx' | 'csv'): Promise<SpreadsheetSheet[]> {
@@ -97,6 +103,7 @@ export async function readSpreadsheet(buffer: Buffer, extension: 'xlsx' | 'csv')
         title,
         descriptions: answer,
         link: cellLink(row.getCell(3).value),
+        wrongAnswers: readWrongAnswers(row, answer),
       });
     });
     totalCards += cards.length;
@@ -107,6 +114,16 @@ export async function readSpreadsheet(buffer: Buffer, extension: 'xlsx' | 'csv')
     sheets.push({ sheetName: worksheet.name, cards });
   }
   return sheets;
+}
+
+/** Read the wrong answers from column D onward. Stops after a few extra columns so a wide sheet stays cheap. */
+function readWrongAnswers(row: ExcelJS.Row, rightAnswer: string): string[] {
+  const lastColumn = Math.min(row.cellCount, FIRST_WRONG_ANSWER_COLUMN + MAX_WRONG_ANSWERS * 2 - 1);
+  const rawAnswers: string[] = [];
+  for (let columnNumber = FIRST_WRONG_ANSWER_COLUMN; columnNumber <= lastColumn; columnNumber++) {
+    rawAnswers.push(cellText(row.getCell(columnNumber).value));
+  }
+  return cleanWrongAnswers(rawAnswers, rightAnswer);
 }
 
 /** Keep the last card for each question, so a repeated question updates instead of failing. */

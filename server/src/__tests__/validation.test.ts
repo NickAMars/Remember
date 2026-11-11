@@ -1,5 +1,7 @@
-import { escapeLikePattern, normalizeLink, paginationQuery, resolvePagination, UUID_REGEX, linkField } from '../utils/validation';
+import { cleanWrongAnswers, wrongAnswersField, escapeLikePattern, normalizeLink, paginationQuery, resolvePagination, UUID_REGEX, linkField } from '../utils/validation';
 import { usernameField } from '../controllers/AuthController';
+
+import { MAX_WRONG_ANSWERS } from '../constants';
 
 jest.mock('inversify', () => ({
   injectable: () => (target: Function) => target,
@@ -89,5 +91,26 @@ describe('usernameField', () => {
     expect(() => usernameField.parse('a'.repeat(33))).toThrow();
     expect(() => usernameField.parse('<script>')).toThrow();
     expect(() => usernameField.parse('with space')).toThrow();
+  });
+});
+
+describe('cleanWrongAnswers', () => {
+  it('trims, drops blanks and repeats, and drops the right answer', () => {
+    expect(cleanWrongAnswers(['  Paris ', '', 'paris', 'London', 'Berlin '], 'london')).toEqual(['Paris', 'Berlin']);
+  });
+
+  it('keeps at most MAX_WRONG_ANSWERS', () => {
+    const manyAnswers = Array.from({ length: MAX_WRONG_ANSWERS + 5 }, (_unused, position) => `Answer ${position}`);
+    expect(cleanWrongAnswers(manyAnswers, 'right')).toHaveLength(MAX_WRONG_ANSWERS);
+  });
+
+  it('returns an empty list for anything that is not a list', () => {
+    expect(cleanWrongAnswers(undefined)).toEqual([]);
+    expect(cleanWrongAnswers('Paris')).toEqual([]);
+  });
+
+  it('defaults to an empty list in requests and rejects non-text items', () => {
+    expect(wrongAnswersField.parse(undefined)).toEqual([]);
+    expect(() => wrongAnswersField.parse([42])).toThrow();
   });
 });

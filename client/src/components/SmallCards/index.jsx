@@ -8,6 +8,7 @@ import axios, { errorMessage } from '../../utils/api';
 import { MAX_UPLOAD_BYTES } from '../../constance';
 import {CardSizeControl} from '../CardSizeControl';
 import { showToast } from '../../utils/toast';
+import WrongAnswers from '../Helper/InputField/WrongAnswers';
 
 const DEFAULT_PAGE_SIZE = 10;
 const SEARCH_DELAY_MS = 300;
@@ -27,6 +28,7 @@ class SmallCards extends PureComponent{
       title: '',
       descriptions: '',
       link: '',
+      wrongAnswers: [],
       uploading: false,
       uploadMsg: '',
       masterTitle: '',
@@ -220,15 +222,15 @@ static getDerivedStateFromProps(nextProps, prevState){
     );
   }
 
-  openDialog = () => this.setState({ dialogOpen: true, dialogTab: 'single', title: '', descriptions: '', link: '', uploadMsg: '' });
+  openDialog = () => this.setState({ dialogOpen: true, dialogTab: 'single', title: '', descriptions: '', link: '', wrongAnswers: [], uploadMsg: '' });
   closeDialog = () => this.setState({ dialogOpen: false });
 
   addSubCard = async () => {
-    const { title, descriptions, link } = this.state;
+    const { title, descriptions, link, wrongAnswers } = this.state;
     if (!title.trim()) return;
     try {
-      await axios.post(`/api/profile/MasterCard/${this.deckUuid}/subcards`, { title, descriptions, link });
-      this.setState({ title: '', descriptions: '', link: '', dialogOpen: false });
+      await axios.post(`/api/profile/MasterCard/${this.deckUuid}/subcards`, { title, descriptions, link, wrongAnswers });
+      this.setState({ title: '', descriptions: '', link: '', wrongAnswers: [], dialogOpen: false });
       this.fetchCards();
       showToast(`"${title}" added successfully`);
     } catch (error) {
@@ -360,11 +362,16 @@ static getDerivedStateFromProps(nextProps, prevState){
                     value={this.state.link || ''}
                     onChange={(event) => this.setState({ link: event.target.value })}
                   />
+                  <WrongAnswers
+                    answers={this.state.wrongAnswers}
+                    rightAnswer={descriptions}
+                    onChange={(wrongAnswers) => this.setState({ wrongAnswers })}
+                  />
                   <button className="dialog__submit" onClick={this.addSubCard}>Add Card</button>
                 </div>
               ) : (
                 <div className="dialog__upload">
-                  <p className="dialog__upload-hint">Upload an Excel or CSV file. Column A = question, Column B = answer, Column C = link (optional).</p>
+                  <p className="dialog__upload-hint">Upload an Excel or CSV file. Column A = question, Column B = answer, Column C = link (optional), Columns D and onward = wrong answers for the quiz (optional).</p>
                   <input
                     ref={this.fileInput}
                     type="file"

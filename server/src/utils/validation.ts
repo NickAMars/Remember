@@ -6,6 +6,7 @@ import {
   MAX_PAGE_SIZE,
   MAX_QUESTION_LENGTH,
   MAX_SEARCH_LENGTH,
+  MAX_WRONG_ANSWERS,
 } from '../constants';
 
 /** Route pattern for a v4-style uuid, used in Express paths like `/:uuid(${UUID_ROUTE_PATTERN})`. */
@@ -41,6 +42,28 @@ export const linkField = z.string().max(MAX_LINK_LENGTH).optional().default('').
 
 export const questionField = z.string().trim().min(1).max(MAX_QUESTION_LENGTH);
 export const answerField = z.string().max(MAX_ANSWER_LENGTH).optional().default('');
+
+/**
+ * Clean a card's list of wrong answers: trim each one, drop blanks, drop repeats
+ * (ignoring case), drop any that equal the right answer, and keep at most MAX_WRONG_ANSWERS.
+ */
+export function cleanWrongAnswers(wrongAnswers: unknown, rightAnswer = ''): string[] {
+  if (!Array.isArray(wrongAnswers)) return [];
+  const seenAnswers = new Set([rightAnswer.trim().toLowerCase()]);
+  const cleaned: string[] = [];
+  for (const rawAnswer of wrongAnswers) {
+    const answerText = String(rawAnswer ?? '').trim().slice(0, MAX_ANSWER_LENGTH);
+    const lowered = answerText.toLowerCase();
+    if (!answerText || seenAnswers.has(lowered)) continue;
+    seenAnswers.add(lowered);
+    cleaned.push(answerText);
+    if (cleaned.length >= MAX_WRONG_ANSWERS) break;
+  }
+  return cleaned;
+}
+
+/** Optional list of wrong answers sent with a card. The service cleans it against the right answer. */
+export const wrongAnswersField = z.array(z.string().max(MAX_ANSWER_LENGTH)).max(MAX_WRONG_ANSWERS * 5).optional().default([]);
 
 /** `?page=0&pageSize=10&search=abc`. Page size is capped so one request can't pull the whole table. */
 export const paginationQuery = z.object({

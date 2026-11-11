@@ -52,7 +52,7 @@ async function main() {
 
   const created = await call('POST', '/api/profile/MasterCard', aliceToken, {
     title: 'AWS', cards: [
-      { title: 'What is S3?', description: 'Object storage', link: 'javascript:alert(1)' },
+      { title: 'What is S3?', description: 'Object storage', link: 'javascript:alert(1)', wrongAnswers: ['Glacier', 'File storage', 'object storage', 'Cold storage', ' Glacier '] },
       { title: 'What is EC2?', description: 'Servers', link: 'aws.amazon.com/ec2' },
       { title: 'What is EBS?', description: 'Block storage' },
       { title: 'What is IAM?', description: 'Identity' },
@@ -68,6 +68,16 @@ async function main() {
   check('LIKE % is literal', all.body.total === 1, all.body);
   const s3 = (await call('GET', `/api/profile/MasterCard/${deckUuid}/subcards?search=s3`, aliceToken)).body.items[0];
   check('javascript: link removed', s3.link === '', s3);
+  check('wrong answers saved and cleaned', JSON.stringify(s3.wrongAnswers) === JSON.stringify(['Glacier', 'File storage', 'Cold storage']), s3);
+  const ec2 = (await call('GET', `/api/profile/MasterCard/${deckUuid}/subcards?search=ec2`, aliceToken)).body.items[0];
+  const editedEc2 = await call('PUT', `/api/profile/MasterCard/subcards/${ec2.uuid}`, aliceToken, {
+    title: ec2.title, descriptions: ec2.descriptions, link: ec2.link, wrongAnswers: ['Lambda', 'Servers', 'Containers'],
+  });
+  check('edit wrong answers', editedEc2.status === 200 && JSON.stringify(editedEc2.body.wrongAnswers) === JSON.stringify(['Lambda', 'Containers']), editedEc2);
+  const tooMany = await call('PUT', `/api/profile/MasterCard/subcards/${ec2.uuid}`, aliceToken, {
+    title: ec2.title, descriptions: ec2.descriptions, wrongAnswers: Array.from({ length: 100 }, (_unused, position) => `x${position}`),
+  });
+  check('huge wrong answer list rejected', tooMany.status === 400, tooMany);
   const shuffled = await call('GET', `/api/profile/MasterCard/${deckUuid}/subcards?shuffle=true&page=0&pageSize=5`, aliceToken);
   check('shuffle works', shuffled.status === 200 && shuffled.body.items.length === 5, shuffled);
 
@@ -93,6 +103,8 @@ async function main() {
   check('public summary', summary.status === 200 && summary.body.title === 'AWS', summary);
   const copy = await call('POST', `/api/poolcards/add/${publicUuid}`, bobToken);
   check('bob copies public deck', copy.status === 200 && copy.body.subCardCount === 5, copy);
+  const bobS3 = (await call('GET', `/api/profile/MasterCard/${copy.body.uuid}/subcards?search=s3`, bobToken)).body.items[0];
+  check('wrong answers copied through the public deck', bobS3?.wrongAnswers?.length === 3, bobS3);
   const copyAgain = await call('POST', `/api/poolcards/add/${publicUuid}`, bobToken);
   check('second copy refused', copyAgain.status === 400, copyAgain);
   const bobUnshare = await call('DELETE', `/api/poolcards/${publicUuid}`, bobToken);
@@ -107,6 +119,15 @@ async function main() {
 
   const quiz = await call('GET', `/api/folders/${folder.body.uuid}/quiz?count=3`, aliceToken);
   check('quiz: 3 random questions with choices', quiz.status === 200 && quiz.body.cards.length === 3 && quiz.body.available === 5 && quiz.body.cards[0].choices.length === 4, quiz);
+
+  const fullQuiz = await call('GET', `/api/folders/${folder.body.uuid}/quiz`, aliceToken);
+  const s3Question = fullQuiz.body.cards.find((card: any) => card.question === 'What is S3?');
+  const s3WrongChoices = s3Question.choices.filter((choice: string) => choice !== 'Object storage');
+  check('quiz uses the saved wrong answers', s3Question.choices.length === 4
+    && s3WrongChoices.every((choice: string) => ['Glacier', 'File storage', 'Cold storage'].includes(choice)), s3Question);
+  const ec2Question = fullQuiz.body.cards.find((card: any) => card.question === 'What is EC2?');
+  check('quiz fills the gap when fewer than 3 are saved', ec2Question.choices.length === 4
+    && ec2Question.choices.includes('Lambda') && ec2Question.choices.includes('Containers'), ec2Question);
 
   const due = await call('GET', '/api/review/due', aliceToken);
   check('due counts in SQL', due.status === 200 && due.body.total >= 5 && due.body.byFolder[0]?.count === 5, due);

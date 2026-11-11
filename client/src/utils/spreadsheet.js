@@ -1,5 +1,6 @@
 import { readSheet } from 'read-excel-file/browser';
 import { MAX_UPLOAD_BYTES } from '../constance';
+import { cleanWrongAnswers } from './wrongAnswers';
 
 const QUESTION_HEADERS = new Set(['title', 'question', 'questions']);
 const ANSWER_HEADERS = new Set(['answer', 'answers', 'description', 'descriptions']);
@@ -31,7 +32,8 @@ export function parseCsv(text) {
 }
 
 /**
- * Turn spreadsheet rows into cards: column A question, B answer, C link.
+ * Turn spreadsheet rows into cards: column A question, B answer, C link,
+ * D and onward wrong answers (similar but incorrect, for multiple-choice quizzes).
  * A header row is skipped, and a repeated question keeps its last answer
  * (the server refuses a deck with the same question twice).
  */
@@ -43,7 +45,8 @@ export function rowsToCards(rows) {
     const link = String(row[2] ?? '').trim().slice(0, MAX_LINK_LENGTH);
     if (!question) return;
     if (rowIndex === 0 && (QUESTION_HEADERS.has(question.toLowerCase()) || ANSWER_HEADERS.has(answer.toLowerCase()))) return;
-    cardsByQuestion.set(question, { title: question, description: answer, link });
+    const wrongAnswers = cleanWrongAnswers(row.slice(3), answer);
+    cardsByQuestion.set(question, { title: question, description: answer, link, wrongAnswers });
   });
   return [...cardsByQuestion.values()];
 }

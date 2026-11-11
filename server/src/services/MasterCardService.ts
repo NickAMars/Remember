@@ -6,12 +6,13 @@ import { badRequest } from './errors';
 import { currentDate, previousEight, mixdate, calculateTimeSpent, type TopFiveEntry } from './helpers';
 import { requireOwnedDeck, requireUserId } from './ownership';
 import { DATABASE_INSERT_CHUNK_SIZE, MAX_PROGRESS_DAYS, MAX_STUDY_SESSION_MS } from '../constants';
-import { escapeLikePattern, type Pagination } from '../utils/validation';
+import { cleanWrongAnswers, escapeLikePattern, type Pagination } from '../utils/validation';
 
 export interface NewCard {
   title: string;
   description: string;
   link?: string;
+  wrongAnswers?: string[];
 }
 
 export interface DeckPage {
@@ -91,7 +92,13 @@ export class MasterCardService {
       const cardRepository = transaction.getRepository(SubCard);
       const newDeck = await deckRepository.save(deckRepository.create({ title: trimmedTitle, userId }));
       const newCards = cards.map((card) =>
-        cardRepository.create({ title: card.title, descriptions: card.description, link: card.link || '', masterCardId: newDeck.id }),
+        cardRepository.create({
+          title: card.title,
+          descriptions: card.description,
+          link: card.link || '',
+          wrongAnswers: cleanWrongAnswers(card.wrongAnswers, card.description),
+          masterCardId: newDeck.id,
+        }),
       );
       await cardRepository.save(newCards, { chunk: DATABASE_INSERT_CHUNK_SIZE });
       return newDeck;

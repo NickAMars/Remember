@@ -59,6 +59,14 @@ describe('SubCardService.add', () => {
     cardRepository.findOneBy.mockResolvedValue({ id: 1 });
     await expect(service.add('deck-3', 'user-1', 'Q', 'A')).rejects.toThrow('already exists');
   });
+
+  it('saves cleaned wrong answers with the card', async () => {
+    deckRepository.findOneBy.mockResolvedValue(ownDeck);
+    cardRepository.findOneBy.mockResolvedValue(null);
+    cardRepository.save.mockImplementation(async (card: any) => card);
+    const saved = await service.add('deck-3', 'user-1', 'Q', 'Right', '', [' Wrong one ', 'right', 'Wrong one', 'Wrong two']);
+    expect(saved.wrongAnswers).toEqual(['Wrong one', 'Wrong two']);
+  });
 });
 
 describe('SubCardService.update and delete', () => {
@@ -72,8 +80,10 @@ describe('SubCardService.update and delete', () => {
 
   it('returns the updated card without its deck', async () => {
     cardRepository.findOne.mockResolvedValue({ id: 5, title: 'Q', masterCard: { id: 3, userId: 1, isDefault: false } });
-    const updated = await service.update('card-5', 'user-1', 'Q', 'New answer', 'https://example.com/');
-    expect(updated).toEqual({ id: 5, title: 'Q', descriptions: 'New answer', link: 'https://example.com/' });
+    const updated = await service.update('card-5', 'user-1', 'Q', 'New answer', 'https://example.com/', ['Close but wrong']);
+    expect(updated).toEqual({
+      id: 5, title: 'Q', descriptions: 'New answer', link: 'https://example.com/', wrongAnswers: ['Close but wrong'],
+    });
   });
 });
 
@@ -96,6 +106,21 @@ describe('SubCardService.addBulk', () => {
     expect(cardRepository.find).toHaveBeenCalledWith({ where: { masterCardId: 3, title: ['Old Q', 'New Q'] } });
     expect(result).toEqual({ added: 1, updated: 1 });
     expect(dataSource.transaction).toHaveBeenCalledTimes(1);
+  });
+
+  it('replaces wrong answers only when the upload has some', async () => {
+    deckRepository.findOneBy.mockResolvedValue(ownDeck);
+    const keptCard = { id: 1, title: 'Kept', descriptions: 'A', link: '', wrongAnswers: ['Saved wrong'] };
+    const replacedCard = { id: 2, title: 'Replaced', descriptions: 'A', link: '', wrongAnswers: ['Old wrong'] };
+    cardRepository.find.mockResolvedValue([keptCard, replacedCard]);
+
+    await service.addBulk('deck-3', 'user-1', [
+      { title: 'Kept', descriptions: 'A' },
+      { title: 'Replaced', descriptions: 'A', wrongAnswers: ['New wrong'] },
+    ]);
+
+    expect(keptCard.wrongAnswers).toEqual(['Saved wrong']);
+    expect(replacedCard.wrongAnswers).toEqual(['New wrong']);
   });
 });
 

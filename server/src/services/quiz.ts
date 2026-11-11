@@ -25,6 +25,11 @@ export interface AnswerOption {
   deckId: number;
 }
 
+/** The card a question is built from. Its own saved wrong answers are used first. */
+export interface QuestionSource extends AnswerOption {
+  wrongAnswers?: string[];
+}
+
 /** Fisher–Yates shuffle. Returns a new array and leaves the input alone. */
 export function shuffle<Item>(items: Item[], random: () => number = Math.random): Item[] {
   const shuffled = [...items];
@@ -36,11 +41,13 @@ export function shuffle<Item>(items: Item[], random: () => number = Math.random)
 }
 
 /**
- * Pick wrong answers for a card. Answers from the same deck come first because they
- * look more alike, then answers from the rest of the folder fill any gap.
+ * Build the answer choices for a card: the right answer plus `size - 1` wrong ones.
+ * The card's own saved wrong answers come first (a random few when it has more than
+ * needed). Any gap is filled with answers from the same deck, which look more alike,
+ * then from the rest of the folder.
  */
 export function pickChoices(
-  card: AnswerOption,
+  card: QuestionSource,
   answerPool: AnswerOption[],
   size = QUIZ_CHOICES,
   random: () => number = Math.random,
@@ -49,17 +56,20 @@ export function pickChoices(
   if (!rightAnswer) return [];
   const seenAnswers = new Set([rightAnswer.toLowerCase()]);
   const wrongAnswers: string[] = [];
-  const takeFrom = (candidates: AnswerOption[]) => {
+  const takeFrom = (candidates: string[]) => {
     for (const candidate of shuffle(candidates, random)) {
       if (wrongAnswers.length >= size - 1) return;
-      const answerText = candidate.answer.trim();
+      const answerText = (candidate || '').trim();
       if (!answerText || seenAnswers.has(answerText.toLowerCase())) continue;
       seenAnswers.add(answerText.toLowerCase());
       wrongAnswers.push(answerText);
     }
   };
-  takeFrom(answerPool.filter((option) => option.deckId === card.deckId));
-  takeFrom(answerPool.filter((option) => option.deckId !== card.deckId));
+  takeFrom(card.wrongAnswers || []);
+  if (wrongAnswers.length < size - 1) {
+    takeFrom(answerPool.filter((option) => option.deckId === card.deckId).map((option) => option.answer));
+    takeFrom(answerPool.filter((option) => option.deckId !== card.deckId).map((option) => option.answer));
+  }
   if (wrongAnswers.length < size - 1) return [];
   return shuffle([rightAnswer, ...wrongAnswers], random);
 }
@@ -105,7 +115,7 @@ export async function buildQuizCards(
   const limit = Math.min(wanted, available, MAX_QUIZ_QUESTIONS);
 
   const pickedCards = await cardQuery()
-    .select(['card.id', 'card.uuid', 'card.title', 'card.descriptions', 'card.link', 'card.masterCardId'])
+    .select(['card.id', 'card.uuid', 'card.title', 'card.descriptions', 'card.link', 'card.wrongAnswers', 'card.masterCardId'])
     .orderBy('RANDOM()')
     .limit(limit)
     .getMany();
@@ -131,7 +141,10 @@ export async function buildQuizCards(
       answer: card.descriptions || '',
       link: card.link || '',
       deck: deckTitles.get(card.masterCardId) || '',
-      choices: pickChoices({ answer: card.descriptions || '', deckId: card.masterCardId }, answerPool),
+      choices: pickChoices(
+        { answer: card.descriptions || '', deckId: card.masterCardId, wrongAnswers: card.wrongAnswers },
+        answerPool,
+      ),
     })),
   };
 }

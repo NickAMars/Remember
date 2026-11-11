@@ -2,6 +2,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { parseCsv, rowsToCards } from '../src/utils/spreadsheet';
+import { cleanWrongAnswers, MAX_WRONG_ANSWERS } from '../src/utils/wrongAnswers';
 import masterCardModule from '../src/reducer/master_card';
 // The source files are ES modules without a package "type", so the default export can arrive wrapped.
 const masterCardReducer = masterCardModule.default || masterCardModule;
@@ -34,7 +35,22 @@ test('rowsToCards skips the header, empty questions and keeps the last duplicate
     ['', 'no question'],
     ['Q1', 'second', 'https://example.com'],
   ]);
-  assert.deepEqual(cards, [{ title: 'Q1', description: 'second', link: 'https://example.com' }]);
+  assert.deepEqual(cards, [{ title: 'Q1', description: 'second', link: 'https://example.com', wrongAnswers: [] }]);
+});
+
+test('rowsToCards reads wrong answers from column D onward', () => {
+  const cards = rowsToCards([
+    ['Question', 'Answer', 'Link', 'Wrong 1', 'Wrong 2', 'Wrong 3'],
+    ['Capital of France?', 'Paris', '', 'Lyon', null, 'Marseille', 'paris', 'lyon', 'Nice'],
+  ]);
+  assert.deepEqual(cards[0].wrongAnswers, ['Lyon', 'Marseille', 'Nice']);
+});
+
+test('cleanWrongAnswers trims, drops repeats and the right answer, and caps the list', () => {
+  assert.deepEqual(cleanWrongAnswers([' Lyon ', '', 'LYON', 'Paris', 'Nice'], 'paris'), ['Lyon', 'Nice']);
+  const manyAnswers = Array.from({ length: MAX_WRONG_ANSWERS + 3 }, (_unused, position) => `Answer ${position}`);
+  assert.equal(cleanWrongAnswers(manyAnswers, 'right').length, MAX_WRONG_ANSWERS);
+  assert.deepEqual(cleanWrongAnswers(undefined), []);
 });
 
 test('rowsToCards keeps row 1 when it is a real card', () => {

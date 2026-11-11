@@ -10,8 +10,8 @@ import { pickChoices, shuffle } from '../services/FolderService';
 describe('shuffle', () => {
   it('keeps every item and does not change the input', () => {
     const input = [1, 2, 3, 4, 5];
-    const out = shuffle(input);
-    expect(out.sort()).toEqual([1, 2, 3, 4, 5]);
+    const shuffled = shuffle(input);
+    expect(shuffled.sort()).toEqual([1, 2, 3, 4, 5]);
     expect(input).toEqual([1, 2, 3, 4, 5]);
   });
 });
@@ -33,7 +33,7 @@ describe('pickChoices', () => {
   });
 
   it('prefers wrong answers from the same deck', () => {
-    for (let i = 0; i < 20; i++) {
+    for (let attempt = 0; attempt < 20; attempt++) {
       expect(pickChoices({ answer: 'A', deckId: 1 }, pool)).toContain('B');
     }
   });
@@ -49,6 +49,27 @@ describe('pickChoices', () => {
 
   it('returns no options when the card has no answer', () => {
     expect(pickChoices({ answer: '  ', deckId: 1 }, pool)).toEqual([]);
+  });
+
+  it("uses the card's own wrong answers when it has 3 or more", () => {
+    const savedWrongAnswers = ['W1', 'W2', 'W3', 'W4', 'W5'];
+    for (let attempt = 0; attempt < 20; attempt++) {
+      const choices = pickChoices({ answer: 'A', deckId: 1, wrongAnswers: savedWrongAnswers }, pool);
+      expect(choices).toHaveLength(4);
+      expect(choices).toContain('A');
+      expect(choices.filter((choice) => choice !== 'A').every((choice) => savedWrongAnswers.includes(choice))).toBe(true);
+    }
+  });
+
+  it('fills the gap from other cards when fewer than 3 wrong answers are saved', () => {
+    const choices = pickChoices({ answer: 'A', deckId: 1, wrongAnswers: ['W1'] }, pool);
+    expect(choices).toHaveLength(4);
+    expect(choices).toEqual(expect.arrayContaining(['A', 'W1', 'B']));
+  });
+
+  it('works for a card with saved wrong answers even when the folder has no other cards', () => {
+    const choices = pickChoices({ answer: 'A', deckId: 1, wrongAnswers: ['W1', 'W2', 'W3'] }, []);
+    expect([...choices].sort()).toEqual(['A', 'W1', 'W2', 'W3']);
   });
 });
 

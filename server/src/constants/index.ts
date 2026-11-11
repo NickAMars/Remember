@@ -21,6 +21,8 @@ export const MAX_LINK_LENGTH = 2000;
 export const MAX_FOLDER_NAME_LENGTH = 255;
 export const MAX_CARDS_PER_REQUEST = 5000;
 export const MAX_SEARCH_LENGTH = 200;
+/** Most wrong (similar but incorrect) answers one card can store for quiz choices. */
+export const MAX_WRONG_ANSWERS = 10;
 
 // ── Pagination ──────────────────────────────────────────────────────────
 export const DEFAULT_PAGE_SIZE = 10;

@@ -17,7 +17,7 @@ export const TUTORIAL_CARDS: { title: string; descriptions: string }[] = [
   },
   {
     title: 'How do I import cards from a spreadsheet?',
-    descriptions: 'Use an Excel (.xlsx) or CSV file. Row 1 can be a header such as "Question | Answer | Link" and is skipped. Column A is the question, column B is the answer, and column C is an optional "learn more" link. When you create a deck from Home, the first sheet becomes the deck and the title starts as the file name. Inside a deck, Add Cards > Upload File adds cards to that deck and updates any question that is already there.',
+    descriptions: 'Use an Excel (.xlsx) or CSV file. Row 1 can be a header such as "Question | Answer | Link" and is skipped. Column A is the question, column B is the answer, column C is an optional "learn more" link, and columns D, E, F and onward are optional wrong answers that look similar but are incorrect (used in multiple-choice quizzes). When you create a deck from Home, the first sheet becomes the deck and the title starts as the file name. Inside a deck, Add Cards > Upload File adds cards to that deck and updates any question that is already there.',
   },
   {
     title: 'How do I add cards to an existing deck?',
@@ -41,7 +41,7 @@ export const TUTORIAL_CARDS: { title: string; descriptions: string }[] = [
   },
   {
     title: 'What is the difference between the two quiz modes?',
-    descriptions: 'Multiple choice shows four answers. The wrong ones are real answers from other cards in the same folder, so you have to know the right one. Press 1-4 to answer and Enter for the next question. Flashcard mode shows only the question. You reveal the answer and mark yourself right (Y) or wrong (N).',
+    descriptions: 'Multiple choice shows four answers. The wrong ones come from the card\'s own saved wrong answers first, and any gap is filled with answers from other cards in the same folder. Add or remove a card\'s wrong answers when you add or edit it. Press 1-4 to answer and Enter for the next question. Flashcard mode shows only the question. You reveal the answer and mark yourself right (Y) or wrong (N).',
   },
   {
     title: 'What happens at the end of a quiz?',

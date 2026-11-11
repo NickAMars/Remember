@@ -67,11 +67,22 @@ describe('readSpreadsheet', () => {
 
     expect(sheets.map((sheet) => sheet.sheetName)).toEqual(['Storage', 'Compute']);
     expect(sheets[0].cards).toEqual([
-      { title: 'What is S3?', descriptions: 'Object storage', link: 'https://aws.amazon.com/s3' },
-      { title: 'What is EBS?', descriptions: 'Block storage', link: '' },
+      { title: 'What is S3?', descriptions: 'Object storage', link: 'https://aws.amazon.com/s3', wrongAnswers: [] },
+      { title: 'What is EBS?', descriptions: 'Block storage', link: '', wrongAnswers: [] },
     ]);
     // No header on this sheet, so row 1 is a card.
     expect(sheets[1].cards).toHaveLength(1);
+  });
+
+  it('reads wrong answers from column D onward, skipping blanks, repeats and the right answer', async () => {
+    const buffer = await workbookBuffer({
+      Storage: [
+        ['Question', 'Answer', 'Link', 'Wrong 1', 'Wrong 2', 'Wrong 3', 'Wrong 4'],
+        ['What is S3?', 'Object storage', '', 'Block storage', '', 'File storage', 'block storage', 'Object storage', 'Cold storage'],
+      ],
+    });
+    const [sheet] = await readSpreadsheet(buffer, 'xlsx');
+    expect(sheet.cards[0].wrongAnswers).toEqual(['Block storage', 'File storage', 'Cold storage']);
   });
 
   it('cuts very long questions to the column size', async () => {
@@ -83,7 +94,7 @@ describe('readSpreadsheet', () => {
   it('reads CSV files', async () => {
     const buffer = Buffer.from('Question,Answer\nWhat is IAM?,Identity and access\n');
     const [sheet] = await readSpreadsheet(buffer, 'csv');
-    expect(sheet.cards).toEqual([{ title: 'What is IAM?', descriptions: 'Identity and access', link: '' }]);
+    expect(sheet.cards).toEqual([{ title: 'What is IAM?', descriptions: 'Identity and access', link: '', wrongAnswers: [] }]);
   });
 
   it('gives a clear error for a file that is not a spreadsheet', async () => {

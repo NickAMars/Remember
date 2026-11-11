@@ -3,6 +3,7 @@ import axios, { errorMessage } from '../../../utils/api';
 import { safeHref } from '../../../utils/safeLink';
 import {UpdateButton, RemoveButton} from '../Buttons';
 import { showToast } from '../../../utils/toast';
+import WrongAnswers from '../InputField/WrongAnswers';
 
 class SubCard extends Component {
   state = {
@@ -13,6 +14,7 @@ class SubCard extends Component {
     editTitle: this.props.title,
     editDescriptions: this.props.descriptions,
     editLink: this.props.link || '',
+    editWrongAnswers: this.props.wrongAnswers || [],
     updateError: '',
   }
 
@@ -37,6 +39,7 @@ class SubCard extends Component {
       editTitle: this.props.title,
       editDescriptions: this.props.descriptions,
       editLink: this.props.link || '',
+      editWrongAnswers: this.props.wrongAnswers || [],
       updateError: '',
     });
   }
@@ -47,9 +50,11 @@ class SubCard extends Component {
 
   onUpdate = async () => {
     const { uuid } = this.props;
-    const { editTitle, editDescriptions, editLink } = this.state;
+    const { editTitle, editDescriptions, editLink, editWrongAnswers } = this.state;
     try {
-      await axios.put(`/api/profile/MasterCard/subcards/${uuid}`, { title: editTitle, descriptions: editDescriptions, link: editLink });
+      await axios.put(`/api/profile/MasterCard/subcards/${uuid}`, {
+        title: editTitle, descriptions: editDescriptions, link: editLink, wrongAnswers: editWrongAnswers,
+      });
     } catch (error) {
       const message = errorMessage(error, 'Update failed');
       this.setState({ updateError: message });
@@ -83,8 +88,14 @@ class SubCard extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    if (prevProps.title !== this.props.title || prevProps.descriptions !== this.props.descriptions || prevProps.link !== this.props.link) {
-      this.setState({ editTitle: this.props.title, editDescriptions: this.props.descriptions, editLink: this.props.link || '' });
+    if (prevProps.title !== this.props.title || prevProps.descriptions !== this.props.descriptions
+      || prevProps.link !== this.props.link || prevProps.wrongAnswers !== this.props.wrongAnswers) {
+      this.setState({
+        editTitle: this.props.title,
+        editDescriptions: this.props.descriptions,
+        editLink: this.props.link || '',
+        editWrongAnswers: this.props.wrongAnswers || [],
+      });
     }
     if (prevProps.resetFlip !== this.props.resetFlip) {
       this.setState({ flipped: false });
@@ -169,6 +180,11 @@ class SubCard extends Component {
                   maxLength="2000"
                   value={this.state.editLink}
                   onChange={(event) => this.setState({ editLink: event.target.value })}
+                />
+                <WrongAnswers
+                  answers={this.state.editWrongAnswers}
+                  rightAnswer={editDescriptions}
+                  onChange={(wrongAnswers) => this.setState({ editWrongAnswers: wrongAnswers })}
                 />
                 {this.state.updateError && <p style={{color:'#c0392b',fontSize:'1rem'}}>{this.state.updateError}</p>}
                 <button className="dialog__submit" onClick={this.onUpdate}>Save</button>

@@ -10,12 +10,13 @@ import { SubCardService } from '../services/SubCardService';
 import { TYPES } from '../types';
 import type { Controller } from '../interfaces/controller';
 import { assertSupportedSpreadsheet, readSpreadsheet } from '../utils/spreadsheet';
-import { answerField, linkField, paginationQuery, questionField, resolvePagination, UUID_ROUTE_PATTERN } from '../utils/validation';
+import { answerField, linkField, wrongAnswersField, paginationQuery, questionField, resolvePagination, UUID_ROUTE_PATTERN } from '../utils/validation';
 
 const cardBody = z.object({
   title: questionField,
   descriptions: answerField,
   link: linkField,
+  wrongAnswers: wrongAnswersField,
 });
 
 const cardListQuery = paginationQuery.extend({
@@ -46,8 +47,8 @@ export class SubCardController implements Controller {
     }));
 
     router.post(`${deckPath}/subcards`, handle(async (request) => {
-      const { title, descriptions, link } = parse(cardBody, request.body);
-      return this.service.add(uuidParam(request), userUuid(request), title, descriptions, link);
+      const { title, descriptions, link, wrongAnswers } = parse(cardBody, request.body);
+      return this.service.add(uuidParam(request), userUuid(request), title, descriptions, link, wrongAnswers);
     }));
 
     router.put(`${cardPath}/view`, handle(async (request) => {
@@ -57,8 +58,8 @@ export class SubCardController implements Controller {
     }));
 
     router.put(cardPath, handle(async (request) => {
-      const { title, descriptions, link } = parse(cardBody, request.body);
-      return this.service.update(uuidParam(request), userUuid(request), title, descriptions, link);
+      const { title, descriptions, link, wrongAnswers } = parse(cardBody, request.body);
+      return this.service.update(uuidParam(request), userUuid(request), title, descriptions, link, wrongAnswers);
     }));
 
     /** Add the first sheet's cards to a deck. Questions already in the deck are updated. */

@@ -6,12 +6,14 @@ import { TYPES } from '../types';
 import { notFound, badRequest } from './errors';
 import { requireOwnedDeck, requireUserId } from './ownership';
 import { dedupeByQuestion } from '../utils/spreadsheet';
-import { escapeLikePattern, type Pagination } from '../utils/validation';
+import { cleanWrongAnswers, escapeLikePattern, type Pagination } from '../utils/validation';
 
 export interface CardInput {
   title: string;
   descriptions: string;
   link?: string;
+  /** Similar but incorrect answers for Quiz mode. */
+  wrongAnswers?: string[];
 }
 
 /** Cards ("sub cards") inside a deck. Every method checks that the deck belongs to the user. */
@@ -82,7 +84,14 @@ export class SubCardService {
     return cards.map((card) => ({ uuid: card.uuid, title: card.title, views: card.views }));
   }
 
-  async add(deckUuid: string, userUuid: string, title: string, descriptions: string, link = ''): Promise<SubCard> {
+  async add(
+    deckUuid: string,
+    userUuid: string,
+    title: string,
+    descriptions: string,
+    link = '',
+    wrongAnswers: string[] = [],
+  ): Promise<SubCard> {
     const userId = await requireUserId(this.users, userUuid);
     const deck = await requireOwnedDeck(this.masterCards, deckUuid, userId);
     if (deck.isDefault) throw badRequest('Cannot add cards to the default tutorial deck');
@@ -90,10 +99,19 @@ export class SubCardService {
     const existing = await this.subCards.findOneBy({ title, masterCardId: deck.id });
     if (existing) throw badRequest('A card with this question already exists in this deck');
 
-    return this.subCards.save(this.subCards.create({ title, descriptions, link, masterCardId: deck.id }));
+    return this.subCards.save(this.subCards.create({
+      title, descriptions, link, wrongAnswers: cleanWrongAnswers(wrongAnswers, descriptions), masterCardId: deck.id,
+    }));
   }
 
-  async update(cardUuid: string, userUuid: string, title: string, descriptions: string, link = ''): Promise<SubCard> {
+  async update(
+    cardUuid: string,
+    userUuid: string,
+    title: string,
+    descriptions: string,
+    link = '',
+    wrongAnswers: string[] = [],
+  ): Promise<SubCard> {
     const card = await this.requireOwnedCard(cardUuid, userUuid);
     if (card.masterCard.isDefault) throw badRequest('Cannot edit cards in the default tutorial deck');
 
@@ -105,6 +123,7 @@ export class SubCardService {
     card.title = title;
     card.descriptions = descriptions;
     card.link = link;
+    card.wrongAnswers = cleanWrongAnswers(wrongAnswers, descriptions);
     await this.subCards.save(card);
     const { masterCard: _deck, ...cardWithoutDeck } = card;
     return cardWithoutDeck as SubCard;
@@ -112,7 +131,8 @@ export class SubCardService {
 
   /**
    * Add many cards at once. A question that is already in the deck has its answer
-   * and link updated instead of being added twice.
+   * and link updated instead of being added twice. Its saved wrong answers are only
+   * replaced when the upload gives new ones, so a file without them never wipes them.
    */
   async addBulk(deckUuid: string, userUuid: string, inputCards: CardInput[]): Promise<{ added: number; updated: number }> {
     const userId = await requireUserId(this.users, userUuid);
@@ -134,10 +154,18 @@ export class SubCardService {
       if (existing) {
         existing.descriptions = card.descriptions;
         existing.link = card.link || '';
+        const uploadedWrongAnswers = cleanWrongAnswers(card.wrongAnswers, card.descriptions);
+        existing.wrongAnswers = uploadedWrongAnswers.length
+          ? uploadedWrongAnswers
+          : cleanWrongAnswers(existing.wrongAnswers, card.descriptions);
         cardsToUpdate.push(existing);
       } else {
         cardsToCreate.push(this.subCards.create({
-          title: card.title, descriptions: card.descriptions, link: card.link || '', masterCardId: deck.id,
+          title: card.title,
+          descriptions: card.descriptions,
+          link: card.link || '',
+          wrongAnswers: cleanWrongAnswers(card.wrongAnswers, card.descriptions),
+          masterCardId: deck.id,
         }));
       }
     }
