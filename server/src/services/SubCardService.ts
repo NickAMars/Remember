@@ -16,8 +16,11 @@ export class SubCardService {
     this.users = dataSource.getRepository(User);
   }
 
-  async getForMasterCard(masterCardUuid: string, page?: number, pageSize?: number, search?: string, shuffle?: boolean): Promise<{ items: SubCard[]; total: number }> {
-    const masterCard = await this.masterCards.findOneBy({ uuid: masterCardUuid });
+  async getForMasterCard(masterCardUuid: string, userUuid: string, page?: number, pageSize?: number, search?: string, shuffle?: boolean): Promise<{ items: SubCard[]; total: number }> {
+    const user = await this.users.findOneBy({ uuid: userUuid });
+    if (!user) throw notFound('User not found');
+
+    const masterCard = await this.masterCards.findOneBy({ uuid: masterCardUuid, userId: user.id });
     if (!masterCard) throw notFound('Master card not found');
 
     const qb = this.subCards.createQueryBuilder('sc')
@@ -43,8 +46,11 @@ export class SubCardService {
     return { items, total };
   }
 
-  async getTopViewed(masterCardUuid: string, limit = 6): Promise<{ uuid: string; title: string; views: number }[]> {
-    const masterCard = await this.masterCards.findOneBy({ uuid: masterCardUuid });
+  async getTopViewed(masterCardUuid: string, userUuid: string, limit = 6): Promise<{ uuid: string; title: string; views: number }[]> {
+    const user = await this.users.findOneBy({ uuid: userUuid });
+    if (!user) throw notFound('User not found');
+
+    const masterCard = await this.masterCards.findOneBy({ uuid: masterCardUuid, userId: user.id });
     if (!masterCard) throw notFound('Master card not found');
 
     const cards = await this.subCards.find({

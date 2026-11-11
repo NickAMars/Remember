@@ -84,7 +84,7 @@ export class MasterCardController implements Controller {
     const uuidPattern = '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}';
 
     router.get(`/:uuid(${uuidPattern})`, handle(async (req) => {
-      return this.service.getOne(uuidParam(req));
+      return this.service.getOne(uuidParam(req), userUuid(req));
     }));
 
     router.post('/', handle(async (req) => {

@@ -27,7 +27,7 @@ export class SubCardController implements Controller {
     router.use(requireAuth(this.auth));
 
     router.get('/:uuid/subcards/top-viewed', handle(async (req) => {
-      return this.service.getTopViewed(uuidParam(req));
+      return this.service.getTopViewed(uuidParam(req), userUuid(req));
     }));
 
     router.get('/:uuid/subcards', handle(async (req) => {
@@ -35,7 +35,7 @@ export class SubCardController implements Controller {
       const pageSize = req.query.pageSize !== undefined ? parseInt(req.query.pageSize as string, 10) : undefined;
       const search = req.query.search ? String(req.query.search) : undefined;
       const shuffle = req.query.shuffle === 'true';
-      return this.service.getForMasterCard(uuidParam(req), page, pageSize, search, shuffle);
+      return this.service.getForMasterCard(uuidParam(req), userUuid(req), page, pageSize, search, shuffle);
     }));
 
     router.post('/:uuid/subcards', handle(async (req) => {

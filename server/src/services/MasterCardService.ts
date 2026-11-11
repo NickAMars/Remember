@@ -22,9 +22,12 @@ export class MasterCardService {
     this.poolCards = dataSource.getRepository(PoolCard);
   }
 
-  async getOne(uuid: string): Promise<MasterCard> {
+  async getOne(uuid: string, userUuid: string): Promise<MasterCard> {
+    const user = await this.users.findOneBy({ uuid: userUuid });
+    if (!user) throw notFound('User not found');
+
     const card = await this.masterCards.findOne({
-      where: { uuid },
+      where: { uuid, userId: user.id },
       relations: ['subCards', 'progress'],
     });
     if (!card) throw notFound('Master card not found');
