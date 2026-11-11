@@ -26,7 +26,7 @@ class SubCard extends Component {
           axios.put(`/api/profile/MasterCard/subcards/${this.props.uuid}/view`).catch(() => {});
         }
         if (this.props.onView) {
-          this.props.onView(this.props.uuid);
+          this.props.onView(this.props.uuid, this.props.title);
         }
       }
     }

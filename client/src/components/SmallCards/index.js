@@ -27,6 +27,7 @@ class SmallCards extends PureComponent{
       isDefaultCard: false,
       searchQuery: '',
       resetFlip: 0,
+      shuffled: false,
       page: 0,
       pageSize: 10,
       pieData: [],
@@ -37,8 +38,8 @@ class SmallCards extends PureComponent{
 
   fetchCards = () => {
     const masterUuid = this.props.match.params.idMaster;
-    const { page, pageSize, searchQuery } = this.state;
-    this.props.getSmallCards(masterUuid, { page, pageSize, search: searchQuery || undefined });
+    const { page, pageSize, searchQuery, shuffled } = this.state;
+    this.props.getSmallCards(masterUuid, { page, pageSize, search: searchQuery || undefined, shuffle: shuffled });
   }
 
   fetchPieData = () => {
@@ -113,10 +114,14 @@ static getDerivedStateFromProps(nextProps, prevState){
   return null;
 }
 
-  onCardView = (uuid) => {
+  onCardView = (uuid, title) => {
     this.setState(prev => ({
-      localViews: { ...prev.localViews, [uuid]: (prev.localViews[uuid] || 0) + 1 }
+      localViews: { ...prev.localViews, [uuid]: { count: ((prev.localViews[uuid] || {}).count || 0) + 1, title: title || (prev.localViews[uuid] || {}).title || '' } }
     }));
+  }
+
+  shuffleCards = () => {
+    this.setState(prev => ({ shuffled: !prev.shuffled, page: 0 }), this.fetchCards);
   }
 
   setPage = (p) => {
@@ -260,16 +265,31 @@ static getDerivedStateFromProps(nextProps, prevState){
     const cards = this.props.showsubcards.items || this.props.showsubcards;
     const totalCards = this.props.showsubcards.total !== undefined ? this.props.showsubcards.total : (Array.isArray(this.props.showsubcards) ? this.props.showsubcards.length : 0);
     const displayCards = Array.isArray(cards) ? cards : [];
-    const pieData = isOwner
-      ? this.state.pieData
-          .map(sc => ({ ...sc, views: sc.views + (localViews[sc.uuid] || 0) }))
-          .filter(sc => sc.views > 0)
-          .sort((a, b) => b.views - a.views)
-      : displayCards
-          .map(sc => ({ ...sc, views: localViews[sc.uuid] || 0 }))
-          .filter(sc => sc.views > 0)
-          .sort((a, b) => b.views - a.views)
-          .slice(0, 6);
+    let pieData;
+    if (isOwner) {
+      const pieMap = new Map();
+      // Start with server-side top-viewed data
+      for (const sc of this.state.pieData) {
+        const local = localViews[sc.uuid];
+        pieMap.set(sc.uuid, { ...sc, views: sc.views + (local ? local.count : 0) });
+      }
+      // Add any cards flipped this session that aren't in server data
+      for (const [uuid, info] of Object.entries(localViews)) {
+        if (!pieMap.has(uuid)) {
+          pieMap.set(uuid, { uuid, title: info.title, views: info.count });
+        }
+      }
+      pieData = Array.from(pieMap.values())
+        .filter(sc => sc.views > 0)
+        .sort((a, b) => b.views - a.views)
+        .slice(0, 6);
+    } else {
+      pieData = displayCards
+        .map(sc => ({ ...sc, views: (localViews[sc.uuid] ? localViews[sc.uuid].count : 0) }))
+        .filter(sc => sc.views > 0)
+        .sort((a, b) => b.views - a.views)
+        .slice(0, 6);
+    }
     return (
       <div className="remember">
         {this.state.masterTitle && <div className="header-box">
@@ -359,6 +379,12 @@ static getDerivedStateFromProps(nextProps, prevState){
 
         <div className="subcards-controls">
           <CardSizeControl/>
+          <button className="flip-all-btn" onClick={this.shuffleCards} title={this.state.shuffled ? 'Unshuffle cards' : 'Shuffle cards'}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/><line x1="4" y1="4" x2="9" y2="9"/>
+            </svg>
+            <span>{this.state.shuffled ? 'Unshuffle' : 'Shuffle'}</span>
+          </button>
           <button className="flip-all-btn" onClick={() => this.setState(prev => ({ resetFlip: prev.resetFlip + 1 }))} title="Flip all cards back">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 014-4h14"/><path d="M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 01-4 4H3"/>

@@ -16,7 +16,7 @@ export class SubCardService {
     this.users = dataSource.getRepository(User);
   }
 
-  async getForMasterCard(masterCardUuid: string, page?: number, pageSize?: number, search?: string): Promise<{ items: SubCard[]; total: number }> {
+  async getForMasterCard(masterCardUuid: string, page?: number, pageSize?: number, search?: string, shuffle?: boolean): Promise<{ items: SubCard[]; total: number }> {
     const masterCard = await this.masterCards.findOneBy({ uuid: masterCardUuid });
     if (!masterCard) throw notFound('Master card not found');
 
@@ -29,7 +29,11 @@ export class SubCardService {
 
     const total = await qb.getCount();
 
-    qb.orderBy('sc.createdAt', 'ASC');
+    if (shuffle) {
+      qb.orderBy('RANDOM()');
+    } else {
+      qb.orderBy('sc.createdAt', 'ASC');
+    }
 
     if (page !== undefined && pageSize !== undefined) {
       qb.skip(page * pageSize).take(pageSize);

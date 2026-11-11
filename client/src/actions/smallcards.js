@@ -3,13 +3,14 @@ import * as type from '../actions/types';
 // Initially making all the small cards
 // const smallcards=
 export default {// subCardRouts
-  getSmallCards : (id, { page, pageSize, search } = {}) =>{
+  getSmallCards : (id, { page, pageSize, search, shuffle } = {}) =>{
     return async dispatch => {
       try {
        const params = {};
        if (page !== undefined) params.page = page;
        if (pageSize !== undefined) params.pageSize = pageSize;
        if (search) params.search = search;
+       if (shuffle) params.shuffle = 'true';
        const res = await axios.get(`/api/profile/MasterCard/${id}/subcards`, { params });
        const data = res.data || {};
        dispatch( {type: type.GET_SUBCARDS, payload: data.items || data, total: data.total } );

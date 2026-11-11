@@ -34,7 +34,8 @@ export class SubCardController implements Controller {
       const page = req.query.page !== undefined ? parseInt(req.query.page as string, 10) : undefined;
       const pageSize = req.query.pageSize !== undefined ? parseInt(req.query.pageSize as string, 10) : undefined;
       const search = req.query.search ? String(req.query.search) : undefined;
-      return this.service.getForMasterCard(uuidParam(req), page, pageSize, search);
+      const shuffle = req.query.shuffle === 'true';
+      return this.service.getForMasterCard(uuidParam(req), page, pageSize, search, shuffle);
     }));
 
     router.post('/:uuid/subcards', handle(async (req) => {
