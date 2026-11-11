@@ -38,7 +38,7 @@ export class MasterCardService {
     if (!user) throw notFound('User not found');
 
     const qb = this.masterCards.createQueryBuilder('mc')
-      .leftJoinAndSelect('mc.subCards', 'sc')
+      .loadRelationCountAndMap('mc.subCardCount', 'mc.subCards')
       .leftJoinAndSelect('mc.progress', 'p')
       .where('mc.userId = :userId', { userId: user.id });
 
