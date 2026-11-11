@@ -59,11 +59,9 @@ class Mine extends Component{
   }
 
 poolCardMatchUser(poolcard){
-  if(this.props.user !== null)
-  if(this.props.user.uuid === poolcard.author)
+  if(this.props.user && this.props.user.uuid === poolcard.author)
     return true;
-  else
-    return false;
+  return false;
 }
 
 setPage = (pageNumber) => {

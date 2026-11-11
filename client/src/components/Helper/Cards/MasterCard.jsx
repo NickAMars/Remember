@@ -89,7 +89,7 @@ class MasterCard extends Component{
                 <span className="master__title">{title}</span>
                 <span className="master__date">{createdAt}</span>
               </Link>
-            { pathname === '/browse' && !isOwn && (
+            { pathname === '/browse' && !isOwn && this.props.user && this.props.user.uuid && (
               <button className="master__copy-btn" onClick={this.addPoolToMine} title="Copy to Study">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>

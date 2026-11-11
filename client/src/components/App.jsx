@@ -1,10 +1,11 @@
 import React, { PureComponent, Suspense, lazy } from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, Link } from 'react-router-dom';
 import { connect } from 'react-redux';
 import Header from './Header';
 import Breadcrumb from './Breadcrumb';
 import { fetchUser } from '../actions';
 import { RootRoute } from './RootRoute';
+import { GuestTopbar } from './GuestTopbar';
 
 // perf Increase: each page is its own download, loaded the first time it is opened, so the
 // landing page doesn't wait for the charts, quiz and folder code.
@@ -28,16 +29,22 @@ class App extends PureComponent{
     return(
       <Router >
         <div>
-        {user && user.uuid && <div className="topbar">
-          <span className="topbar__brand">
-            <svg className="topbar__icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/>
-            </svg>
-            Remember
-          </span>
-          <Breadcrumb />
-        </div>}
-        {user && user.uuid && <Header />}
+        {user && user.uuid ? (
+          <>
+            <div className="topbar">
+              <span className="topbar__brand">
+                <svg className="topbar__icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/>
+                </svg>
+                Remember
+              </span>
+              <Breadcrumb />
+            </div>
+            <Header />
+          </>
+        ) : (
+          <GuestTopbar />
+        )}
 
           <Suspense fallback={<div className="page-loading" aria-busy="true" />}>
           <Routes>
