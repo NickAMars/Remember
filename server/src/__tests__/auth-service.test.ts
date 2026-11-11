@@ -35,6 +35,8 @@ jest.mock('typeorm', () => {
     UpdateDateColumn: noop,
     ManyToOne: noop,
     OneToMany: noop,
+    ManyToMany: noop,
+    JoinTable: noop,
     DataSource: noopClass,
     Repository: noopClass,
   };
@@ -62,6 +64,8 @@ const mockRepo = {
 function buildService(): AuthService {
   const svc = Object.create(AuthService.prototype);
   (svc as any).users = mockRepo;
+  (svc as any).masterCards = { create: jest.fn((d: any) => ({ ...d, id: 1 })), save: jest.fn((e: any) => Promise.resolve(e)) };
+  (svc as any).subCards = { create: jest.fn((d: any) => d), save: jest.fn((e: any) => Promise.resolve(e)) };
   return svc;
 }
 

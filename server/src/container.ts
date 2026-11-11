@@ -1,11 +1,13 @@
 import { Container } from 'inversify';
 import { DataSource } from 'typeorm';
+import { FolderController } from './controllers/FolderController';
 import { AuthController } from './controllers/AuthController';
 import { MasterCardController } from './controllers/MasterCardController';
 import { PoolCardController } from './controllers/PoolCardController';
 import { ProfileController } from './controllers/ProfileController';
 import { SubCardController } from './controllers/SubCardController';
 import type { Controller } from './interfaces/controller';
+import { FolderService } from './services/FolderService';
 import { AuthService } from './services/AuthService';
 import { MasterCardService } from './services/MasterCardService';
 import { PoolCardService } from './services/PoolCardService';
@@ -20,6 +22,7 @@ export function buildContainer(ds: DataSource) {
   container.bind(TYPES.MasterCardService).to(MasterCardService);
   container.bind(TYPES.SubCardService).to(SubCardService);
   container.bind(TYPES.PoolCardService).to(PoolCardService);
+  container.bind(TYPES.FolderService).to(FolderService);
 
   for (const ctrl of [
     AuthController,
@@ -27,6 +30,7 @@ export function buildContainer(ds: DataSource) {
     MasterCardController,
     SubCardController,
     PoolCardController,
+    FolderController,
   ]) {
     container.bind<Controller>(TYPES.Controller).to(ctrl);
   }

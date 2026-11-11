@@ -58,7 +58,7 @@ export class MasterCardService {
     return { items, total };
   }
 
-  async create(userUuid: string, title: string, cards: { title: string; description: string; link?: string }[]): Promise<MasterCard[]> {
+  async create(userUuid: string, title: string, cards: { title: string; description: string; link?: string }[]): Promise<{ items: MasterCard[]; total: number }> {
     const user = await this.users.findOneBy({ uuid: userUuid });
     if (!user) throw notFound('User not found');
 
@@ -117,7 +117,7 @@ export class MasterCardService {
     await this.masterCards.remove(card);
   }
 
-  async recordTime(uuid: string, userUuid: string, time: number): Promise<MasterCard[]> {
+  async recordTime(uuid: string, userUuid: string, time: number): Promise<{ items: MasterCard[]; total: number }> {
     const user = await this.users.findOneBy({ uuid: userUuid });
     if (!user) throw notFound('User not found');
 

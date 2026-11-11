@@ -3,6 +3,7 @@ import { buildContainer } from './container';
 import { createApp } from './app';
 import { config, validateConfig } from './config';
 import { AppDataSource } from './data-source';
+import { syncTutorialDecks } from './services/tutorial';
 
 async function main() {
   validateConfig();
@@ -10,6 +11,13 @@ async function main() {
   console.log('Connecting to database...');
   await AppDataSource.initialize();
   console.log('Database connected.');
+
+  try {
+    const updated = await syncTutorialDecks(AppDataSource);
+    if (updated) console.log(`Updated ${updated} tutorial deck(s).`);
+  } catch (error) {
+    console.warn('Could not update tutorial decks:', error);
+  }
 
   const container = buildContainer(AppDataSource);
   const app = createApp(container);

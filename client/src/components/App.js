@@ -6,6 +6,9 @@ import Main from './Main';
 import Mine from './Mine';
 import SmallCards from './SmallCards';
 import Header from './Header';
+import Folders from './Folders';
+import FolderDetail from './Folders/FolderDetail';
+import Quiz from './Quiz';
 import Breadcrumb from './Breadcrumb';
 // import { Redirect } from 'react-router-dom';
 import { connect } from 'react-redux';
@@ -41,6 +44,9 @@ class App extends PureComponent{
           <Switch>
             <Route exact path='/home/subcards/:title' component={MultipleCards} />
             <Route exact path='/smallcards/:idMaster'  component={SmallCards} />
+            <Route exact path='/folders' component={Folders} />
+            <Route exact path='/folders/:folderUuid' component={FolderDetail} />
+            <Route exact path='/quiz/:folderUuid?' component={Quiz} />
             <Route exact path='/browse' render={ ({location}) => {
               document.title = 'Browse - Remember';
               this.props.getPoolCards(location.pathname);

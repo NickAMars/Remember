@@ -28,6 +28,8 @@ jest.mock('typeorm', () => {
     UpdateDateColumn: noop,
     ManyToOne: noop,
     OneToMany: noop,
+    ManyToMany: noop,
+    JoinTable: noop,
     DataSource: noopClass,
     Repository: noopClass,
   };

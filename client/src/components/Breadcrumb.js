@@ -15,6 +15,11 @@ const Breadcrumb = ({ location, match }) => {
     crumbs.push({ label: 'Study', to: null });
   } else if (path === '/browse') {
     crumbs.push({ label: 'Browse', to: null });
+  } else if (path === '/folders') {
+    crumbs.push({ label: 'Folders', to: null });
+  } else if (path.startsWith('/quiz')) {
+    crumbs.push({ label: 'Folders', to: '/folders' });
+    crumbs.push({ label: 'Quiz', to: null });
   } else if (path.startsWith('/smallcards/')) {
     const from = location.query && location.query.prevent ? '/browse' : '/study';
     crumbs.push({ label: from === '/browse' ? 'Browse' : 'Study', to: from });

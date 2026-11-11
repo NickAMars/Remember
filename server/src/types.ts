@@ -4,5 +4,6 @@ export const TYPES = {
   MasterCardService: Symbol.for('MasterCardService'),
   SubCardService: Symbol.for('SubCardService'),
   PoolCardService: Symbol.for('PoolCardService'),
+  FolderService: Symbol.for('FolderService'),
   Controller: Symbol.for('Controller'),
 };
