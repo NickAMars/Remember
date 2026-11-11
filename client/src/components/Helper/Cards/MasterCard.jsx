@@ -85,7 +85,12 @@ class MasterCard extends Component{
                 {/* perf Increase: the deck page loads its own first page of cards. This click used to
                     also fetch every card in the deck, which was then thrown away. */}
 
-                <span className="master__count">{this.props.masterinfo.subCardCount ?? 0} cards</span>
+                <span className="master__count">
+                  {this.props.masterinfo.subCardCount ?? 0} cards
+                  {(this.props.masterinfo.reviewCount ?? 0) > 0 && (
+                    <span className="master__review-count">{this.props.masterinfo.reviewCount} review</span>
+                  )}
+                </span>
                 <span className="master__title">{title}</span>
                 <span className="master__date">{createdAt}</span>
               </Link>

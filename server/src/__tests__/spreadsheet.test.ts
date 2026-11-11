@@ -52,12 +52,12 @@ describe('isHeaderRow', () => {
 });
 
 describe('readSpreadsheet', () => {
-  it('reads every sheet, skips the header row and cleans links', async () => {
+  it('reads every sheet, skips the header row, cleans links and reads the review flag from column D', async () => {
     const buffer = await workbookBuffer({
       Storage: [
-        ['Question', 'Answer', 'Link'],
-        ['What is S3?', 'Object storage', 'aws.amazon.com/s3'],
-        ['What is EBS?', 'Block storage', 'javascript:alert(1)'],
+        ['Question', 'Answer', 'Link', 'Review'],
+        ['What is S3?', 'Object storage', 'aws.amazon.com/s3', 'yes'],
+        ['What is EBS?', 'Block storage', 'javascript:alert(1)', 'no'],
         ['', 'row without a question is skipped'],
       ],
       Compute: [['What is EC2?', 'Virtual servers']],
@@ -67,18 +67,18 @@ describe('readSpreadsheet', () => {
 
     expect(sheets.map((sheet) => sheet.sheetName)).toEqual(['Storage', 'Compute']);
     expect(sheets[0].cards).toEqual([
-      { title: 'What is S3?', descriptions: 'Object storage', link: 'https://aws.amazon.com/s3', wrongAnswers: [] },
-      { title: 'What is EBS?', descriptions: 'Block storage', link: '', wrongAnswers: [] },
+      { title: 'What is S3?', descriptions: 'Object storage', link: 'https://aws.amazon.com/s3', markedForReview: true, wrongAnswers: [] },
+      { title: 'What is EBS?', descriptions: 'Block storage', link: '', markedForReview: false, wrongAnswers: [] },
     ]);
     // No header on this sheet, so row 1 is a card.
     expect(sheets[1].cards).toHaveLength(1);
   });
 
-  it('reads wrong answers from column D onward, skipping blanks, repeats and the right answer', async () => {
+  it('reads wrong answers from column E onward, skipping blanks, repeats and the right answer', async () => {
     const buffer = await workbookBuffer({
       Storage: [
-        ['Question', 'Answer', 'Link', 'Wrong 1', 'Wrong 2', 'Wrong 3', 'Wrong 4'],
-        ['What is S3?', 'Object storage', '', 'Block storage', '', 'File storage', 'block storage', 'Object storage', 'Cold storage'],
+        ['Question', 'Answer', 'Link', 'Review', 'Wrong 1', 'Wrong 2', 'Wrong 3', 'Wrong 4'],
+        ['What is S3?', 'Object storage', '', '', 'Block storage', '', 'File storage', 'block storage', 'Object storage', 'Cold storage'],
       ],
     });
     const [sheet] = await readSpreadsheet(buffer, 'xlsx');
@@ -94,7 +94,7 @@ describe('readSpreadsheet', () => {
   it('reads CSV files', async () => {
     const buffer = Buffer.from('Question,Answer\nWhat is IAM?,Identity and access\n');
     const [sheet] = await readSpreadsheet(buffer, 'csv');
-    expect(sheet.cards).toEqual([{ title: 'What is IAM?', descriptions: 'Identity and access', link: '', wrongAnswers: [] }]);
+    expect(sheet.cards).toEqual([{ title: 'What is IAM?', descriptions: 'Identity and access', link: '', markedForReview: false, wrongAnswers: [] }]);
   });
 
   it('gives a clear error for a file that is not a spreadsheet', async () => {

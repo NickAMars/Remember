@@ -82,7 +82,7 @@ describe('SubCardService.update and delete', () => {
     cardRepository.findOne.mockResolvedValue({ id: 5, title: 'Q', masterCard: { id: 3, userId: 1, isDefault: false } });
     const updated = await service.update('card-5', 'user-1', 'Q', 'New answer', 'https://example.com/', ['Close but wrong']);
     expect(updated).toEqual({
-      id: 5, title: 'Q', descriptions: 'New answer', link: 'https://example.com/', wrongAnswers: ['Close but wrong'],
+      id: 5, title: 'Q', descriptions: 'New answer', link: 'https://example.com/', markedForReview: false, wrongAnswers: ['Close but wrong'],
     });
   });
 });
@@ -133,5 +133,49 @@ describe('SubCardService.incrementViews', () => {
 
     expect(query.andWhere).toHaveBeenCalledWith(expect.stringContaining('user_id = :userId'), { userId: 1 });
     expect(query.execute).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('SubCardService.setReviewForMany', () => {
+  it('marks every card in the deck in one UPDATE when all cards are chosen', async () => {
+    deckRepository.findOneBy.mockResolvedValue(ownDeck);
+    const updateQuery = makeQueryBuilder();
+    updateQuery.execute.mockResolvedValue({ affected: 12 });
+    cardRepository.createQueryBuilder.mockReturnValue(updateQuery);
+
+    const result = await service.setReviewForMany('deck-3', 'user-1', true, { allCards: true });
+
+    expect(result).toEqual({ updated: 12 });
+    expect(updateQuery.set).toHaveBeenCalledWith({ markedForReview: true });
+    expect(updateQuery.where).toHaveBeenCalledWith('master_card_id = :deckId', { deckId: 3 });
+    expect(updateQuery.andWhere).not.toHaveBeenCalled();
+  });
+
+  it('only changes the picked cards, and only matching ones when a search is given', async () => {
+    deckRepository.findOneBy.mockResolvedValue(ownDeck);
+    const updateQuery = makeQueryBuilder();
+    updateQuery.execute.mockResolvedValue({ affected: 2 });
+    cardRepository.createQueryBuilder.mockReturnValue(updateQuery);
+
+    await service.setReviewForMany('deck-3', 'user-1', false, { cardUuids: ['card-1', 'card-2'] });
+    expect(updateQuery.andWhere).toHaveBeenCalledWith('uuid IN (:...cardUuids)', { cardUuids: ['card-1', 'card-2'] });
+
+    updateQuery.andWhere.mockClear();
+    await service.setReviewForMany('deck-3', 'user-1', true, { allCards: true, search: '100%' });
+    expect(updateQuery.andWhere).toHaveBeenCalledWith(expect.stringContaining('LIKE'), { search: '%100\\%%' });
+  });
+
+  it("refuses the tutorial deck and someone else's deck", async () => {
+    deckRepository.findOneBy.mockResolvedValue({ ...ownDeck, isDefault: true });
+    await expect(service.setReviewForMany('deck-3', 'user-1', true, { allCards: true })).rejects.toThrow('tutorial');
+    deckRepository.findOneBy.mockResolvedValue(null);
+    await expect(service.setReviewForMany('deck-3', 'user-1', true, { allCards: true })).rejects.toMatchObject({ status: 404 });
+  });
+
+  it('does nothing when no cards are picked', async () => {
+    deckRepository.findOneBy.mockResolvedValue(ownDeck);
+    cardRepository.createQueryBuilder.mockClear();
+    expect(await service.setReviewForMany('deck-3', 'user-1', true, { cardUuids: [] })).toEqual({ updated: 0 });
+    expect(cardRepository.createQueryBuilder).not.toHaveBeenCalled();
   });
 });

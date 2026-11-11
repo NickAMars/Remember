@@ -49,6 +49,9 @@ export class MasterCard {
   /** Filled in by `loadRelationCountAndMap` on list queries, not a column. */
   subCardCount?: number;
 
+  /** Filled in by a sub-query on list queries, not a column. */
+  reviewCount?: number;
+
   @CreateDateColumn({ type: 'timestamptz' })
   createdAt: Date;
 

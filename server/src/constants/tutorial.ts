@@ -17,7 +17,7 @@ export const TUTORIAL_CARDS: { title: string; descriptions: string }[] = [
   },
   {
     title: 'How do I import cards from a spreadsheet?',
-    descriptions: 'Use an Excel (.xlsx) or CSV file. Row 1 can be a header such as "Question | Answer | Link" and is skipped. Column A is the question, column B is the answer, column C is an optional "learn more" link, and columns D, E, F and onward are optional wrong answers that look similar but are incorrect (used in multiple-choice quizzes). When you create a deck from Home, the first sheet becomes the deck and the title starts as the file name. Inside a deck, Add Cards > Upload File adds cards to that deck and updates any question that is already there.',
+    descriptions: 'Use an Excel (.xlsx) or CSV file. Row 1 can be a header such as "Question | Answer | Link" and is skipped. Column A is the question, column B is the answer, column C is an optional "learn more" link, column D is an optional review flag (yes/no), and columns E, F and onward are optional wrong answers that look similar but are incorrect (used in multiple-choice quizzes). When you create a deck from Home, the first sheet becomes the deck and the title starts as the file name. Inside a deck, Add Cards > Upload File adds cards to that deck and updates any question that is already there.',
   },
   {
     title: 'How do I add cards to an existing deck?',

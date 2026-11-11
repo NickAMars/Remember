@@ -30,18 +30,18 @@ test('parseCsv handles quotes, commas and new lines inside cells', () => {
 
 test('rowsToCards skips the header, empty questions and keeps the last duplicate', () => {
   const cards = rowsToCards([
-    ['Question', 'Answer', 'Link'],
-    ['Q1', 'first', ''],
+    ['Question', 'Answer', 'Link', 'Review'],
+    ['Q1', 'first', '', ''],
     ['', 'no question'],
-    ['Q1', 'second', 'https://example.com'],
+    ['Q1', 'second', 'https://example.com', 'yes'],
   ]);
-  assert.deepEqual(cards, [{ title: 'Q1', description: 'second', link: 'https://example.com', wrongAnswers: [] }]);
+  assert.deepEqual(cards, [{ title: 'Q1', description: 'second', link: 'https://example.com', markedForReview: true, wrongAnswers: [] }]);
 });
 
-test('rowsToCards reads wrong answers from column D onward', () => {
+test('rowsToCards reads wrong answers from column E onward', () => {
   const cards = rowsToCards([
-    ['Question', 'Answer', 'Link', 'Wrong 1', 'Wrong 2', 'Wrong 3'],
-    ['Capital of France?', 'Paris', '', 'Lyon', null, 'Marseille', 'paris', 'lyon', 'Nice'],
+    ['Question', 'Answer', 'Link', 'Review', 'Wrong 1', 'Wrong 2', 'Wrong 3'],
+    ['Capital of France?', 'Paris', '', 'no', 'Lyon', null, 'Marseille', 'paris', 'lyon', 'Nice'],
   ]);
   assert.deepEqual(cards[0].wrongAnswers, ['Lyon', 'Marseille', 'Nice']);
 });

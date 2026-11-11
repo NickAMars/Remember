@@ -9,8 +9,9 @@ import { AuthService } from '../services/AuthService';
 import { SubCardService } from '../services/SubCardService';
 import { TYPES } from '../types';
 import type { Controller } from '../interfaces/controller';
+import { MAX_CARDS_PER_REQUEST, MAX_SEARCH_LENGTH } from '../constants';
 import { assertSupportedSpreadsheet, readSpreadsheet } from '../utils/spreadsheet';
-import { answerField, linkField, wrongAnswersField, paginationQuery, questionField, resolvePagination, UUID_ROUTE_PATTERN } from '../utils/validation';
+import { answerField, linkField, wrongAnswersField, paginationQuery, questionField, resolvePagination, UUID_REGEX, UUID_ROUTE_PATTERN } from '../utils/validation';
 
 const cardBody = z.object({
   title: questionField,
@@ -18,6 +19,16 @@ const cardBody = z.object({
   link: linkField,
   markedForReview: z.boolean().optional().default(false),
   wrongAnswers: wrongAnswersField,
+});
+
+/** Mark many cards for review at once: the picked cards, or every card in the deck. */
+const reviewManyBody = z.object({
+  markedForReview: z.boolean(),
+  cardUuids: z.array(z.string().regex(UUID_REGEX)).max(MAX_CARDS_PER_REQUEST).optional(),
+  allCards: z.boolean().optional().default(false),
+  search: z.string().trim().max(MAX_SEARCH_LENGTH).optional(),
+}).refine((body) => body.allCards || (body.cardUuids?.length ?? 0) > 0, {
+  message: 'Pick at least one card, or choose all cards',
 });
 
 const cardListQuery = paginationQuery.extend({
@@ -50,6 +61,11 @@ export class SubCardController implements Controller {
     router.post(`${deckPath}/subcards`, handle(async (request) => {
       const { title, descriptions, link, wrongAnswers, markedForReview } = parse(cardBody, request.body);
       return this.service.add(uuidParam(request), userUuid(request), title, descriptions, link, wrongAnswers, markedForReview);
+    }));
+
+    router.put(`${deckPath}/subcards/review`, handle(async (request) => {
+      const { markedForReview, cardUuids, allCards, search } = parse(reviewManyBody, request.body);
+      return this.service.setReviewForMany(uuidParam(request), userUuid(request), markedForReview, { cardUuids, allCards, search });
     }));
 
     router.put(`${cardPath}/view`, handle(async (request) => {

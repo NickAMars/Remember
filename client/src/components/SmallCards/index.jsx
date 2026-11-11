@@ -39,6 +39,13 @@ class SmallCards extends PureComponent{
       page: 0,
       pageSize: DEFAULT_PAGE_SIZE,
       pieData: [],
+      // Cards picked for a bulk review change. allCardsSelected covers every card in the
+      // deck (or every search match), including the ones on other pages.
+      selectedCardUuids: [],
+      allCardsSelected: false,
+      reviewUpdating: false,
+      showClearReviewsConfirm: false,
+      showAddReviewConfirm: false,
     }
     this.fileInput = React.createRef();
     this.searchTimer = null;
@@ -140,6 +147,95 @@ static getDerivedStateFromProps(nextProps, prevState){
     }));
   }
 
+  clearSelection = () => this.setState({ selectedCardUuids: [], allCardsSelected: false });
+
+  toggleSelectAll = (event) => {
+    this.setState({ allCardsSelected: event.target.checked, selectedCardUuids: [] });
+  }
+
+  /** Tick or untick one card. Unticking a card while "select all" is on keeps the rest of this page picked. */
+  onCardSelect = (cardUuid, isSelected) => {
+    this.setState((prev) => {
+      if (prev.allCardsSelected) {
+        const pageCardUuids = (this.props.showsubcards.items || []).map((card) => card.uuid);
+        return { allCardsSelected: false, selectedCardUuids: pageCardUuids.filter((pageCardUuid) => pageCardUuid !== cardUuid) };
+      }
+      const selected = new Set(prev.selectedCardUuids);
+      if (isSelected) selected.add(cardUuid);
+      else selected.delete(cardUuid);
+      return { selectedCardUuids: [...selected] };
+    });
+  }
+
+  /** Add the picked cards to review, or take them out of review, in one request. */
+  setReviewForSelected = async (markedForReview) => {
+    const { allCardsSelected, selectedCardUuids, searchQuery } = this.state;
+    if (!allCardsSelected && selectedCardUuids.length === 0) return;
+    const body = allCardsSelected
+      ? { markedForReview, allCards: true, search: searchQuery.trim() || undefined }
+      : { markedForReview, cardUuids: selectedCardUuids };
+    this.setState({ reviewUpdating: true });
+    try {
+      const { data } = await axios.put(`/api/profile/MasterCard/${this.deckUuid}/subcards/review`, body);
+      const cardWord = data.updated === 1 ? 'card' : 'cards';
+      showToast(markedForReview ? `Added ${data.updated} ${cardWord} to review` : `Removed ${data.updated} ${cardWord} from review`);
+      this.setState({ selectedCardUuids: [], allCardsSelected: false });
+      this.fetchCards();
+    } catch (error) {
+      showToast(errorMessage(error, 'Failed to update review'));
+    } finally {
+      this.setState({ reviewUpdating: false });
+    }
+  }
+
+  clearAllReviews = async () => {
+    this.setState({ reviewUpdating: true });
+    try {
+      const { data } = await axios.put(`/api/profile/MasterCard/${this.deckUuid}/subcards/review`, { markedForReview: false, allCards: true });
+      const cardWord = data.updated === 1 ? 'card' : 'cards';
+      showToast(`Cleared review from ${data.updated} ${cardWord}`);
+      this.setState({ selectedCardUuids: [], allCardsSelected: false });
+      this.fetchCards();
+    } catch (error) {
+      showToast(errorMessage(error, 'Failed to clear reviews'));
+    } finally {
+      this.setState({ reviewUpdating: false });
+    }
+  }
+
+  renderReviewBar(totalCards, displayCards) {
+    const { allCardsSelected, selectedCardUuids, reviewUpdating, searchQuery } = this.state;
+    const selectedCount = allCardsSelected ? totalCards : selectedCardUuids.length;
+    const nothingSelected = selectedCount === 0;
+    const hasReviews = displayCards.some(card => card.markedForReview);
+    const allReviewed = displayCards.length > 0 && displayCards.every(card => card.markedForReview);
+    const allLabel = searchQuery.trim() ? `Select all ${totalCards} matching cards` : `Select all ${totalCards} cards`;
+    return (
+      <div className="review-bar">
+        <button
+          className={`review-bar__select-all ${allCardsSelected ? 'review-bar__select-all--checked' : ''}`}
+          onClick={() => this.setState(prev => ({ allCardsSelected: !prev.allCardsSelected, selectedCardUuids: [] }))}
+          disabled={totalCards === 0 || allReviewed}
+        >
+          <span className={`review-bar__check ${allCardsSelected ? 'review-bar__check--checked' : ''}`}>
+            {allCardsSelected && <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>}
+          </span>
+          <span>{allLabel}</span>
+        </button>
+        <span className="review-bar__count">{nothingSelected ? 'Tick cards to pick them' : `${selectedCount} selected`}</span>
+        <div className="review-bar__actions">
+          <button className="review-bar__btn review-bar__btn--add" disabled={nothingSelected || reviewUpdating} onClick={() => this.setState({ showAddReviewConfirm: true })}>
+            Add to review
+          </button>
+          {!nothingSelected && <button className="review-bar__clear" onClick={this.clearSelection}>Clear</button>}
+          {hasReviews && <button className="review-bar__btn review-bar__btn--clear-all" disabled={reviewUpdating} onClick={() => this.setState({ showClearReviewsConfirm: true })}>
+            Clear all reviews
+          </button>}
+        </div>
+      </div>
+    );
+  }
+
   /** Called by a card after it is edited or deleted, so the current page reloads. */
   onCardChanged = () => {
     this.fetchCards();
@@ -157,14 +253,15 @@ static getDerivedStateFromProps(nextProps, prevState){
 
   onSearchChange = (event) => {
     const searchQuery = event.target.value;
-    this.setState({ searchQuery, page: 0 });
+    // A new search changes which cards "select all" means, so start the selection over.
+    this.setState({ searchQuery, page: 0, selectedCardUuids: [], allCardsSelected: false });
     clearTimeout(this.searchTimer);
     // perf Increase: wait until typing pauses before asking the server.
     this.searchTimer = setTimeout(this.fetchCards, SEARCH_DELAY_MS);
   }
 
   clearSearch = () => {
-    this.setState({ searchQuery: '', page: 0 }, this.fetchCards);
+    this.setState({ searchQuery: '', page: 0, selectedCardUuids: [], allCardsSelected: false }, this.fetchCards);
   }
 
   changePageSize = (event) => {
@@ -433,13 +530,52 @@ static getDerivedStateFromProps(nextProps, prevState){
           />
           {searchQuery && <button className="search-bar__clear" onClick={this.clearSearch}>&times;</button>}
         </div>
+        {isOwner && !isDefaultCard && this.renderReviewBar(totalCards, displayCards)}
         {this.renderPagination(totalCards, 'top')}
         <div className="row">
         {
-         displayCards.map((card) => <SubCard key={card.uuid} {...card} masterCardUuid={this.deckUuid} isOwner={isOwner} isDefault={isDefaultCard} onView={this.onCardView} onChanged={this.onCardChanged} resetFlip={this.state.resetFlip} />)
+         displayCards.map((card) => <SubCard key={card.uuid} {...card} masterCardUuid={this.deckUuid} isOwner={isOwner} isDefault={isDefaultCard} onView={this.onCardView} onChanged={this.onCardChanged} resetFlip={this.state.resetFlip}
+           selectable={isOwner && !isDefaultCard}
+           selected={this.state.allCardsSelected || this.state.selectedCardUuids.includes(card.uuid)}
+           onSelect={this.onCardSelect} />)
         }
         </div>
         {this.renderPagination(totalCards, 'bottom')}
+
+        {this.state.showAddReviewConfirm && (() => {
+          const count = this.state.allCardsSelected ? totalCards : this.state.selectedCardUuids.length;
+          return <div className="dialog-overlay" onClick={() => this.setState({ showAddReviewConfirm: false })}>
+            <div className="dialog dialog--sm" onClick={(event) => event.stopPropagation()}>
+              <div className="dialog__header">
+                <h3 className="dialog__title">Add to Review</h3>
+                <button className="dialog__close" onClick={() => this.setState({ showAddReviewConfirm: false })}>&times;</button>
+              </div>
+              <div className="dialog__body">
+                <p className="dialog__confirm-text">Add {count} card{count !== 1 ? 's' : ''} to review?</p>
+                <div className="dialog__confirm-actions">
+                  <button className="dialog__confirm-btn dialog__confirm-btn--save" onClick={() => { this.setState({ showAddReviewConfirm: false }); this.setReviewForSelected(true); }}>Add to Review</button>
+                  <button className="dialog__confirm-btn dialog__confirm-btn--cancel" onClick={() => this.setState({ showAddReviewConfirm: false })}>Cancel</button>
+                </div>
+              </div>
+            </div>
+          </div>;
+        })()}
+
+        {this.state.showClearReviewsConfirm && <div className="dialog-overlay" onClick={() => this.setState({ showClearReviewsConfirm: false })}>
+          <div className="dialog dialog--sm" onClick={(event) => event.stopPropagation()}>
+            <div className="dialog__header">
+              <h3 className="dialog__title">Clear All Reviews</h3>
+              <button className="dialog__close" onClick={() => this.setState({ showClearReviewsConfirm: false })}>&times;</button>
+            </div>
+            <div className="dialog__body">
+              <p className="dialog__confirm-text">Are you sure you want to clear all reviews?</p>
+              <div className="dialog__confirm-actions">
+                <button className="dialog__confirm-btn dialog__confirm-btn--delete" onClick={() => { this.setState({ showClearReviewsConfirm: false }); this.clearAllReviews(); }}>Clear All</button>
+                <button className="dialog__confirm-btn dialog__confirm-btn--cancel" onClick={() => this.setState({ showClearReviewsConfirm: false })}>Cancel</button>
+              </div>
+            </div>
+          </div>
+        </div>}
       </div>
     );
   }

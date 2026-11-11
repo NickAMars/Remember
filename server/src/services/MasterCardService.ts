@@ -57,6 +57,9 @@ export class MasterCardService {
     // rows, which the deck list never shows.
     const query = this.masterCards.createQueryBuilder('deck')
       .loadRelationCountAndMap('deck.subCardCount', 'deck.subCards')
+      .loadRelationCountAndMap('deck.reviewCount', 'deck.subCards', 'reviewCard', (qb) =>
+        qb.andWhere('reviewCard.markedForReview = :reviewed', { reviewed: true }),
+      )
       .where('deck.userId = :userId', { userId });
 
     if (pagination.search) {

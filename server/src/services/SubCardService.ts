@@ -18,6 +18,15 @@ export interface CardInput {
   wrongAnswers?: string[];
 }
 
+/** Which cards a bulk review change applies to. */
+export interface ReviewSelection {
+  /** The cards the user picked. Ignored when `allCards` is true. */
+  cardUuids?: string[];
+  /** Every card in the deck, or every card matching `search`. */
+  allCards?: boolean;
+  search?: string;
+}
+
 /** Cards ("sub cards") inside a deck. Every method checks that the deck belongs to the user. */
 @injectable()
 export class SubCardService {
@@ -184,6 +193,43 @@ export class SubCardService {
     });
 
     return { added: cardsToCreate.length, updated: cardsToUpdate.length };
+  }
+
+  /**
+   * Mark many cards for review, or take them out of review, in one UPDATE.
+   * Pass `cardUuids` for the cards the user picked, or `allCards: true` for every card in the
+   * deck (only the ones matching `search` when a search is given). Cards outside the deck are ignored.
+   * perf Increase: one statement for the whole deck instead of one request per card.
+   */
+  async setReviewForMany(
+    deckUuid: string,
+    userUuid: string,
+    markedForReview: boolean,
+    selection: ReviewSelection,
+  ): Promise<{ updated: number }> {
+    const userId = await requireUserId(this.users, userUuid);
+    const deck = await requireOwnedDeck(this.masterCards, deckUuid, userId);
+    if (deck.isDefault) throw badRequest('Cannot change cards in the default tutorial deck');
+
+    const cardUuids = selection.cardUuids ?? [];
+    if (!selection.allCards && cardUuids.length === 0) return { updated: 0 };
+
+    const query = this.subCards
+      .createQueryBuilder()
+      .update(SubCard)
+      .set({ markedForReview })
+      .where('master_card_id = :deckId', { deckId: deck.id });
+    if (selection.allCards) {
+      if (selection.search) {
+        query.andWhere("LOWER(title) LIKE :search ESCAPE '\\'", {
+          search: `%${escapeLikePattern(selection.search.toLowerCase())}%`,
+        });
+      }
+    } else {
+      query.andWhere('uuid IN (:...cardUuids)', { cardUuids });
+    }
+    const result = await query.execute();
+    return { updated: result.affected ?? 0 };
   }
 
   /** Count one flip of a card. Security: only the deck's owner can change its counters. */

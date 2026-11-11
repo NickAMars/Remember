@@ -126,18 +126,25 @@ class SubCard extends Component {
       <div className="container-card">
         <div className={`card ${flipped ? 'card--flipped' : ''}`}>
           <div className="card__side card__side--front" onClick={this.toggleFlip} style={{cursor:'pointer'}}>
-            {this.props.markedForReview && <span className="card__review-badge" title="Marked for review">Review</span>}
-            <div className="card__title card__title--center">{this.props.title}</div>
+            {(this.props.selectable || this.props.markedForReview) && (
+              <div className="card__front-bar">
+                {this.props.selectable && !this.props.markedForReview && (
+                  <button
+                    className={`card__select ${this.props.selected ? 'card__select--checked' : ''}`}
+                    title="Select this card"
+                    aria-label={`Select card: ${this.props.title}`}
+                    onClick={(event) => { event.stopPropagation(); this.props.onSelect(this.props.uuid, !this.props.selected); }}
+                  >
+                    {this.props.selected && <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>}
+                  </button>
+                )}
+                {this.props.markedForReview && <span className="card__review-badge">Review</span>}
+              </div>
+            )}
+            <div className="card__title card__title--center"><span className="card__title-text">{this.props.title}</span></div>
           </div>
           <div className="card__side card__side--back">
             {this.props.isOwner !== false && !this.props.isDefault && <div className="card__svg u-br-bt">
-              <UpdateButton onClick={this.openUpdateModal} masterinfo={{uuid: this.props.uuid, title: this.props.title}}/>
-              <RemoveButton onClick={this.openDeleteConfirm} ID={this.props.uuid} />
-            </div>}
-            <div className="card__description">
-              {this.props.descriptions}
-            </div>
-            {this.props.isOwner !== false && !this.props.isDefault && (
               <button
                 className={`card__review-toggle ${this.props.markedForReview ? 'card__review-toggle--active' : ''}`}
                 onClick={(event) => { event.stopPropagation(); this.toggleReview(); }}
@@ -148,18 +155,25 @@ class SubCard extends Component {
                 </svg>
                 <span>{this.props.markedForReview ? 'Reviewing' : 'Review'}</span>
               </button>
-            )}
-            {referenceLink && (
-              <a className="card__link" href={referenceLink} target="_blank" rel="noopener noreferrer" onClick={(event) => event.stopPropagation()}>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
-                </svg>
-                <span>Reference Link</span>
-              </a>
-            )}
-            <button className="card__flip-btn card__flip-btn--back" onClick={this.toggleFlip} title="Flip card">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M17 1l4 4-4 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/><path d="M3 11V9a4 4 0 014-4h14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/><path d="M7 23l-4-4 4-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/><path d="M21 13v2a4 4 0 01-4 4H3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
-            </button>
+              <UpdateButton onClick={this.openUpdateModal} masterinfo={{uuid: this.props.uuid, title: this.props.title}}/>
+              <RemoveButton onClick={this.openDeleteConfirm} ID={this.props.uuid} />
+            </div>}
+            <div className="card__description">
+              {this.props.descriptions}
+            </div>
+            <div className="card__back-footer">
+              {referenceLink && (
+                <a className="card__link" href={referenceLink} target="_blank" rel="noopener noreferrer" onClick={(event) => event.stopPropagation()}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
+                  </svg>
+                  <span>Reference Link</span>
+                </a>
+              )}
+              <button className="card__flip-btn card__flip-btn--back" onClick={this.toggleFlip} title="Flip card">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M17 1l4 4-4 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/><path d="M3 11V9a4 4 0 014-4h14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/><path d="M7 23l-4-4 4-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/><path d="M21 13v2a4 4 0 01-4 4H3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+              </button>
+            </div>
           </div>
         </div>
 
@@ -215,14 +229,16 @@ class SubCard extends Component {
                   rightAnswer={editDescriptions}
                   onChange={(wrongAnswers) => this.setState({ editWrongAnswers: wrongAnswers })}
                 />
-                <label className="dialog__checkbox-label">
-                  <input
-                    type="checkbox"
-                    checked={this.state.editMarkedForReview}
-                    onChange={(event) => this.setState({ editMarkedForReview: event.target.checked })}
-                  />
-                  <span>Mark for review</span>
-                </label>
+                <button
+                  type="button"
+                  className={`toggle ${this.state.editMarkedForReview ? 'toggle--on' : ''}`}
+                  onClick={() => this.setState(prev => ({ editMarkedForReview: !prev.editMarkedForReview }))}
+                  role="switch"
+                  aria-checked={this.state.editMarkedForReview}
+                >
+                  <span className="toggle__track"><span className="toggle__thumb" /></span>
+                  <span className="toggle__label">Mark for review</span>
+                </button>
                 {this.state.updateError && <p style={{color:'#c0392b',fontSize:'1rem'}}>{this.state.updateError}</p>}
                 <button className="dialog__submit" onClick={this.onUpdate}>Save</button>
               </div>

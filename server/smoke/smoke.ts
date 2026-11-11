@@ -78,6 +78,19 @@ async function main() {
     title: ec2.title, descriptions: ec2.descriptions, wrongAnswers: Array.from({ length: 100 }, (_unused, position) => `x${position}`),
   });
   check('huge wrong answer list rejected', tooMany.status === 400, tooMany);
+  const reviewAll = await call('PUT', `/api/profile/MasterCard/${deckUuid}/subcards/review`, aliceToken, { markedForReview: true, allCards: true });
+  const afterAll = await call('GET', `/api/profile/MasterCard/${deckUuid}/subcards`, aliceToken);
+  check('mark every card for review', reviewAll.body.updated === 5 && afterAll.body.items.every((card: any) => card.markedForReview), reviewAll);
+  const unreviewSome = await call('PUT', `/api/profile/MasterCard/${deckUuid}/subcards/review`, aliceToken, { markedForReview: false, cardUuids: [s3.uuid, ec2.uuid] });
+  const unreviewSearch = await call('PUT', `/api/profile/MasterCard/${deckUuid}/subcards/review`, aliceToken, { markedForReview: false, allCards: true, search: 'ebs' });
+  const afterSome = await call('GET', `/api/profile/MasterCard/${deckUuid}/subcards`, aliceToken);
+  check('remove picked and searched cards from review', unreviewSome.body.updated === 2 && unreviewSearch.body.updated === 1
+    && afterSome.body.items.filter((card: any) => card.markedForReview).length === 2, afterSome);
+  const bobReviews = await call('PUT', `/api/profile/MasterCard/${deckUuid}/subcards/review`, bobToken, { markedForReview: true, allCards: true });
+  check("bob can't change alice's review flags", bobReviews.status === 404, bobReviews);
+  const emptyPick = await call('PUT', `/api/profile/MasterCard/${deckUuid}/subcards/review`, aliceToken, { markedForReview: true });
+  check('review change with nothing picked is refused', emptyPick.status === 400, emptyPick);
+  await call('PUT', `/api/profile/MasterCard/${deckUuid}/subcards/review`, aliceToken, { markedForReview: false, allCards: true });
   const shuffled = await call('GET', `/api/profile/MasterCard/${deckUuid}/subcards?shuffle=true&page=0&pageSize=5`, aliceToken);
   check('shuffle works', shuffled.status === 200 && shuffled.body.items.length === 5, shuffled);
 
