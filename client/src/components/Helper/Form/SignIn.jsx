@@ -3,7 +3,7 @@ import React, {Component} from 'react'
 // import { Link } from 'react-router-dom'
   import {loginUser} from '../../../actions'
   import { connect } from 'react-redux';
-  import { Redirect } from 'react-router-dom';
+  import { Navigate } from 'react-router-dom';
 // import google from  '../../../img/SVG/google-plus3.svg'
 // import facebook from  '../../../img/SVG/facebook2.svg'
 import Modal from '../Modal'
@@ -33,7 +33,7 @@ class SignIn extends Component{
 
   renderRedirect = () => {
     if (this.props.user && this.props.user.uuid) {
-      return <Redirect to='/' />
+      return <Navigate to='/' />
     }
   }
   // componentDidUpdate(props){

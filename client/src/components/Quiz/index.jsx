@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
+import { withRouter } from '../../utils/withRouter';
 import axios from '../../utils/api';
 import { showToast } from '../../utils/toast';
 
@@ -423,4 +424,4 @@ class Quiz extends Component {
   }
 }
 
-export default Quiz;
+export default withRouter(Quiz);

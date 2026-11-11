@@ -89,7 +89,7 @@ class MasterCard extends Component{
                   </svg>
                 </button>
               )}
-              <Link  to={editingUuid ? '#' : { pathname:`/smallcards/${uuid}`, query: { prevent: isBrowse }}} className="master__links"
+              <Link  to={editingUuid ? '#' : `/smallcards/${uuid}`} state={editingUuid ? undefined : { prevent: isBrowse }} className="master__links"
                onClick={(e)=> { if(editingUuid){ e.preventDefault(); return; } isBrowse ? this.props.getPoolSubCard(uuid) : this.props.getSmallCards(linkUuid); }}>
 
                 <span className="master__count">{this.props.masterinfo.subCardCount ?? (this.props.masterinfo.subCards ? this.props.masterinfo.subCards.length : 0)} cards</span>

@@ -1,5 +1,5 @@
 import React, {PureComponent} from  'react';
-import { BrowserRouter as Router, Route, Redirect, Switch} from 'react-router-dom';
+import { BrowserRouter as Router, Route, Navigate, Routes} from 'react-router-dom';
 import MultipleCards from './MultipleCards';
 import {Landing} from './Landing';
 import Main from './Main';
@@ -10,19 +10,14 @@ import Folders from './Folders';
 import FolderDetail from './Folders/FolderDetail';
 import Quiz from './Quiz';
 import Breadcrumb from './Breadcrumb';
-// import { Redirect } from 'react-router-dom';
 import { connect } from 'react-redux';
-// import axios from 'axios';
 import { getMyCards, getPoolCards, fetchUser} from '../actions';
-// this.axios = axios;
+import { BrowseRoute, StudyRoute, HomeRoute, RootRoute } from './AppRoutes';
+
 class App extends PureComponent{
   componentDidMount(){
     this.props.fetchUser();
   }
-
- // componentDidUpdate(prevProps, prevState, snapshot){
- //   console.log(prevProps)
- // }
 
   render(){
     const {master, user} = this.props;
@@ -41,35 +36,18 @@ class App extends PureComponent{
         </div>}
         {user && user.uuid && <Header />}
 
-          <Switch>
-            <Route exact path='/home/subcards/:title' component={MultipleCards} />
-            <Route exact path='/smallcards/:idMaster'  component={SmallCards} />
-            <Route exact path='/folders' component={Folders} />
-            <Route exact path='/folders/:folderUuid' component={FolderDetail} />
-            <Route exact path='/quiz/:folderUuid?' component={Quiz} />
-            <Route exact path='/browse' render={ ({location}) => {
-              document.title = 'Browse - Remember';
-              this.props.getPoolCards(location.pathname);
-              return <Mine pathname={location.pathname}  visible={false}/>;
-              }
-            } />
-            <Route exact path='/study'render={ ({location}) => {
-              document.title = 'Study - Remember';
-              if(!master.items || master.items.length === 0)
-                this.props.getMyCards(location.pathname);
-
-              return <Mine pathname={location.pathname} visible={true}/>;
-              }
-            } />
-            <Route exact path='/home' render={() => {
-              document.title = 'Home - Remember';
-              return <Main />;
-            }} />
-            <Route exact path='/' render={() => {
-              document.title = 'Remember';
-              return user && user.uuid ? <Redirect to='/home' /> : <Landing />;
-            }} />
-          </Switch>
+          <Routes>
+            <Route path='/home/subcards/:title' element={<MultipleCards />} />
+            <Route path='/smallcards/:idMaster' element={<SmallCards />} />
+            <Route path='/folders' element={<Folders />} />
+            <Route path='/folders/:folderUuid' element={<FolderDetail />} />
+            <Route path='/quiz/:folderUuid' element={<Quiz />} />
+            <Route path='/quiz' element={<Quiz />} />
+            <Route path='/browse' element={<BrowseRoute getPoolCards={this.props.getPoolCards} />} />
+            <Route path='/study' element={<StudyRoute master={master} getMyCards={this.props.getMyCards} />} />
+            <Route path='/home' element={<HomeRoute />} />
+            <Route path='/' element={<RootRoute user={user} />} />
+          </Routes>
 
           </div>
         </Router>
@@ -85,5 +63,3 @@ export const mapStateToProps = (state) => {
   };
 }
 export default connect(mapStateToProps,{getMyCards, getPoolCards, fetchUser})(App);
-// import {Switch} from 'react-router-dom';
-// <Switch> </Switch>

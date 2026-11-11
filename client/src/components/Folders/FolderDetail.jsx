@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import { connect } from 'react-redux';
+import { withRouter } from '../../utils/withRouter';
 import { getSmallCards } from '../../actions';
 import axios from '../../utils/api';
 import { showToast } from '../../utils/toast';
@@ -84,7 +85,7 @@ class FolderDetail extends Component {
                   &times;
                 </button>
                 <Link
-                  to={{ pathname: `/smallcards/${d.uuid}`, query: { prevent: false } }}
+                  to={`/smallcards/${d.uuid}`}
                   className="folders__card-link"
                   onClick={() => this.props.getSmallCards(d.uuid, { page: 0, pageSize: 10 })}
                 >
@@ -105,4 +106,4 @@ class FolderDetail extends Component {
   }
 }
 
-export default connect(null, { getSmallCards })(FolderDetail);
+export default withRouter(connect(null, { getSmallCards })(FolderDetail));

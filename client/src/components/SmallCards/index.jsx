@@ -1,5 +1,6 @@
 import React, {PureComponent} from 'react';
 import { connect } from 'react-redux';
+import { withRouter } from '../../utils/withRouter';
 import {SubCard} from '../Helper/Cards';
 import {PieChart} from '../Main/PieChart';
 import { getMasterTime, getSmallCards, getPoolSubCard } from '../../actions'
@@ -51,7 +52,7 @@ class SmallCards extends PureComponent{
 
   async componentDidMount(){
     const masterUuid = this.props.match.params.idMaster;
-    const isPool = this.props.location.query && this.props.location.query.prevent;
+    const isPool = this.props.location.state && this.props.location.state.prevent;
 
     if (isPool) {
       try {
@@ -68,7 +69,7 @@ class SmallCards extends PureComponent{
           const ownCard = myCards.find(mc => mc.title === poolCard.title);
           if (ownCard) {
             this.props.getSmallCards(ownCard.uuid, { page: 0, pageSize: this.state.pageSize });
-            this.props.history.replace({ pathname: `/smallcards/${ownCard.uuid}`, query: {} });
+            this.props.history.replace(`/smallcards/${ownCard.uuid}`);
             this.setState({ masterTitle: ownCard.title, isOwner: true, prevent: false, isDefaultCard: !!ownCard.isDefault });
             this.fetchPieData();
             document.title = `${ownCard.title} - Remember`;
@@ -107,7 +108,7 @@ class SmallCards extends PureComponent{
   }
 
 static getDerivedStateFromProps(nextProps, prevState){
-  if(nextProps.location.query && nextProps.location.query.prevent){
+  if(nextProps.location.state && nextProps.location.state.prevent){
     if (prevState.isOwner) return null;
     return { prevent: true, isOwner: false };
   }
@@ -433,4 +434,4 @@ export const mapStateToProps = (state) => {
   };
 }
 
-export default connect(mapStateToProps, {getMasterTime, getSmallCards, getPoolSubCard})(SmallCards);
+export default withRouter(connect(mapStateToProps, {getMasterTime, getSmallCards, getPoolSubCard})(SmallCards));

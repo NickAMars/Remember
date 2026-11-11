@@ -1,5 +1,6 @@
 import React from 'react';
-import { Link, withRouter } from 'react-router-dom';
+import { Link } from 'react-router-dom';
+import { withRouter } from '../utils/withRouter';
 
 const routeNames = {
   '/home': 'Home',
@@ -21,7 +22,7 @@ const Breadcrumb = ({ location, match }) => {
     crumbs.push({ label: 'Folders', to: '/folders' });
     crumbs.push({ label: 'Quiz', to: null });
   } else if (path.startsWith('/smallcards/')) {
-    const from = location.query && location.query.prevent ? '/browse' : '/study';
+    const from = location.state && location.state.prevent ? '/browse' : '/study';
     crumbs.push({ label: from === '/browse' ? 'Browse' : 'Study', to: from });
     crumbs.push({ label: 'Cards', to: null });
   } else if (path.startsWith('/home/subcards/')) {

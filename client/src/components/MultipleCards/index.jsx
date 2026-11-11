@@ -1,5 +1,6 @@
 import React, {Component} from 'react'
 import { connect } from 'react-redux'
+import { withRouter } from '../../utils/withRouter'
 import {deleteCard,  updateForm, submitCard} from '../../actions'
 import { CLEAR_CARDS } from '../../actions/types'
 // import {Header} from '../Header';
@@ -69,4 +70,4 @@ const mapDispatchToProps = (dispatch) => ({
   dispatch,
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(MultipleCards);
+export default withRouter(connect(mapStateToProps, mapDispatchToProps)(MultipleCards));

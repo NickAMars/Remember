@@ -1,5 +1,6 @@
 import React, {Component} from  'react';
-import { Link, withRouter } from 'react-router-dom';
+import { Link } from 'react-router-dom';
+import { withRouter } from '../utils/withRouter';
 import { connect } from 'react-redux';
 import { clearToken } from '../utils/auth';
 import { LOGOUT } from '../actions/types';
