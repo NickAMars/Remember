@@ -38,8 +38,8 @@ class App extends PureComponent{
                 </svg>
                 Remember
               </span>
-              <Breadcrumb />
             </div>
+            <Breadcrumb />
             <Header />
           </>
         ) : (

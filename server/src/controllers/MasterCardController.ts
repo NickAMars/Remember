@@ -21,6 +21,7 @@ const createDeckBody = z.object({
     title: questionField,
     description: answerField,
     link: linkField,
+    markedForReview: z.boolean().optional().default(false),
     wrongAnswers: wrongAnswersField,
   })).max(MAX_CARDS_PER_REQUEST),
 });
@@ -78,7 +79,7 @@ export class MasterCardController implements Controller {
             userUuid(request),
             deckTitle,
             cards.map((card) => ({
-              title: card.title, description: card.descriptions, link: card.link, wrongAnswers: card.wrongAnswers,
+              title: card.title, description: card.descriptions, link: card.link, markedForReview: card.markedForReview, wrongAnswers: card.wrongAnswers,
             })),
           );
           imported.push({ title: deckTitle, cardCount: cards.length });

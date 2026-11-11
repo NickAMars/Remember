@@ -12,6 +12,8 @@ export interface CardInput {
   title: string;
   descriptions: string;
   link?: string;
+  /** Whether the card is flagged for review. */
+  markedForReview?: boolean;
   /** Similar but incorrect answers for Quiz mode. */
   wrongAnswers?: string[];
 }
@@ -91,6 +93,7 @@ export class SubCardService {
     descriptions: string,
     link = '',
     wrongAnswers: string[] = [],
+    markedForReview = false,
   ): Promise<SubCard> {
     const userId = await requireUserId(this.users, userUuid);
     const deck = await requireOwnedDeck(this.masterCards, deckUuid, userId);
@@ -100,7 +103,7 @@ export class SubCardService {
     if (existing) throw badRequest('A card with this question already exists in this deck');
 
     return this.subCards.save(this.subCards.create({
-      title, descriptions, link, wrongAnswers: cleanWrongAnswers(wrongAnswers, descriptions), masterCardId: deck.id,
+      title, descriptions, link, markedForReview, wrongAnswers: cleanWrongAnswers(wrongAnswers, descriptions), masterCardId: deck.id,
     }));
   }
 
@@ -111,6 +114,7 @@ export class SubCardService {
     descriptions: string,
     link = '',
     wrongAnswers: string[] = [],
+    markedForReview = false,
   ): Promise<SubCard> {
     const card = await this.requireOwnedCard(cardUuid, userUuid);
     if (card.masterCard.isDefault) throw badRequest('Cannot edit cards in the default tutorial deck');
@@ -123,6 +127,7 @@ export class SubCardService {
     card.title = title;
     card.descriptions = descriptions;
     card.link = link;
+    card.markedForReview = markedForReview;
     card.wrongAnswers = cleanWrongAnswers(wrongAnswers, descriptions);
     await this.subCards.save(card);
     const { masterCard: _deck, ...cardWithoutDeck } = card;
@@ -154,6 +159,7 @@ export class SubCardService {
       if (existing) {
         existing.descriptions = card.descriptions;
         existing.link = card.link || '';
+        existing.markedForReview = card.markedForReview ?? false;
         const uploadedWrongAnswers = cleanWrongAnswers(card.wrongAnswers, card.descriptions);
         existing.wrongAnswers = uploadedWrongAnswers.length
           ? uploadedWrongAnswers
@@ -164,6 +170,7 @@ export class SubCardService {
           title: card.title,
           descriptions: card.descriptions,
           link: card.link || '',
+          markedForReview: card.markedForReview ?? false,
           wrongAnswers: cleanWrongAnswers(card.wrongAnswers, card.descriptions),
           masterCardId: deck.id,
         }));

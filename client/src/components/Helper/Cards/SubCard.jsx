@@ -14,6 +14,7 @@ class SubCard extends Component {
     editTitle: this.props.title,
     editDescriptions: this.props.descriptions,
     editLink: this.props.link || '',
+    editMarkedForReview: this.props.markedForReview || false,
     editWrongAnswers: this.props.wrongAnswers || [],
     updateError: '',
   }
@@ -33,12 +34,25 @@ class SubCard extends Component {
     }
   }
 
+  toggleReview = async () => {
+    const { uuid, title, descriptions, link, markedForReview, wrongAnswers } = this.props;
+    try {
+      await axios.put(`/api/profile/MasterCard/subcards/${uuid}`, {
+        title, descriptions, link: link || '', markedForReview: !markedForReview, wrongAnswers: wrongAnswers || [],
+      });
+      if (this.props.onChanged) this.props.onChanged();
+    } catch (error) {
+      showToast(errorMessage(error, 'Failed to update review status'));
+    }
+  }
+
   openUpdateModal = () => {
     this.setState({
       showUpdateModal: true,
       editTitle: this.props.title,
       editDescriptions: this.props.descriptions,
       editLink: this.props.link || '',
+      editMarkedForReview: this.props.markedForReview || false,
       editWrongAnswers: this.props.wrongAnswers || [],
       updateError: '',
     });
@@ -50,10 +64,10 @@ class SubCard extends Component {
 
   onUpdate = async () => {
     const { uuid } = this.props;
-    const { editTitle, editDescriptions, editLink, editWrongAnswers } = this.state;
+    const { editTitle, editDescriptions, editLink, editMarkedForReview, editWrongAnswers } = this.state;
     try {
       await axios.put(`/api/profile/MasterCard/subcards/${uuid}`, {
-        title: editTitle, descriptions: editDescriptions, link: editLink, wrongAnswers: editWrongAnswers,
+        title: editTitle, descriptions: editDescriptions, link: editLink, markedForReview: editMarkedForReview, wrongAnswers: editWrongAnswers,
       });
     } catch (error) {
       const message = errorMessage(error, 'Update failed');
@@ -89,11 +103,13 @@ class SubCard extends Component {
 
   componentDidUpdate(prevProps) {
     if (prevProps.title !== this.props.title || prevProps.descriptions !== this.props.descriptions
-      || prevProps.link !== this.props.link || prevProps.wrongAnswers !== this.props.wrongAnswers) {
+      || prevProps.link !== this.props.link || prevProps.markedForReview !== this.props.markedForReview
+      || prevProps.wrongAnswers !== this.props.wrongAnswers) {
       this.setState({
         editTitle: this.props.title,
         editDescriptions: this.props.descriptions,
         editLink: this.props.link || '',
+        editMarkedForReview: this.props.markedForReview || false,
         editWrongAnswers: this.props.wrongAnswers || [],
       });
     }
@@ -110,6 +126,7 @@ class SubCard extends Component {
       <div className="container-card">
         <div className={`card ${flipped ? 'card--flipped' : ''}`}>
           <div className="card__side card__side--front" onClick={this.toggleFlip} style={{cursor:'pointer'}}>
+            {this.props.markedForReview && <span className="card__review-badge" title="Marked for review">Review</span>}
             <div className="card__title card__title--center">{this.props.title}</div>
           </div>
           <div className="card__side card__side--back">
@@ -120,6 +137,18 @@ class SubCard extends Component {
             <div className="card__description">
               {this.props.descriptions}
             </div>
+            {this.props.isOwner !== false && !this.props.isDefault && (
+              <button
+                className={`card__review-toggle ${this.props.markedForReview ? 'card__review-toggle--active' : ''}`}
+                onClick={(event) => { event.stopPropagation(); this.toggleReview(); }}
+                title={this.props.markedForReview ? 'Remove from review' : 'Mark for review'}
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill={this.props.markedForReview ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/>
+                </svg>
+                <span>{this.props.markedForReview ? 'Reviewing' : 'Review'}</span>
+              </button>
+            )}
             {referenceLink && (
               <a className="card__link" href={referenceLink} target="_blank" rel="noopener noreferrer" onClick={(event) => event.stopPropagation()}>
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -186,6 +215,14 @@ class SubCard extends Component {
                   rightAnswer={editDescriptions}
                   onChange={(wrongAnswers) => this.setState({ editWrongAnswers: wrongAnswers })}
                 />
+                <label className="dialog__checkbox-label">
+                  <input
+                    type="checkbox"
+                    checked={this.state.editMarkedForReview}
+                    onChange={(event) => this.setState({ editMarkedForReview: event.target.checked })}
+                  />
+                  <span>Mark for review</span>
+                </label>
                 {this.state.updateError && <p style={{color:'#c0392b',fontSize:'1rem'}}>{this.state.updateError}</p>}
                 <button className="dialog__submit" onClick={this.onUpdate}>Save</button>
               </div>

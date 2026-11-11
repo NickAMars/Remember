@@ -371,7 +371,7 @@ static getDerivedStateFromProps(nextProps, prevState){
                 </div>
               ) : (
                 <div className="dialog__upload">
-                  <p className="dialog__upload-hint">Upload an Excel or CSV file. Column A = question, Column B = answer, Column C = link (optional), Columns D and onward = wrong answers for the quiz (optional).</p>
+                  <p className="dialog__upload-hint">Upload an Excel or CSV file. Column A = question, Column B = answer, Column C = link (optional), Column D = review flag (yes/no, optional), Columns E and onward = wrong answers for the quiz (optional).</p>
                   <input
                     ref={this.fileInput}
                     type="file"

@@ -16,6 +16,7 @@ const cardBody = z.object({
   title: questionField,
   descriptions: answerField,
   link: linkField,
+  markedForReview: z.boolean().optional().default(false),
   wrongAnswers: wrongAnswersField,
 });
 
@@ -47,8 +48,8 @@ export class SubCardController implements Controller {
     }));
 
     router.post(`${deckPath}/subcards`, handle(async (request) => {
-      const { title, descriptions, link, wrongAnswers } = parse(cardBody, request.body);
-      return this.service.add(uuidParam(request), userUuid(request), title, descriptions, link, wrongAnswers);
+      const { title, descriptions, link, wrongAnswers, markedForReview } = parse(cardBody, request.body);
+      return this.service.add(uuidParam(request), userUuid(request), title, descriptions, link, wrongAnswers, markedForReview);
     }));
 
     router.put(`${cardPath}/view`, handle(async (request) => {
@@ -58,8 +59,8 @@ export class SubCardController implements Controller {
     }));
 
     router.put(cardPath, handle(async (request) => {
-      const { title, descriptions, link, wrongAnswers } = parse(cardBody, request.body);
-      return this.service.update(uuidParam(request), userUuid(request), title, descriptions, link, wrongAnswers);
+      const { title, descriptions, link, wrongAnswers, markedForReview } = parse(cardBody, request.body);
+      return this.service.update(uuidParam(request), userUuid(request), title, descriptions, link, wrongAnswers, markedForReview);
     }));
 
     /** Add the first sheet's cards to a deck. Questions already in the deck are updated. */

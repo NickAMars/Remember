@@ -113,7 +113,10 @@ class CreateMaster extends Component{
               <div className="create__preview-list">
                 {parsedCards.map((card, cardIndex) => (
                   <div key={card.title} className="create__preview-card">
-                    <div className="create__preview-q">{card.title}</div>
+                    <div className="create__preview-q">
+                      {card.title}
+                      {card.markedForReview && <span className="create__preview-review">Review</span>}
+                    </div>
                     {card.description && <div className="create__preview-a">{card.description}</div>}
                     <button className="create__preview-remove" onClick={() => this.removeCard(cardIndex)} title="Remove card">&times;</button>
                   </div>

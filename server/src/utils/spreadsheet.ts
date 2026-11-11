@@ -9,12 +9,14 @@ export interface SpreadsheetCard {
   title: string;
   descriptions: string;
   link: string;
-  /** Columns D and onward: similar but incorrect answers for Quiz mode. */
+  /** Whether the card is flagged for review (column D). */
+  markedForReview: boolean;
+  /** Columns E and onward: similar but incorrect answers for Quiz mode. */
   wrongAnswers: string[];
 }
 
-/** Column D is the first wrong answer. */
-export const FIRST_WRONG_ANSWER_COLUMN = 4;
+/** Column E is the first wrong answer. */
+export const FIRST_WRONG_ANSWER_COLUMN = 5;
 
 export interface SpreadsheetSheet {
   sheetName: string;
@@ -72,10 +74,16 @@ export function isHeaderRow(questionText: string, answerText: string): boolean {
   return QUESTION_HEADER_WORDS.has(questionText.toLowerCase()) || ANSWER_HEADER_WORDS.has(answerText.toLowerCase());
 }
 
+/** Parse a cell value as a boolean review flag. Accepts yes/true/1/x. */
+function parseBooleanCell(value: ExcelJS.CellValue): boolean {
+  const text = cellText(value).trim().toLowerCase();
+  return text === 'true' || text === 'yes' || text === '1' || text === 'x';
+}
+
 /**
  * Read every sheet of a workbook into cards.
  * Column A = question, column B = answer, column C = optional link,
- * columns D and onward = optional wrong answers for Quiz mode.
+ * column D = review flag (optional), columns E and onward = optional wrong answers for Quiz mode.
  * A header row (see isHeaderRow) is skipped.
  */
 export async function readSpreadsheet(buffer: Buffer, extension: 'xlsx' | 'csv'): Promise<SpreadsheetSheet[]> {
@@ -103,6 +111,7 @@ export async function readSpreadsheet(buffer: Buffer, extension: 'xlsx' | 'csv')
         title,
         descriptions: answer,
         link: cellLink(row.getCell(3).value),
+        markedForReview: parseBooleanCell(row.getCell(4).value),
         wrongAnswers: readWrongAnswers(row, answer),
       });
     });

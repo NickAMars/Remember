@@ -21,6 +21,10 @@ export class SubCard {
   @Column({ type: 'varchar', length: 2000, default: '' })
   link: string;
 
+  /** Whether the user has flagged this card for extra review. */
+  @Column({ type: 'boolean', default: false })
+  markedForReview: boolean;
+
   /** Similar but incorrect answers, used as the wrong choices in Quiz mode. */
   @Column({ type: 'text', array: true, default: () => "'{}'" })
   wrongAnswers: string[];

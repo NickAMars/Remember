@@ -16,8 +16,11 @@ const Breadcrumb = ({ location, match }) => {
     crumbs.push({ label: 'Study', to: null });
   } else if (path === '/browse') {
     crumbs.push({ label: 'Browse', to: null });
-  } else if (path === '/folders') {
-    crumbs.push({ label: 'Folders', to: null });
+  } else if (path === '/folders' || path.startsWith('/folders/')) {
+    crumbs.push({ label: 'Folders', to: path === '/folders' ? null : '/folders' });
+    if (path.startsWith('/folders/')) {
+      crumbs.push({ label: 'Folder', to: null });
+    }
   } else if (path.startsWith('/quiz')) {
     crumbs.push({ label: 'Folders', to: '/folders' });
     crumbs.push({ label: 'Quiz', to: null });
@@ -29,11 +32,7 @@ const Breadcrumb = ({ location, match }) => {
     crumbs.push({ label: 'Study', to: '/study' });
     const title = match.params.title || 'New Deck';
     crumbs.push({ label: title, to: null });
-  } else if (path === '/home') {
-    return null;
   }
-
-  if (crumbs.length <= 1) return null;
 
   return (
     <nav className="breadcrumb">

@@ -12,6 +12,7 @@ export interface NewCard {
   title: string;
   description: string;
   link?: string;
+  markedForReview?: boolean;
   wrongAnswers?: string[];
 }
 
@@ -96,6 +97,7 @@ export class MasterCardService {
           title: card.title,
           descriptions: card.description,
           link: card.link || '',
+          markedForReview: card.markedForReview ?? false,
           wrongAnswers: cleanWrongAnswers(card.wrongAnswers, card.description),
           masterCardId: newDeck.id,
         }),
