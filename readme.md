@@ -92,6 +92,10 @@ A flashcard study application for creating, organizing, and quizzing yourself on
 | `npm run migration:run` | Run pending migrations |
 | `npm run migration:generate -- src/migrations/Name` | Generate migration from entity changes |
 
+## Deploying
+
+To host it for free (Render for the app, Neon for Postgres), see [DEPLOY.md](DEPLOY.md).
+
 ## Project Structure
 
 ```
