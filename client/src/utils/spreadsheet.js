@@ -1,4 +1,4 @@
-import readXlsxFile from 'read-excel-file/browser';
+import { readSheet } from 'read-excel-file/browser';
 import { MAX_UPLOAD_BYTES } from '../constance';
 
 const QUESTION_HEADERS = new Set(['title', 'question', 'questions']);
@@ -55,6 +55,6 @@ export async function readCardsFromFile(file) {
   if (!['xlsx', 'csv'].includes(extension)) throw new Error('Please upload an .xlsx or .csv file');
   if (file.size > MAX_UPLOAD_BYTES) throw new Error('File is too large (5 MB max)');
   // Bug fix: CSV files were passed to the Excel reader, which can't read them.
-  const rows = extension === 'csv' ? parseCsv(await file.text()) : await readXlsxFile(file);
+  const rows = extension === 'csv' ? parseCsv(await file.text()) : await readSheet(file);
   return rowsToCards(rows);
 }
