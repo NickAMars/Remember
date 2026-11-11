@@ -2107,7 +2107,17 @@ ul { list-style: none; }
 .quiz__chip:disabled { opacity: 0.4; cursor: not-allowed; }
 .quiz__chip-count { color: var(--color-text-muted); margin-left: 0.3rem; }
 .quiz__segment { display: flex; flex-wrap: wrap; gap: 0.5rem; }
-.quiz__start { margin-top: 2.2rem; width: 100%; padding: 1rem; font-size: 1.45rem; }
+.quiz__actions { display: flex; gap: 1rem; margin-top: 2.2rem; }
+.quiz__start { flex: 1; padding: 1rem; font-size: 1.45rem; }
+.quiz__due-banner { margin-top: 1.2rem; font-size: 1.2rem; color: var(--color-text-muted); text-align: center; }
+.quiz__due-banner strong { color: var(--color-primary-light); }
+
+/* Review banner (home page) */
+.review-banner { display: flex; align-items: center; justify-content: space-between; background: rgba(212, 146, 74, 0.12); border: 1px solid rgba(212, 146, 74, 0.3); border-radius: var(--radius-md); padding: 1.2rem 1.8rem; margin: 0 2rem 1.5rem; }
+.review-banner__text { font-size: 1.3rem; color: var(--color-text); }
+.review-banner__text strong { color: var(--color-primary-light); }
+.review-banner__btn { font-size: 1.2rem; padding: 0.6rem 1.4rem; background: var(--color-primary); color: #fff; border-radius: var(--radius-md); text-decoration: none; font-weight: 600; }
+.review-banner__btn:hover { background: var(--color-primary-light); }
 .quiz__top { display: flex; justify-content: space-between; gap: 1rem; font-size: 1.25rem; color: var(--color-text-muted); }
 .quiz__bar { height: 0.5rem; margin: 0.8rem 0 1.8rem; background: var(--color-input-bg); border-radius: var(--radius-full); overflow: hidden; }
 .quiz__bar-fill { height: 100%; background: var(--color-primary); transition: width var(--transition-normal); }

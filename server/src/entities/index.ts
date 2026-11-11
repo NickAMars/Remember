@@ -5,6 +5,7 @@ import { Progress } from './Progress';
 import { PoolCard } from './PoolCard';
 import { PoolSubCard } from './PoolSubCard';
 import { Folder } from './Folder';
+import { CardReview } from './CardReview';
 
-export { User, MasterCard, SubCard, Progress, PoolCard, PoolSubCard, Folder };
-export const entities = [User, MasterCard, SubCard, Progress, PoolCard, PoolSubCard, Folder];
+export { User, MasterCard, SubCard, Progress, PoolCard, PoolSubCard, Folder, CardReview };
+export const entities = [User, MasterCard, SubCard, Progress, PoolCard, PoolSubCard, Folder, CardReview];

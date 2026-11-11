@@ -27,6 +27,7 @@ class Quiz extends Component {
     mode: 'choice', // choice | flash
     loading: false,
     folderName: '',
+    dueCounts: null, // { total, byFolder: [{ folderUuid, folderName, count }] }
     ...initialRun,
   };
 
@@ -34,6 +35,7 @@ class Quiz extends Component {
     document.title = 'Quiz - Remember';
     window.addEventListener('keydown', this.onKey);
     this.loadFolders();
+    this.loadDueCounts();
   }
 
   componentWillUnmount() {
@@ -45,6 +47,43 @@ class Quiz extends Component {
     const next = this.props.match.params.folderUuid;
     if (prev !== next && next) this.setState({ folderUuid: next, deckFilter: {}, stage: 'setup' });
   }
+
+  loadDueCounts = async () => {
+    try {
+      const res = await axios.get('/api/review/due');
+      this.setState({ dueCounts: res.data });
+    } catch {
+      // silently ignore — due counts are supplemental
+    }
+  };
+
+  submitResults = () => {
+    const { results, mode } = this.state;
+    if (results.length === 0) return;
+    const payload = results.map(r => ({
+      subCardUuid: r.card.uuid,
+      correct: r.correct,
+      mode: mode === 'choice' ? 'choice' : 'flash',
+    }));
+    axios.post('/api/review/results', { results: payload }).catch(() => {});
+    this.loadDueCounts();
+  };
+
+  startReview = async () => {
+    const { folderUuid, count } = this.state;
+    if (!folderUuid) return;
+    this.setState({ loading: true });
+    try {
+      const params = {};
+      if (count) params.count = count;
+      const res = await axios.get(`/api/review/due/${folderUuid}`, { params });
+      this.begin(res.data.cards, res.data.folder.name);
+    } catch (err) {
+      showToast(errorText(err, 'No cards due for review'));
+    } finally {
+      this.setState({ loading: false });
+    }
+  };
 
   loadFolders = async () => {
     try {
@@ -124,7 +163,7 @@ class Quiz extends Component {
   next = () => {
     const { index, cards } = this.state;
     if (index + 1 >= cards.length) {
-      this.setState({ stage: 'done' });
+      this.setState({ stage: 'done' }, this.submitResults);
       window.scrollTo({ top: 0 });
     } else {
       this.setState({ index: index + 1, picked: null, revealed: false });
@@ -153,13 +192,21 @@ class Quiz extends Component {
     }
   };
 
-  quit = () => this.setState({ stage: 'done' });
+  quit = () => this.setState({ stage: 'done' }, this.submitResults);
+
+  folderDueCount(folderUuid) {
+    const { dueCounts } = this.state;
+    if (!dueCounts || !dueCounts.byFolder) return 0;
+    const entry = dueCounts.byFolder.find(f => f.folderUuid === folderUuid);
+    return entry ? entry.count : 0;
+  }
 
   renderSetup() {
-    const { folders, folderUuid, count, mode, loading, deckFilter } = this.state;
+    const { folders, folderUuid, count, mode, loading, deckFilter, dueCounts } = this.state;
     const folder = this.currentFolder();
     const decks = this.includedDecks();
     const available = decks.reduce((s, d) => s + d.cardCount, 0);
+    const dueForFolder = this.folderDueCount(folderUuid);
 
     if (folders.length === 0) {
       return (
@@ -179,11 +226,14 @@ class Quiz extends Component {
         <label className="quiz__label">Folder</label>
         <select className="quiz__select" value={folderUuid}
           onChange={e => this.setState({ folderUuid: e.target.value, deckFilter: {} })}>
-          {folders.map(f => (
-            <option key={f.uuid} value={f.uuid} disabled={f.cardCount === 0}>
-              {f.name} ({f.cardCount} cards)
-            </option>
-          ))}
+          {folders.map(f => {
+            const due = this.folderDueCount(f.uuid);
+            return (
+              <option key={f.uuid} value={f.uuid} disabled={f.cardCount === 0}>
+                {f.name} ({f.cardCount} cards{due > 0 ? `, ${due} due` : ''})
+              </option>
+            );
+          })}
         </select>
 
         {folder && folder.decks.length > 0 && <>
@@ -226,9 +276,21 @@ class Quiz extends Component {
             : 'Read the question, think of the answer, then reveal it and mark yourself right (Y) or wrong (N).'}
         </p>
 
-        <button className="folders__btn folders__btn--primary quiz__start" disabled={loading || available === 0} onClick={this.start}>
-          {loading ? 'Loading...' : 'Start quiz'}
-        </button>
+        <div className="quiz__actions">
+          <button className="folders__btn folders__btn--primary quiz__start" disabled={loading || available === 0} onClick={this.start}>
+            {loading ? 'Loading...' : 'Start quiz'}
+          </button>
+          {dueForFolder > 0 && (
+            <button className="folders__btn folders__btn--success quiz__start" disabled={loading} onClick={this.startReview}>
+              {loading ? 'Loading...' : `Review ${dueForFolder} due card${dueForFolder !== 1 ? 's' : ''}`}
+            </button>
+          )}
+        </div>
+        {dueCounts && dueCounts.total > 0 && (
+          <p className="quiz__due-banner">
+            You have <strong>{dueCounts.total}</strong> card{dueCounts.total !== 1 ? 's' : ''} due for review across your folders.
+          </p>
+        )}
       </div>
     );
   }

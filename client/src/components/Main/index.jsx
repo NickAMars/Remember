@@ -1,13 +1,16 @@
 import React, {Component} from 'react';
+import { Link } from 'react-router-dom';
 import {TopFiveCard} from '../Helper/Cards';
 import {CreateMaster} from '../Helper/Form';
 import {Chart} from  './chart';
 import { connect } from 'react-redux';
 import { fetchUser, getMyCard, getSmallCards } from '../../actions';
+import axios from '../../utils/api';
 
 class MasterCard extends Component{
   async componentDidMount(){
    await this.props.fetchUser();
+   this.loadDueCounts();
   }
   constructor(props){
     super(props);
@@ -17,7 +20,17 @@ class MasterCard extends Component{
       allCards: [],
       visibleCount: 5,
       search: '',
+      dueTotal: 0,
     };
+  }
+
+  loadDueCounts = async () => {
+    try {
+      const res = await axios.get('/api/review/due');
+      this.setState({ dueTotal: res.data.total || 0 });
+    } catch {
+      // ignore
+    }
   }
 
   navigateToCard = (referenceID) => {
@@ -51,6 +64,14 @@ class MasterCard extends Component{
 
     return (
       <div>
+        {this.state.dueTotal > 0 && (
+          <div className="review-banner">
+            <span className="review-banner__text">
+              You have <strong>{this.state.dueTotal}</strong> card{this.state.dueTotal !== 1 ? 's' : ''} due for review
+            </span>
+            <Link className="review-banner__btn" to="/quiz">Start Review</Link>
+          </div>
+        )}
         <div className="xcontainer-main u-mb-md">
             <div className="topcards">
               <h4 className="heading__quaternary u-mb-sm">View Cards</h4>

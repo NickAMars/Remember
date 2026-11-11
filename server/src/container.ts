@@ -5,9 +5,11 @@ import { AuthController } from './controllers/AuthController';
 import { MasterCardController } from './controllers/MasterCardController';
 import { PoolCardController } from './controllers/PoolCardController';
 import { ProfileController } from './controllers/ProfileController';
+import { ReviewController } from './controllers/ReviewController';
 import { SubCardController } from './controllers/SubCardController';
 import type { Controller } from './interfaces/controller';
 import { FolderService } from './services/FolderService';
+import { ReviewService } from './services/ReviewService';
 import { AuthService } from './services/AuthService';
 import { MasterCardService } from './services/MasterCardService';
 import { PoolCardService } from './services/PoolCardService';
@@ -23,6 +25,7 @@ export function buildContainer(ds: DataSource) {
   container.bind(TYPES.SubCardService).to(SubCardService);
   container.bind(TYPES.PoolCardService).to(PoolCardService);
   container.bind(TYPES.FolderService).to(FolderService);
+  container.bind(TYPES.ReviewService).to(ReviewService);
 
   for (const ctrl of [
     AuthController,
@@ -31,6 +34,7 @@ export function buildContainer(ds: DataSource) {
     SubCardController,
     PoolCardController,
     FolderController,
+    ReviewController,
   ]) {
     container.bind<Controller>(TYPES.Controller).to(ctrl);
   }

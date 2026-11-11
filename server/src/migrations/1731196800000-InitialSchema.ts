@@ -9,7 +9,7 @@ export class InitialSchema1731196800000 implements MigrationInterface {
 
     // ── users ──────────────────────────────────────────────────────────
     await queryRunner.query(`
-      CREATE TABLE "users" (
+      CREATE TABLE IF NOT EXISTS "users" (
         "id"            SERIAL        PRIMARY KEY,
         "uuid"          uuid          NOT NULL DEFAULT uuid_generate_v4() UNIQUE,
         "oauth_code"    varchar(255),
@@ -23,7 +23,7 @@ export class InitialSchema1731196800000 implements MigrationInterface {
 
     // ── master_cards ───────────────────────────────────────────────────
     await queryRunner.query(`
-      CREATE TABLE "master_cards" (
+      CREATE TABLE IF NOT EXISTS "master_cards" (
         "id"          SERIAL         PRIMARY KEY,
         "uuid"        uuid           NOT NULL DEFAULT uuid_generate_v4() UNIQUE,
         "title"       varchar(255)   NOT NULL,
@@ -42,7 +42,7 @@ export class InitialSchema1731196800000 implements MigrationInterface {
 
     // ── sub_cards ──────────────────────────────────────────────────────
     await queryRunner.query(`
-      CREATE TABLE "sub_cards" (
+      CREATE TABLE IF NOT EXISTS "sub_cards" (
         "id"              SERIAL          PRIMARY KEY,
         "uuid"            uuid            NOT NULL DEFAULT uuid_generate_v4() UNIQUE,
         "title"           varchar(1000)   NOT NULL,
@@ -58,7 +58,7 @@ export class InitialSchema1731196800000 implements MigrationInterface {
 
     // ── progress ───────────────────────────────────────────────────────
     await queryRunner.query(`
-      CREATE TABLE "progress" (
+      CREATE TABLE IF NOT EXISTS "progress" (
         "id"              SERIAL      PRIMARY KEY,
         "time"            int         NOT NULL DEFAULT 0,
         "day_created"     timestamptz NOT NULL,
@@ -70,7 +70,7 @@ export class InitialSchema1731196800000 implements MigrationInterface {
 
     // ── pool_cards ─────────────────────────────────────────────────────
     await queryRunner.query(`
-      CREATE TABLE "pool_cards" (
+      CREATE TABLE IF NOT EXISTS "pool_cards" (
         "id"          SERIAL        PRIMARY KEY,
         "uuid"        uuid          NOT NULL DEFAULT uuid_generate_v4() UNIQUE,
         "author"      varchar(255)  NOT NULL,
@@ -81,7 +81,7 @@ export class InitialSchema1731196800000 implements MigrationInterface {
 
     // ── pool_sub_cards ─────────────────────────────────────────────────
     await queryRunner.query(`
-      CREATE TABLE "pool_sub_cards" (
+      CREATE TABLE IF NOT EXISTS "pool_sub_cards" (
         "id"            SERIAL          PRIMARY KEY,
         "uuid"          uuid            NOT NULL DEFAULT uuid_generate_v4() UNIQUE,
         "title"         varchar(1000)   NOT NULL,
@@ -95,7 +95,7 @@ export class InitialSchema1731196800000 implements MigrationInterface {
 
     // ── folders ────────────────────────────────────────────────────────
     await queryRunner.query(`
-      CREATE TABLE "folders" (
+      CREATE TABLE IF NOT EXISTS "folders" (
         "id"          SERIAL        PRIMARY KEY,
         "uuid"        uuid          NOT NULL DEFAULT uuid_generate_v4() UNIQUE,
         "name"        varchar(255)  NOT NULL,
@@ -109,7 +109,7 @@ export class InitialSchema1731196800000 implements MigrationInterface {
 
     // ── folder_master_cards (many-to-many join table) ──────────────────
     await queryRunner.query(`
-      CREATE TABLE "folder_master_cards" (
+      CREATE TABLE IF NOT EXISTS "folder_master_cards" (
         "folder_id"       int NOT NULL,
         "master_card_id"  int NOT NULL,
         PRIMARY KEY ("folder_id", "master_card_id"),
@@ -122,7 +122,7 @@ export class InitialSchema1731196800000 implements MigrationInterface {
 
     // Index on the inverse side for efficient lookups by master_card_id
     await queryRunner.query(`
-      CREATE INDEX "idx_folder_master_cards_master_card_id"
+      CREATE INDEX IF NOT EXISTS "idx_folder_master_cards_master_card_id"
         ON "folder_master_cards" ("master_card_id")
     `);
   }
