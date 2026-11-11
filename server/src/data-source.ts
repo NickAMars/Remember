@@ -10,9 +10,9 @@ export const AppDataSource = new DataSource({
   url: config.databaseUrl,
   entities,
   namingStrategy: new SnakeNamingStrategy(),
-  synchronize: config.dbSync,
+  synchronize: false,
   migrations: [join(__dirname, 'migrations', '*{.ts,.js}')],
-  migrationsRun: config.production,
+  migrationsRun: true,
   logging: ['error', 'warn', 'migration'],
   extra: {
     max: 10,

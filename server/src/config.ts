@@ -14,7 +14,8 @@ export const config = {
   databaseUrl: env('DATABASE_URL', 'postgres://remember:password@localhost:5556/remember'),
   jwtSecret: env('JWT_SECRET', process.env.NODE_ENV === 'production' ? undefined : 'dev-only-secret'),
   jwtTtl: env('JWT_TTL', '30d'),
-  dbSync: env('DB_SYNC', 'false') === 'true',
+  /** @deprecated Schema sync removed — use migrations instead. */
+  dbSync: false,
   clientOrigin: env('CLIENT_ORIGIN', 'http://localhost:3000'),
   hashKey: env('HASH_KEY', 'dev-hash-key'),
   googleClientId: env('GOOGLE_CLIENT_ID', ''),

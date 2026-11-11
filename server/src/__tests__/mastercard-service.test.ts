@@ -37,6 +37,21 @@ jest.mock('typeorm', () => {
 
 import { MasterCardService } from '../services/MasterCardService';
 
+function makeQueryBuilder(result: any[] = [], count = 0) {
+  const qb: any = {
+    loadRelationCountAndMap: jest.fn().mockReturnThis(),
+    leftJoinAndSelect: jest.fn().mockReturnThis(),
+    where: jest.fn().mockReturnThis(),
+    andWhere: jest.fn().mockReturnThis(),
+    orderBy: jest.fn().mockReturnThis(),
+    skip: jest.fn().mockReturnThis(),
+    take: jest.fn().mockReturnThis(),
+    getMany: jest.fn().mockResolvedValue(result),
+    getCount: jest.fn().mockResolvedValue(count),
+  };
+  return qb;
+}
+
 function makeMockRepo() {
   return {
     findOneBy: jest.fn(),
@@ -46,6 +61,8 @@ function makeMockRepo() {
     save: jest.fn((entity: any) => Promise.resolve(entity)),
     remove: jest.fn(),
     delete: jest.fn(),
+    increment: jest.fn().mockResolvedValue(undefined),
+    createQueryBuilder: jest.fn(),
   };
 }
 
@@ -53,6 +70,7 @@ const mockMasterCards = makeMockRepo();
 const mockSubCards = makeMockRepo();
 const mockProgressRepo = makeMockRepo();
 const mockUsers = makeMockRepo();
+const mockPoolCards = makeMockRepo();
 
 function buildService(): MasterCardService {
   const svc = Object.create(MasterCardService.prototype);
@@ -60,6 +78,7 @@ function buildService(): MasterCardService {
   (svc as any).subCards = mockSubCards;
   (svc as any).progressRepo = mockProgressRepo;
   (svc as any).users = mockUsers;
+  (svc as any).poolCards = mockPoolCards;
   return svc;
 }
 
@@ -73,58 +92,90 @@ describe('MasterCardService', () => {
   const user = { id: 1, uuid: userUuid, name: 'alice' };
 
   describe('getOne', () => {
-    it('returns card with relations', async () => {
-      const card = { id: 1, uuid: 'mc-1', title: 'Test', subCards: [], progress: [] };
+    it('returns card with relations and increments views', async () => {
+      mockUsers.findOneBy.mockResolvedValue(user);
+      const card = { id: 1, uuid: 'mc-1', title: 'Test', views: 5, subCards: [], progress: [], userId: 1 };
       mockMasterCards.findOne.mockResolvedValue(card);
 
-      const result = await svc.getOne('mc-1');
+      const result = await svc.getOne('mc-1', userUuid);
 
+      expect(mockUsers.findOneBy).toHaveBeenCalledWith({ uuid: userUuid });
       expect(mockMasterCards.findOne).toHaveBeenCalledWith({
-        where: { uuid: 'mc-1' },
+        where: { uuid: 'mc-1', userId: user.id },
         relations: ['subCards', 'progress'],
       });
-      expect(result).toEqual(card);
+      expect(mockMasterCards.increment).toHaveBeenCalledWith({ uuid: 'mc-1' }, 'views', 1);
+      expect(result.views).toBe(6);
     });
 
     it('throws 404 for unknown uuid', async () => {
+      mockUsers.findOneBy.mockResolvedValue(user);
       mockMasterCards.findOne.mockResolvedValue(null);
 
-      await expect(svc.getOne('bad-uuid')).rejects.toThrow('Master card not found');
+      await expect(svc.getOne('bad-uuid', userUuid)).rejects.toThrow('Master card not found');
+    });
+
+    it('throws 404 for unknown user', async () => {
+      mockUsers.findOneBy.mockResolvedValue(null);
+
+      await expect(svc.getOne('mc-1', 'bad-user')).rejects.toThrow('User not found');
     });
   });
 
   describe('getAllForUser', () => {
-    it('returns all cards for user', async () => {
+    it('returns paginated cards with count', async () => {
       mockUsers.findOneBy.mockResolvedValue(user);
       const cards = [
         { id: 1, uuid: 'mc-1', title: 'Card 1' },
         { id: 2, uuid: 'mc-2', title: 'Card 2' },
       ];
-      mockMasterCards.find.mockResolvedValue(cards);
+      const qb = makeQueryBuilder(cards, 2);
+      mockMasterCards.createQueryBuilder.mockReturnValue(qb);
 
-      const result = await svc.getAllForUser(userUuid);
+      const result = await svc.getAllForUser(userUuid, 0, 10);
 
       expect(mockUsers.findOneBy).toHaveBeenCalledWith({ uuid: userUuid });
-      expect(mockMasterCards.find).toHaveBeenCalledWith({
-        where: { userId: user.id },
-        relations: ['subCards', 'progress'],
-        order: { createdAt: 'DESC' },
-      });
-      expect(result).toEqual(cards);
+      expect(qb.loadRelationCountAndMap).toHaveBeenCalledWith('mc.subCardCount', 'mc.subCards');
+      expect(qb.leftJoinAndSelect).toHaveBeenCalledWith('mc.progress', 'p');
+      expect(qb.where).toHaveBeenCalledWith('mc.userId = :userId', { userId: user.id });
+      expect(qb.skip).toHaveBeenCalledWith(0);
+      expect(qb.take).toHaveBeenCalledWith(10);
+      expect(result).toEqual({ items: cards, total: 2 });
+    });
+
+    it('applies search filter', async () => {
+      mockUsers.findOneBy.mockResolvedValue(user);
+      const qb = makeQueryBuilder([], 0);
+      mockMasterCards.createQueryBuilder.mockReturnValue(qb);
+
+      await svc.getAllForUser(userUuid, 0, 10, 'aws');
+
+      expect(qb.andWhere).toHaveBeenCalledWith(
+        'LOWER(mc.title) LIKE :search',
+        { search: '%aws%' },
+      );
+    });
+
+    it('throws 404 for unknown user', async () => {
+      mockUsers.findOneBy.mockResolvedValue(null);
+
+      await expect(svc.getAllForUser('bad-user')).rejects.toThrow('User not found');
     });
   });
 
   describe('create', () => {
-    it('creates mastercard with subcards', async () => {
+    it('creates mastercard with subcards and returns updated list', async () => {
       mockUsers.findOneBy.mockResolvedValue(user);
+      mockMasterCards.findOneBy.mockResolvedValue(null); // no duplicate title
       mockMasterCards.create.mockReturnValue({ id: 10, uuid: 'mc-new', title: 'New', userId: 1 });
       mockMasterCards.save.mockResolvedValue({ id: 10, uuid: 'mc-new', title: 'New', userId: 1 });
       mockSubCards.create.mockImplementation((data: any) => data);
       mockSubCards.save.mockResolvedValue([]);
       // getAllForUser is called at the end
-      mockMasterCards.find.mockResolvedValue([{ id: 10, uuid: 'mc-new', title: 'New' }]);
+      const qb = makeQueryBuilder([{ id: 10, uuid: 'mc-new', title: 'New' }], 1);
+      mockMasterCards.createQueryBuilder.mockReturnValue(qb);
 
-      const subCards = [{ title: 'Sub1', description: 'Desc1' }];
+      const subCards = [{ title: 'Sub1', description: 'Desc1', link: 'https://example.com' }];
       const result = await svc.create(userUuid, 'New', subCards);
 
       expect(mockMasterCards.create).toHaveBeenCalledWith({ title: 'New', userId: 1 });
@@ -132,17 +183,38 @@ describe('MasterCardService', () => {
       expect(mockSubCards.create).toHaveBeenCalledWith({
         title: 'Sub1',
         descriptions: 'Desc1',
+        link: 'https://example.com',
         masterCardId: 10,
       });
-      expect(result).toHaveLength(1);
+      expect(result.items).toHaveLength(1);
+    });
+
+    it('rejects duplicate deck title', async () => {
+      mockUsers.findOneBy.mockResolvedValue(user);
+      mockMasterCards.findOneBy.mockResolvedValue({ id: 1, title: 'Existing' });
+
+      await expect(svc.create(userUuid, 'Existing', [])).rejects.toThrow('You already have a deck with this title');
+    });
+
+    it('rejects duplicate questions within cards', async () => {
+      mockUsers.findOneBy.mockResolvedValue(user);
+      mockMasterCards.findOneBy.mockResolvedValue(null);
+
+      const dupeCards = [
+        { title: 'Same Q', description: 'A1' },
+        { title: 'Same Q', description: 'A2' },
+      ];
+      await expect(svc.create(userUuid, 'Deck', dupeCards)).rejects.toThrow('Duplicate questions');
     });
   });
 
   describe('update', () => {
     it('updates title', async () => {
       mockUsers.findOneBy.mockResolvedValue(user);
-      const card = { id: 1, uuid: 'mc-1', title: 'Old', userId: 1 };
-      mockMasterCards.findOneBy.mockResolvedValue(card);
+      const card = { id: 1, uuid: 'mc-1', title: 'Old', userId: 1, isDefault: false };
+      mockMasterCards.findOneBy
+        .mockResolvedValueOnce(card)    // find card
+        .mockResolvedValueOnce(null);   // no duplicate title
       mockMasterCards.save.mockResolvedValue({ ...card, title: 'Updated' });
 
       const result = await svc.update('mc-1', userUuid, 'Updated');
@@ -150,17 +222,47 @@ describe('MasterCardService', () => {
       expect(card.title).toBe('Updated');
       expect(mockMasterCards.save).toHaveBeenCalledWith(card);
     });
+
+    it('rejects editing default card', async () => {
+      mockUsers.findOneBy.mockResolvedValue(user);
+      mockMasterCards.findOneBy.mockResolvedValue({ id: 1, uuid: 'mc-1', title: 'Default', userId: 1, isDefault: true });
+
+      await expect(svc.update('mc-1', userUuid, 'New Title')).rejects.toThrow('Cannot edit the default tutorial card');
+    });
   });
 
   describe('delete', () => {
-    it('removes card', async () => {
+    it('removes card and associated pool card', async () => {
       mockUsers.findOneBy.mockResolvedValue(user);
-      const card = { id: 1, uuid: 'mc-1', title: 'ToDelete', userId: 1 };
+      const card = { id: 1, uuid: 'mc-1', title: 'ToDelete', userId: 1, isDefault: false };
       mockMasterCards.findOneBy.mockResolvedValue(card);
+      const poolCard = { id: 5, title: 'ToDelete', author: userUuid };
+      mockPoolCards.findOneBy.mockResolvedValue(poolCard);
 
       await svc.delete('mc-1', userUuid);
 
+      expect(mockPoolCards.findOneBy).toHaveBeenCalledWith({ author: userUuid, title: 'ToDelete' });
+      expect(mockPoolCards.remove).toHaveBeenCalledWith(poolCard);
       expect(mockMasterCards.remove).toHaveBeenCalledWith(card);
+    });
+
+    it('removes card when no pool card exists', async () => {
+      mockUsers.findOneBy.mockResolvedValue(user);
+      const card = { id: 1, uuid: 'mc-1', title: 'Private', userId: 1, isDefault: false };
+      mockMasterCards.findOneBy.mockResolvedValue(card);
+      mockPoolCards.findOneBy.mockResolvedValue(null);
+
+      await svc.delete('mc-1', userUuid);
+
+      expect(mockPoolCards.remove).not.toHaveBeenCalled();
+      expect(mockMasterCards.remove).toHaveBeenCalledWith(card);
+    });
+
+    it('rejects deleting default card', async () => {
+      mockUsers.findOneBy.mockResolvedValue(user);
+      mockMasterCards.findOneBy.mockResolvedValue({ id: 1, isDefault: true, userId: 1 });
+
+      await expect(svc.delete('mc-1', userUuid)).rejects.toThrow('Cannot delete the default tutorial card');
     });
   });
 
@@ -176,7 +278,8 @@ describe('MasterCardService', () => {
       mockProgressRepo.save.mockResolvedValue([]);
       mockMasterCards.save.mockResolvedValue({});
       // getAllForUser call
-      mockMasterCards.find.mockResolvedValue([]);
+      const qb = makeQueryBuilder([], 0);
+      mockMasterCards.createQueryBuilder.mockReturnValue(qb);
 
       await svc.recordTime('mc-1', userUuid, 30);
 
@@ -196,7 +299,8 @@ describe('MasterCardService', () => {
         .mockResolvedValueOnce({ ...card, progress: [{ ...lastEntry, time: 25 }] });
       mockProgressRepo.save.mockResolvedValue(lastEntry);
       mockMasterCards.save.mockResolvedValue({});
-      mockMasterCards.find.mockResolvedValue([]);
+      const qb = makeQueryBuilder([], 0);
+      mockMasterCards.createQueryBuilder.mockReturnValue(qb);
 
       await svc.recordTime('mc-1', userUuid, 15);
 
@@ -228,6 +332,13 @@ describe('MasterCardService', () => {
       expect(result[0]).toHaveProperty('maxTime');
       expect(result[0]).toHaveProperty('referenceID');
       expect(result[0]).toHaveProperty('title');
+    });
+
+    it('returns empty for unknown user', async () => {
+      mockUsers.findOneBy.mockResolvedValue(null);
+
+      const result = await svc.getTopFive('unknown');
+      expect(result).toEqual([]);
     });
   });
 });
