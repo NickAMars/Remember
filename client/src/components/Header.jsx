@@ -37,13 +37,19 @@ class Header extends Component{
   }
 
   onLogout = () => {
+    document.body.classList.remove('nav-open');
     clearToken();
     this.props.dispatch({ type: LOGOUT });
     this.props.history.push('/');
   }
 
+  componentWillUnmount() {
+    document.body.classList.remove('nav-open');
+  }
+
   onDeactivate = async () => {
     try {
+      document.body.classList.remove('nav-open');
       await axios.delete('/api/profile/deactivate');
       clearToken();
       this.props.dispatch({ type: LOGOUT });
@@ -142,10 +148,10 @@ class Header extends Component{
               {settingsOpen && (
                 <ul className="navbar__system-menu">
                   <li>
-                    <button className="navbar__system-item" onClick={() => this.openConfirm('logout')}>Logout</button>
+                    <button className="navbar__system-item navbar__system-item--danger" onClick={() => this.openConfirm('deactivate')}>Deactivate Account</button>
                   </li>
                   <li>
-                    <button className="navbar__system-item navbar__system-item--danger" onClick={() => this.openConfirm('deactivate')}>Deactivate Account</button>
+                    <button className="navbar__system-item" onClick={() => this.openConfirm('logout')}>Logout</button>
                   </li>
                 </ul>
               )}
