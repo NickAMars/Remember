@@ -48,6 +48,10 @@ class SmallCards extends PureComponent{
   }
 
   fetchCards = () => {
+    if (!this.state.isOwner) {
+      this.props.getPoolSubCard(this.deckUuid);
+      return;
+    }
     const { page, pageSize, searchQuery, shuffled } = this.state;
     this.props.getSmallCards(this.deckUuid, { page, pageSize, search: searchQuery || undefined, shuffle: shuffled });
   }
@@ -396,12 +400,12 @@ static getDerivedStateFromProps(nextProps, prevState){
 
         <div className="subcards-controls">
           <CardSizeControl/>
-          <button className="flip-all-btn" onClick={this.shuffleCards} title={this.state.shuffled ? 'Unshuffle cards' : 'Shuffle cards'}>
+          {isOwner && <button className="flip-all-btn" onClick={this.shuffleCards} title={this.state.shuffled ? 'Unshuffle cards' : 'Shuffle cards'}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/><line x1="4" y1="4" x2="9" y2="9"/>
             </svg>
             <span>{this.state.shuffled ? 'Unshuffle' : 'Shuffle'}</span>
-          </button>
+          </button>}
           <button className="flip-all-btn" onClick={() => this.setState(prev => ({ resetFlip: prev.resetFlip + 1 }))} title="Flip all cards back">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 014-4h14"/><path d="M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 01-4 4H3"/>
