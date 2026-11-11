@@ -2,7 +2,7 @@ import { Router } from 'express';
 import multer from 'multer';
 import { inject, injectable } from 'inversify';
 import { z } from 'zod';
-import * as XLSX from 'xlsx';
+import ExcelJS from 'exceljs';
 import { requireAuth, userUuid } from '../middleware/auth';
 import { handle, parse, uuidParam } from '../middleware/http';
 import { HttpError } from '../services/errors';
@@ -67,22 +67,29 @@ export class SubCardController implements Controller {
       if (!ext || !['xlsx', 'xls', 'csv'].includes(ext)) {
         throw new HttpError(400, 'File must be .xlsx, .xls, or .csv');
       }
-      const workbook = XLSX.read(req.file.buffer, { type: 'buffer' });
-      const sheet = workbook.Sheets[workbook.SheetNames[0]];
-      const rows: string[][] = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '' });
+      const workbook = new ExcelJS.Workbook();
+      if (ext === 'csv') {
+        await workbook.csv.read(req.file.buffer);
+      } else {
+        await workbook.xlsx.load(req.file.buffer);
+      }
+      const sheet = workbook.worksheets[0];
+      if (!sheet) throw new HttpError(400, 'No worksheet found in file');
 
       const cards: { title: string; descriptions: string; link: string }[] = [];
-      const firstCell = rows.length > 0 ? String(rows[0][0]).toLowerCase().trim() : '';
-      const startRow = ['title', 'question'].includes(firstCell) ? 1 : 0;
-      for (let i = startRow; i < rows.length; i++) {
-        let title = String(rows[i][0] || '').trim();
-        let descriptions = String(rows[i][1] || '').trim();
-        let link = String(rows[i][2] || '').trim();
+      const firstRow = sheet.getRow(1);
+      const firstCell = String(firstRow.getCell(1).value || '').toLowerCase().trim();
+      const startRow = ['title', 'question'].includes(firstCell) ? 2 : 1;
+      sheet.eachRow((row, rowNumber) => {
+        if (rowNumber < startRow) return;
+        let title = String(row.getCell(1).value || '').trim();
+        let descriptions = String(row.getCell(2).value || '').trim();
+        let link = String(row.getCell(3).value || '').trim();
         if (title.length > 1000) title = title.slice(0, 1000);
         if (descriptions.length > 5000) descriptions = descriptions.slice(0, 5000);
         if (link.length > 2000) link = link.slice(0, 2000);
         if (title) cards.push({ title, descriptions, link });
-      }
+      });
       if (cards.length === 0) throw new HttpError(400, 'No valid cards found');
 
       const result = await this.service.addBulk(uuidParam(req), userUuid(req), cards);

@@ -24,6 +24,7 @@
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.6",
     "dotenv": "^16.6.1",
+    "exceljs": "^4.4.0",
     "express": "^4.22.3",
     "express-rate-limit": "^7.5.1",
     "helmet": "^8.3.0",
@@ -34,8 +35,13 @@
     "reflect-metadata": "^0.2.2",
     "typeorm": "^0.3.31",
     "typeorm-naming-strategies": "^4.1.0",
-    "xlsx": "^0.18.5",
-    "zod": "^3.25.76"
+    "zod": "^4.6.7"
+  },
+  "overrides": {
+    "glob": "^11.0.2",
+    "minimatch": "^11.0.1",
+    "deepmerge": "^4.3.1",
+    "uuid": "^11.1.1"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
@@ -47,7 +53,7 @@
     "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^22.20.5",
     "jest": "^30.5.2",
-    "ts-jest": "^29.4.14",
+    "ts-jest": "^29.4.15",
     "tsx": "^4.23.15",
     "typescript": "^5.9.3"
   }

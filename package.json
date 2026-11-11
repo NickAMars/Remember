@@ -13,6 +13,6 @@
     "build": "npm --prefix server run build && npm run build --prefix client"
   },
   "dependencies": {
-    "concurrently": "^4.1.0"
+    "concurrently": "^10.0.7"
   }
 }

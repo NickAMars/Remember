@@ -2,7 +2,7 @@ import { Router } from 'express';
 import multer from 'multer';
 import { inject, injectable } from 'inversify';
 import { z } from 'zod';
-import * as XLSX from 'xlsx';
+import ExcelJS from 'exceljs';
 import { requireAuth, userUuid } from '../middleware/auth';
 import { handle, parse, uuidParam } from '../middleware/http';
 import { HttpError } from '../services/errors';
@@ -41,37 +41,37 @@ export class MasterCardController implements Controller {
         throw new HttpError(400, 'File must be .xlsx, .xls, or .csv');
       }
 
-      let workbook: XLSX.WorkBook;
+      const workbook = new ExcelJS.Workbook();
       try {
-        workbook = XLSX.read(req.file.buffer, { type: 'buffer' });
+        if (ext === 'csv') {
+          await workbook.csv.read(req.file.buffer);
+        } else {
+          await workbook.xlsx.load(req.file.buffer);
+        }
       } catch {
         throw new HttpError(400, 'Could not read file. Make sure it is a valid Excel or CSV file.');
       }
       const results: { title: string; cardCount: number }[] = [];
 
-      for (const sheetName of workbook.SheetNames) {
-        const sheet = workbook.Sheets[sheetName];
-        const rows: unknown[][] = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '' });
-
-        if (rows.length < 2) continue;
+      for (const sheet of workbook.worksheets) {
+        if (sheet.rowCount < 2) continue;
 
         const cards: { title: string; description: string; link: string }[] = [];
-        for (let i = 1; i < rows.length; i++) {
-          const row = rows[i];
-          if (!row || !Array.isArray(row)) continue;
-          let title = String(row[0] ?? '').trim();
-          let description = String(row[1] ?? '').trim();
-          let link = String(row[2] ?? '').trim();
+        sheet.eachRow((row, rowNumber) => {
+          if (rowNumber === 1) return; // skip header
+          let title = String(row.getCell(1).value ?? '').trim();
+          let description = String(row.getCell(2).value ?? '').trim();
+          let link = String(row.getCell(3).value ?? '').trim();
           if (title.length > 1000) title = title.slice(0, 1000);
           if (description.length > 5000) description = description.slice(0, 5000);
           if (link.length > 2000) link = link.slice(0, 2000);
           if (title) cards.push({ title, description, link });
-        }
+        });
 
         if (cards.length === 0) continue;
 
-        await this.service.create(userUuid(req), sheetName, cards);
-        results.push({ title: sheetName, cardCount: cards.length });
+        await this.service.create(userUuid(req), sheet.name, cards);
+        results.push({ title: sheet.name, cardCount: cards.length });
       }
 
       if (results.length === 0) {

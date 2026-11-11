@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { getMyCards, fetchUser } from '../../../actions';
 import axios from '../../../utils/api';
 import { showToast } from '../../../utils/toast';
-import * as XLSX from 'xlsx';
+import readXlsxFile from 'read-excel-file/browser';
 
 class CreateMaster extends Component{
   constructor(props){
@@ -28,15 +28,9 @@ class CreateMaster extends Component{
       return;
     }
 
-    const reader = new FileReader();
-    reader.onload = (e) => {
+    readXlsxFile(file).then((rows) => {
       try {
-        const data = new Uint8Array(e.target.result);
-        const workbook = XLSX.read(data, { type: 'array' });
-        const sheet = workbook.Sheets[workbook.SheetNames[0]];
-        const rows = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '' });
-
-        const firstCell = rows.length > 0 ? String(rows[0][0]).toLowerCase() : '';
+        const firstCell = rows.length > 0 ? String(rows[0][0] || '').toLowerCase() : '';
         const startRow = (firstCell === 'title' || firstCell === 'question') ? 1 : 0;
 
         const cards = [];
@@ -64,8 +58,10 @@ class CreateMaster extends Component{
         showToast('Could not read file');
         this.fileInput.current.value = '';
       }
-    };
-    reader.readAsArrayBuffer(file);
+    }).catch(() => {
+      showToast('Could not read file');
+      this.fileInput.current.value = '';
+    });
   }
 
   clearFile = () => {
