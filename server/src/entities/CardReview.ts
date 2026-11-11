@@ -1,7 +1,8 @@
-import { Column, CreateDateColumn, Entity, Generated, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import { Column, CreateDateColumn, Entity, Generated, Index, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 import type { User } from './User';
 import type { SubCard } from './SubCard';
 
+/** Spaced-repetition (SM-2) state for one user and one card. */
 @Entity('card_reviews')
 export class CardReview {
   @PrimaryGeneratedColumn({ type: 'int' })
@@ -35,6 +36,7 @@ export class CardReview {
   @ManyToOne('SubCard', { onDelete: 'CASCADE' })
   subCard: SubCard;
 
+  @Index('idx_card_reviews_sub_card_id')
   @Column({ type: 'int' })
   subCardId: number;
 

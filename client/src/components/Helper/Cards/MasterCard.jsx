@@ -2,7 +2,7 @@ import React,{Component} from 'react';
 import { Link } from 'react-router-dom';
 import { connect } from 'react-redux';
 import {UpdateButton, RemoveButton } from '../Buttons'
-import { deleteMaster,deletePoolCard, getSmallCards, addPoolCard, getPoolSubCard, storePoolToMaster} from '../../../actions';
+import { deleteMaster, deletePoolCard, addPoolCard, storePoolToMaster } from '../../../actions';
 import { showToast } from '../../../utils/toast';
 
 
@@ -23,19 +23,12 @@ class MasterCard extends Component{
       return pathname === '/browse' && user && user.uuid === masterinfo.author;
     }
 
-    getOwnMasterUuid = () => {
-      const { masterinfo, masterCards } = this.props;
-      if (!masterCards) return null;
-      const match = masterCards.find(mc => mc.title === masterinfo.title);
-      return match ? match.uuid : null;
-    }
-
     showShareBtn = () => {
       const { user, poolcards, masterinfo } = this.props;
       if (!user || !poolcards) return true;
-      const userPoolCount = poolcards.filter(p => p.author === user.uuid).length;
+      const userPoolCount = poolcards.filter(publicDeck => publicDeck.author === user.uuid).length;
       if (userPoolCount >= 5) {
-        return poolcards.some(p => p.author === user.uuid && p.title === masterinfo.title);
+        return poolcards.some(publicDeck => publicDeck.author === user.uuid && publicDeck.title === masterinfo.title);
       }
       return true;
     }
@@ -43,19 +36,19 @@ class MasterCard extends Component{
     isPublic = () => {
       const { user, poolcards, masterinfo } = this.props;
       if (!user || !poolcards) return false;
-      return poolcards.some(p => p.author === user.uuid && p.title === masterinfo.title);
+      return poolcards.some(publicDeck => publicDeck.author === user.uuid && publicDeck.title === masterinfo.title);
     }
 
-    toggleShare = (e) => {
-      e.preventDefault();
-      e.stopPropagation();
+    toggleShare = (event) => {
+      event.preventDefault();
+      event.stopPropagation();
       const { user, poolcards, masterinfo } = this.props;
       if (!user) return;
-      const poolCard = poolcards.find(p => p.author === user.uuid && p.title === masterinfo.title);
+      const poolCard = poolcards.find(publicDeck => publicDeck.author === user.uuid && publicDeck.title === masterinfo.title);
       if (poolCard) {
         this.props.deletePoolCard(poolCard.uuid);
       } else {
-        const userPoolCount = poolcards.filter(p => p.author === user.uuid).length;
+        const userPoolCount = poolcards.filter(publicDeck => publicDeck.author === user.uuid).length;
         if (userPoolCount === 4) {
           showToast('This is your final publicly shared card (5 of 5)');
         }
@@ -68,8 +61,6 @@ class MasterCard extends Component{
       const createdAt = rawDate ? new Date(rawDate).toLocaleString('en-US', { timeZone: 'America/New_York', month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit', timeZoneName: 'short' }) : '';
       const {pathname, editingUuid} = this.props;
       const isOwn = this.isOwnPoolCard();
-      const ownUuid = isOwn ? this.getOwnMasterUuid() : null;
-      const linkUuid = ownUuid || uuid;
       const isBrowse = pathname === '/browse';
       const isPoolView = isBrowse && !isOwn;
       const shared = this.isPublic();
@@ -90,9 +81,11 @@ class MasterCard extends Component{
                 </button>
               )}
               <Link  to={editingUuid ? '#' : `/smallcards/${uuid}`} state={editingUuid ? undefined : { prevent: isBrowse }} className="master__links"
-               onClick={(e)=> { if(editingUuid){ e.preventDefault(); return; } isBrowse ? this.props.getPoolSubCard(uuid) : this.props.getSmallCards(linkUuid); }}>
+               onClick={(event)=> { if(editingUuid) event.preventDefault(); }}>
+                {/* perf Increase: the deck page loads its own first page of cards. This click used to
+                    also fetch every card in the deck, which was then thrown away. */}
 
-                <span className="master__count">{this.props.masterinfo.subCardCount ?? (this.props.masterinfo.subCards ? this.props.masterinfo.subCards.length : 0)} cards</span>
+                <span className="master__count">{this.props.masterinfo.subCardCount ?? 0} cards</span>
                 <span className="master__title">{title}</span>
                 <span className="master__date">{createdAt}</span>
               </Link>
@@ -134,4 +127,4 @@ const mapStateToProps = (state) => {
     };
   }
 
-  export default connect(mapStateToProps,{deleteMaster,deletePoolCard, getSmallCards, addPoolCard, getPoolSubCard, storePoolToMaster} )(MasterCard);
+  export default connect(mapStateToProps, { deleteMaster, deletePoolCard, addPoolCard, storePoolToMaster })(MasterCard);

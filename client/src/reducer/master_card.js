@@ -1,35 +1,35 @@
-import {
-  MYCARDS,
- DELETE_MASTER,
- UPDATE_TIME,
- UPDATE_MASTER}  from '../actions/types';
+import { MYCARDS, DELETE_MASTER, UPDATE_TIME, UPDATE_MASTER, ADD_MASTER } from '../actions/types';
 
+/** The user's decks for the current page, plus the total across all pages. */
 const initialState = { items: [], total: 0 };
 
-function normalize(data) {
-  if (data && data.items) return { items: data.items, total: data.total || data.items.length };
-  if (Array.isArray(data)) return { items: data, total: data.length };
-  return initialState;
-}
-
-export default function (state = initialState, action) {
-  switch(action.type){
+export default function masterCardReducer(state = initialState, action) {
+  switch (action.type) {
     case MYCARDS: {
-      const items = action.payload;
-      const total = action.total !== undefined ? action.total : (Array.isArray(items) ? items.length : 0);
-      return { items: Array.isArray(items) ? items : [], total };
+      const decks = Array.isArray(action.payload) ? action.payload : [];
+      return { items: decks, total: action.total !== undefined ? action.total : decks.length };
+    }
+    case ADD_MASTER: {
+      if (!action.payload || !action.payload.uuid) return state;
+      const others = state.items.filter(deck => deck.uuid !== action.payload.uuid);
+      return { items: [action.payload, ...others], total: state.total + 1 };
     }
     case UPDATE_MASTER: {
       const updated = action.payload;
-      const newItems = [updated, ...state.items.filter(card => card.uuid !== updated.uuid)];
-      return { items: newItems, total: state.total };
+      const items = state.items.map(deck => (deck.uuid === updated.uuid ? { ...deck, ...updated } : deck));
+      return { items, total: state.total };
     }
-    case DELETE_MASTER: {
-      const newItems = state.items.filter(card => card.uuid !== action.payload);
-      return { items: newItems, total: Math.max(0, state.total - 1) };
+    case DELETE_MASTER:
+      return {
+        items: state.items.filter(deck => deck.uuid !== action.payload),
+        total: Math.max(0, state.total - 1),
+      };
+    case UPDATE_TIME: {
+      // Bug fix: saving study time used to wipe the deck list. Now only that deck's total changes.
+      const { uuid, timespent } = action.payload || {};
+      if (!uuid) return state;
+      return { ...state, items: state.items.map(deck => (deck.uuid === uuid ? { ...deck, timespent } : deck)) };
     }
-    case UPDATE_TIME:
-      return normalize(action.payload);
     default:
       return state;
   }

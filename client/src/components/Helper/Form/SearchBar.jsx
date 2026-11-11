@@ -6,8 +6,8 @@ export class SearchBar extends Component{
     this.state = { value: '' };
   }
 
-  onChange = (e) => {
-    const value = e.target.value;
+  onChange = (event) => {
+    const value = event.target.value;
     this.setState({ value });
     if (this.props.onSearch) {
       this.props.onSearch(value);

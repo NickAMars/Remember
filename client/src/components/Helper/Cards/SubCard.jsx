@@ -1,7 +1,6 @@
 import React, {Component} from  'react';
-import { connect } from 'react-redux';
-import { getSmallCards } from '../../../actions';
-import axios from '../../../utils/api';
+import axios, { errorMessage } from '../../../utils/api';
+import { safeHref } from '../../../utils/safeLink';
 import {UpdateButton, RemoveButton} from '../Buttons';
 import { showToast } from '../../../utils/toast';
 
@@ -47,18 +46,19 @@ class SubCard extends Component {
   }
 
   onUpdate = async () => {
-    const { uuid, masterCardUuid } = this.props;
+    const { uuid } = this.props;
     const { editTitle, editDescriptions, editLink } = this.state;
     try {
       await axios.put(`/api/profile/MasterCard/subcards/${uuid}`, { title: editTitle, descriptions: editDescriptions, link: editLink });
-    } catch (err) {
-      const msg = err.response ? err.response.data.error : 'Update failed';
-      this.setState({ updateError: msg });
-      showToast(msg);
+    } catch (error) {
+      const message = errorMessage(error, 'Update failed');
+      this.setState({ updateError: message });
+      showToast(message);
       return;
     }
     this.setState({ showUpdateModal: false, flipped: false });
-    this.props.getSmallCards(masterCardUuid);
+    // Bug fix: this reloaded every card in the deck and lost the page you were on.
+    if (this.props.onChanged) this.props.onChanged();
     showToast(`"${editTitle}" updated successfully`);
   }
 
@@ -71,13 +71,14 @@ class SubCard extends Component {
   }
 
   onDelete = async () => {
-    const { uuid, masterCardUuid } = this.props;
+    const { uuid } = this.props;
     try {
       await axios.delete(`/api/profile/MasterCard/subcards/${uuid}`);
-      this.props.getSmallCards(masterCardUuid);
+      this.setState({ showDeleteConfirm: false });
+      if (this.props.onChanged) this.props.onChanged();
       showToast(`"${this.props.title}" deleted successfully`);
-    } catch (err) {
-      showToast(err.response ? err.response.data.error : `Failed to delete "${this.props.title}"`);
+    } catch (error) {
+      showToast(errorMessage(error, `Failed to delete "${this.props.title}"`));
     }
   }
 
@@ -92,6 +93,7 @@ class SubCard extends Component {
 
   render() {
     const { flipped, showUpdateModal, showDeleteConfirm, editTitle, editDescriptions } = this.state;
+    const referenceLink = safeHref(this.props.link);
 
     return (
       <div className="container-card">
@@ -107,8 +109,8 @@ class SubCard extends Component {
             <div className="card__description">
               {this.props.descriptions}
             </div>
-            {this.props.link && (
-              <a className="card__link" href={this.props.link} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}>
+            {referenceLink && (
+              <a className="card__link" href={referenceLink} target="_blank" rel="noopener noreferrer" onClick={(event) => event.stopPropagation()}>
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
                 </svg>
@@ -122,7 +124,7 @@ class SubCard extends Component {
         </div>
 
         {showDeleteConfirm && <div className="dialog-overlay" onClick={this.closeDeleteConfirm}>
-          <div className="dialog dialog--sm" onClick={(e) => e.stopPropagation()}>
+          <div className="dialog dialog--sm" onClick={(event) => event.stopPropagation()}>
             <div className="dialog__header">
               <h3 className="dialog__title">Delete Card</h3>
               <button className="dialog__close" onClick={this.closeDeleteConfirm}>&times;</button>
@@ -138,7 +140,7 @@ class SubCard extends Component {
         </div>}
 
         {showUpdateModal && <div className="dialog-overlay" onClick={this.closeUpdateModal}>
-          <div className="dialog" onClick={(e) => e.stopPropagation()}>
+          <div className="dialog" onClick={(event) => event.stopPropagation()}>
             <div className="dialog__header">
               <h3 className="dialog__title">Update Card</h3>
               <button className="dialog__close" onClick={this.closeUpdateModal}>&times;</button>
@@ -151,14 +153,14 @@ class SubCard extends Component {
                   placeholder="Question"
                   maxLength="1000"
                   value={editTitle}
-                  onChange={(e) => this.setState({ editTitle: e.target.value })}
+                  onChange={(event) => this.setState({ editTitle: event.target.value })}
                 />
                 <textarea
                   className="dialog__textarea"
                   placeholder="Answer"
                   maxLength="5000"
                   value={editDescriptions}
-                  onChange={(e) => this.setState({ editDescriptions: e.target.value })}
+                  onChange={(event) => this.setState({ editDescriptions: event.target.value })}
                 />
                 <input
                   className="dialog__input"
@@ -166,7 +168,7 @@ class SubCard extends Component {
                   placeholder="Reference link (optional)"
                   maxLength="2000"
                   value={this.state.editLink}
-                  onChange={(e) => this.setState({ editLink: e.target.value })}
+                  onChange={(event) => this.setState({ editLink: event.target.value })}
                 />
                 {this.state.updateError && <p style={{color:'#c0392b',fontSize:'1rem'}}>{this.state.updateError}</p>}
                 <button className="dialog__submit" onClick={this.onUpdate}>Save</button>
@@ -179,4 +181,4 @@ class SubCard extends Component {
   }
 }
 
-export default connect(null, { getSmallCards })(SubCard);
+export default SubCard;

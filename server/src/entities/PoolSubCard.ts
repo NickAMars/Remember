@@ -1,4 +1,4 @@
-import { Column, Entity, Generated, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, Generated, Index, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import type { PoolCard } from './PoolCard';
 
 @Entity('pool_sub_cards')
@@ -22,6 +22,7 @@ export class PoolSubCard {
   @ManyToOne('PoolCard', 'subCards', { onDelete: 'CASCADE' })
   poolCard: PoolCard;
 
+  @Index('idx_pool_sub_cards_pool_card_id')
   @Column({ type: 'int' })
   poolCardId: number;
 }

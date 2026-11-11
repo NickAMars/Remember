@@ -3,7 +3,6 @@ import mastercards from './mastercards';
 import poolcards from './poolcards';
 import user from './user';
 
-// going to clean this up soon
 
 
 export const fetchUser = user.fetchUser;
@@ -30,6 +29,7 @@ export const updateForm = smallcards.updateForm;
 // server side
 // export const submitCard = smallcards.submitCard;
 export const getSmallCards = smallcards.getSmallCards;
+export const clearSubCards = smallcards.clearSubCards;
 
 
 export const getPoolCards = poolcards.getPoolCards;

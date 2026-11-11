@@ -1,7 +1,9 @@
-import { Column, CreateDateColumn, Entity, Generated, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, CreateDateColumn, Entity, Generated, Index, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import type { MasterCard } from './MasterCard';
 
+/** One question/answer card inside a deck. `title` is the question, `descriptions` the answer. */
 @Entity('sub_cards')
+@Index('idx_sub_cards_master_card_id_created_at', ['masterCardId', 'createdAt'])
 export class SubCard {
   @PrimaryGeneratedColumn({ type: 'int' })
   id: number;

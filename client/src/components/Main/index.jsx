@@ -56,7 +56,7 @@ class MasterCard extends Component{
   render(){
     const { allCards, visibleCount, search } = this.state;
     const filtered = search
-      ? allCards.filter(c => c.title.toLowerCase().includes(search.toLowerCase()))
+      ? allCards.filter(card => card.title.toLowerCase().includes(search.toLowerCase()))
       : allCards;
     const visible = filtered.slice(0, visibleCount);
     const chartData = allCards.slice(0, 5);
@@ -80,7 +80,7 @@ class MasterCard extends Component{
                 type="text"
                 placeholder="Search master cards..."
                 value={search}
-                onChange={(e) => this.setState({ search: e.target.value, visibleCount: 5 })}
+                onChange={(event) => this.setState({ search: event.target.value, visibleCount: 5 })}
                 maxLength="128"
               />
               <div className={`list-scroll ${visibleCount > 5 ? 'list-scroll--expanded' : ''}`}>

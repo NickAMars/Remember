@@ -8,6 +8,8 @@ import { SubCardService } from '../services/SubCardService';
 import { TYPES } from '../types';
 import type { Controller } from '../interfaces/controller';
 
+const TOP_CARDS_ON_PROFILE = 10;
+
 @injectable()
 export class ProfileController implements Controller {
   basePath = '/api/profile';
@@ -22,12 +24,15 @@ export class ProfileController implements Controller {
     const router = Router();
     router.use(requireAuth(this.auth));
 
-    router.get('/', handle(async (req) => {
-      const uuid = userUuid(req);
+    router.get('/', handle(async (request) => {
+      const uuid = userUuid(request);
       const user = await this.auth.getUserByUuid(uuid);
       if (!user) return null;
-      const allCardsByViews = await this.masterCardService.getAllByViews(uuid);
-      const topSubCards = await this.subCardService.getTopSubCards(uuid, 10);
+      // perf Increase: the two lists don't depend on each other, so load them at the same time.
+      const [allCardsByViews, topSubCards] = await Promise.all([
+        this.masterCardService.getAllByViews(uuid),
+        this.subCardService.getTopSubCards(uuid, TOP_CARDS_ON_PROFILE),
+      ]);
       return {
         uuid: user.uuid,
         name: user.name,
@@ -38,8 +43,8 @@ export class ProfileController implements Controller {
       };
     }));
 
-    router.delete('/deactivate', handle(async (req) => {
-      const uuid = userUuid(req);
+    router.delete('/deactivate', handle(async (request) => {
+      const uuid = userUuid(request);
       await this.auth.deactivateAccount(uuid);
       return { ok: true };
     }));

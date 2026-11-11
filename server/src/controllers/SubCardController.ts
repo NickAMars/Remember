@@ -1,17 +1,26 @@
 import { Router } from 'express';
-import multer from 'multer';
 import { inject, injectable } from 'inversify';
 import { z } from 'zod';
-import ExcelJS from 'exceljs';
 import { requireAuth, userUuid } from '../middleware/auth';
 import { handle, parse, uuidParam } from '../middleware/http';
+import { spreadsheetUpload } from '../middleware/upload';
 import { HttpError } from '../services/errors';
 import { AuthService } from '../services/AuthService';
 import { SubCardService } from '../services/SubCardService';
 import { TYPES } from '../types';
 import type { Controller } from '../interfaces/controller';
+import { assertSupportedSpreadsheet, readSpreadsheet } from '../utils/spreadsheet';
+import { answerField, linkField, paginationQuery, questionField, resolvePagination, UUID_ROUTE_PATTERN } from '../utils/validation';
 
-const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 5 * 1024 * 1024 } });
+const cardBody = z.object({
+  title: questionField,
+  descriptions: answerField,
+  link: linkField,
+});
+
+const cardListQuery = paginationQuery.extend({
+  shuffle: z.enum(['true', 'false']).optional(),
+});
 
 @injectable()
 export class SubCardController implements Controller {
@@ -25,79 +34,47 @@ export class SubCardController implements Controller {
   router() {
     const router = Router();
     router.use(requireAuth(this.auth));
+    const deckPath = `/:uuid(${UUID_ROUTE_PATTERN})`;
+    const cardPath = `/subcards/:uuid(${UUID_ROUTE_PATTERN})`;
 
-    router.get('/:uuid/subcards/top-viewed', handle(async (req) => {
-      return this.service.getTopViewed(uuidParam(req), userUuid(req));
+    router.get(`${deckPath}/subcards/top-viewed`, handle(async (request) =>
+      this.service.getTopViewed(uuidParam(request), userUuid(request))));
+
+    router.get(`${deckPath}/subcards`, handle(async (request) => {
+      const { shuffle, ...query } = parse(cardListQuery, request.query);
+      return this.service.getForMasterCard(uuidParam(request), userUuid(request), resolvePagination(query), shuffle === 'true');
     }));
 
-    router.get('/:uuid/subcards', handle(async (req) => {
-      const page = req.query.page !== undefined ? parseInt(req.query.page as string, 10) : undefined;
-      const pageSize = req.query.pageSize !== undefined ? parseInt(req.query.pageSize as string, 10) : undefined;
-      const search = req.query.search ? String(req.query.search) : undefined;
-      const shuffle = req.query.shuffle === 'true';
-      return this.service.getForMasterCard(uuidParam(req), userUuid(req), page, pageSize, search, shuffle);
+    router.post(`${deckPath}/subcards`, handle(async (request) => {
+      const { title, descriptions, link } = parse(cardBody, request.body);
+      return this.service.add(uuidParam(request), userUuid(request), title, descriptions, link);
     }));
 
-    router.post('/:uuid/subcards', handle(async (req) => {
-      const { title, descriptions, link } = parse(z.object({
-        title: z.string().min(1).max(1000),
-        descriptions: z.string().max(5000).default(''),
-        link: z.string().max(2000).default(''),
-      }), req.body);
-      return this.service.add(uuidParam(req), userUuid(req), title, descriptions, link);
-    }));
-
-    router.put('/subcards/:uuid/view', handle(async (req) => {
-      await this.service.incrementViews(uuidParam(req));
+    router.put(`${cardPath}/view`, handle(async (request) => {
+      // Security: views only count on the user's own cards.
+      await this.service.incrementViews(uuidParam(request), userUuid(request));
       return { ok: true };
     }));
 
-    router.put('/subcards/:uuid', handle(async (req) => {
-      const { title, descriptions, link } = parse(z.object({
-        title: z.string().min(1).max(1000),
-        descriptions: z.string().max(5000).default(''),
-        link: z.string().max(2000).default(''),
-      }), req.body);
-      return this.service.update(uuidParam(req), userUuid(req), title, descriptions, link);
+    router.put(cardPath, handle(async (request) => {
+      const { title, descriptions, link } = parse(cardBody, request.body);
+      return this.service.update(uuidParam(request), userUuid(request), title, descriptions, link);
     }));
 
-    router.post('/:uuid/subcards/upload', upload.single('file'), handle(async (req) => {
-      if (!req.file) throw new HttpError(400, 'No file uploaded');
-      const ext = req.file.originalname.split('.').pop()?.toLowerCase();
-      if (!ext || !['xlsx', 'xls', 'csv'].includes(ext)) {
-        throw new HttpError(400, 'File must be .xlsx, .xls, or .csv');
-      }
-      const workbook = new ExcelJS.Workbook();
-      if (ext === 'csv') {
-        await workbook.csv.read(req.file.buffer);
-      } else {
-        await workbook.xlsx.load(req.file.buffer);
-      }
-      const sheet = workbook.worksheets[0];
-      if (!sheet) throw new HttpError(400, 'No worksheet found in file');
+    /** Add the first sheet's cards to a deck. Questions already in the deck are updated. */
+    router.post(`${deckPath}/subcards/upload`, spreadsheetUpload, handle(async (request) => {
+      if (!request.file) throw new HttpError(400, 'No file uploaded');
+      const extension = assertSupportedSpreadsheet(request.file.originalname);
+      const [firstSheet] = await readSpreadsheet(request.file.buffer, extension);
+      if (!firstSheet) throw new HttpError(400, 'No worksheet found in file');
+      if (firstSheet.cards.length === 0) throw new HttpError(400, 'No valid cards found');
 
-      const cards: { title: string; descriptions: string; link: string }[] = [];
-      const firstRow = sheet.getRow(1);
-      const firstCell = String(firstRow.getCell(1).value || '').toLowerCase().trim();
-      const startRow = ['title', 'question'].includes(firstCell) ? 2 : 1;
-      sheet.eachRow((row, rowNumber) => {
-        if (rowNumber < startRow) return;
-        let title = String(row.getCell(1).value || '').trim();
-        let descriptions = String(row.getCell(2).value || '').trim();
-        let link = String(row.getCell(3).value || '').trim();
-        if (title.length > 1000) title = title.slice(0, 1000);
-        if (descriptions.length > 5000) descriptions = descriptions.slice(0, 5000);
-        if (link.length > 2000) link = link.slice(0, 2000);
-        if (title) cards.push({ title, descriptions, link });
-      });
-      if (cards.length === 0) throw new HttpError(400, 'No valid cards found');
-
-      const result = await this.service.addBulk(uuidParam(req), userUuid(req), cards);
-      return { count: cards.length, added: result.added, updated: result.updated };
+      const result = await this.service.addBulk(uuidParam(request), userUuid(request), firstSheet.cards);
+      return { count: firstSheet.cards.length, added: result.added, updated: result.updated };
     }));
 
-    router.delete('/subcards/:uuid', handle(async (req) => {
-      await this.service.delete(uuidParam(req), userUuid(req));
+    router.delete(cardPath, handle(async (request) => {
+      await this.service.delete(uuidParam(request), userUuid(request));
       return { ok: true };
     }));
 

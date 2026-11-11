@@ -1,58 +1,59 @@
-import axios from '../utils/api';
+import axios, { errorMessage } from '../utils/api';
 import * as type from '../actions/types';
 import { showToast } from '../utils/toast';
 export default {
 
-  getPoolCards: (pathname)=>{
+  getPoolCards: ()=>{
    return async dispatch => {
      try {
-      const res = await axios.get('/api/poolcards');
-      dispatch( {type: type.POOLCARDS, payload: res.data} );
-     } catch (err) {
-      showToast(err.response ? err.response.data.error : 'Failed to load public cards');
+      const response = await axios.get('/api/poolcards');
+      dispatch( {type: type.POOLCARDS, payload: response.data} );
+     } catch (error) {
+      showToast(errorMessage(error, 'Failed to load public cards'));
      }
     }
   },
   addPoolCard: (mastercard)=>{
    return async dispatch => {
      try {
-      const res = await axios.post('/api/poolcards', {mastercard: { uuid: mastercard.uuid }});
-      dispatch( {type: type.POOLCARDS, payload: res.data} );
+      const response = await axios.post('/api/poolcards', {mastercard: { uuid: mastercard.uuid }});
+      dispatch( {type: type.POOLCARDS, payload: response.data} );
       showToast('Card shared publicly');
-     } catch (err) {
-      showToast(err.response ? err.response.data.error : 'Failed to share card');
+     } catch (error) {
+      showToast(errorMessage(error, 'Failed to share card'));
      }
     }
   },
-  deletePoolCard: (id)=>{
+  deletePoolCard: (publicDeckUuid)=>{
    return async dispatch => {
      try {
-      const res = await axios.delete(`/api/poolcards/${id}`);
-      dispatch( {type: type.POOLCARDS, payload: res.data} );
+      const response = await axios.delete(`/api/poolcards/${publicDeckUuid}`);
+      dispatch( {type: type.POOLCARDS, payload: response.data} );
       showToast('Card unshared');
-     } catch (err) {
-      showToast(err.response ? err.response.data.error : 'Failed to unshare card');
+     } catch (error) {
+      showToast(errorMessage(error, 'Failed to unshare card'));
      }
     }
   },
-  getPoolSubCard: (id)=>{
+  getPoolSubCard: (publicDeckUuid)=>{
     return async dispatch => {
       try {
-       const res = await axios.get(`/api/poolcards/${id}`);
-       dispatch( {type: type.GET_SUBCARDS, payload: res.data} );
-      } catch (err) {
-       showToast(err.response ? err.response.data.error : 'Failed to load cards');
+       const response = await axios.get(`/api/poolcards/${publicDeckUuid}`);
+       dispatch( {type: type.GET_SUBCARDS, payload: response.data} );
+      } catch (error) {
+       showToast(errorMessage(error, 'Failed to load cards'));
       }
      }
   },
-  storePoolToMaster: (id)=>{
+  storePoolToMaster: (publicDeckUuid)=>{
     return async dispatch => {
       try {
-       const res = await axios.post(`/api/poolcards/add/${id}`);
-       dispatch( {type: type.MYCARDS, payload: res.data} );
+       const response = await axios.post(`/api/poolcards/add/${publicDeckUuid}`);
+       // Bug fix: the copied deck used to replace the whole deck list.
+       dispatch( {type: type.ADD_MASTER, payload: response.data} );
        showToast('Card copied to Study');
-      } catch (err) {
-       showToast(err.response ? err.response.data.error : 'Failed to copy card');
+      } catch (error) {
+       showToast(errorMessage(error, 'Failed to copy card'));
       }
      }
   }

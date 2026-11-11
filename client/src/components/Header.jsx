@@ -23,8 +23,8 @@ class Header extends Component{
     });
   }
 
-  toggleSettings = (e) => {
-    e.stopPropagation();
+  toggleSettings = (event) => {
+    event.stopPropagation();
     this.setState(prev => ({ settingsOpen: !prev.settingsOpen }));
   }
 
@@ -153,7 +153,7 @@ class Header extends Component{
         </nav>
 
         {confirm && <div className="dialog-overlay" onClick={this.closeConfirm}>
-          <div className="dialog dialog--sm" onClick={(e) => e.stopPropagation()}>
+          <div className="dialog dialog--sm" onClick={(event) => event.stopPropagation()}>
             <div className="dialog__header">
               <h3 className="dialog__title">{confirm.title}</h3>
               <button className="dialog__close" onClick={this.closeConfirm}>&times;</button>

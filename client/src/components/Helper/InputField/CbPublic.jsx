@@ -6,15 +6,15 @@ class CbPublic extends Component {
   findPoolCard = () => {
     const { pubinfo, poolcards, user } = this.props;
     if (!user || !poolcards) return null;
-    return poolcards.find(p => p.author === user.uuid && p.title === pubinfo.title);
+    return poolcards.find(publicDeck => publicDeck.author === user.uuid && publicDeck.title === pubinfo.title);
   }
 
   isPublic = () => {
     return !!this.findPoolCard();
   }
 
-  toggle = (e) => {
-    e.stopPropagation();
+  toggle = (event) => {
+    event.stopPropagation();
     const poolCard = this.findPoolCard();
     if (poolCard) {
       this.props.deletePoolCard(poolCard.uuid);

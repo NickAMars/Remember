@@ -1,34 +1,23 @@
 import React, { useEffect } from 'react';
-import { Navigate, useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import Mine from './Mine';
 import Main from './Main';
-import {Landing} from './Landing';
 
-export function BrowseRoute({ getPoolCards }) {
+// perf Increase: these routes used to fetch the deck list or public decks, and then Mine
+// fetched the same data again on mount. Mine now does the only fetch.
+export function BrowseRoute() {
   const location = useLocation();
-  useEffect(() => {
-    document.title = 'Browse - Remember';
-    getPoolCards(location.pathname);
-  }, []);
+  useEffect(() => { document.title = 'Browse - Remember'; }, []);
   return <Mine pathname={location.pathname} visible={false} />;
 }
 
-export function StudyRoute({ master, getMyCards }) {
+export function StudyRoute() {
   const location = useLocation();
-  useEffect(() => {
-    document.title = 'Study - Remember';
-    if (!master.items || master.items.length === 0)
-      getMyCards(location.pathname);
-  }, []);
+  useEffect(() => { document.title = 'Study - Remember'; }, []);
   return <Mine pathname={location.pathname} visible={true} />;
 }
 
 export function HomeRoute() {
   useEffect(() => { document.title = 'Home - Remember'; }, []);
   return <Main />;
-}
-
-export function RootRoute({ user }) {
-  useEffect(() => { document.title = 'Remember'; }, []);
-  return user && user.uuid ? <Navigate to='/home' /> : <Landing />;
 }

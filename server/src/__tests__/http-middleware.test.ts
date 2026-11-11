@@ -139,3 +139,52 @@ describe('errorHandler()', () => {
     spy.mockRestore();
   });
 });
+
+describe('errorHandler() for uploads and request bodies', () => {
+  const { MulterError } = jest.requireActual('multer');
+
+  it('answers 413 when an upload is too large', () => {
+    const res = mockRes();
+    errorHandler(new MulterError('LIMIT_FILE_SIZE'), mockReq(), res, jest.fn());
+    expect(res.status).toHaveBeenCalledWith(413);
+  });
+
+  it('answers 400 for other upload errors', () => {
+    const res = mockRes();
+    errorHandler(new MulterError('LIMIT_UNEXPECTED_FILE'), mockReq(), res, jest.fn());
+    expect(res.status).toHaveBeenCalledWith(400);
+  });
+
+  it('answers 400 for broken JSON', () => {
+    const res = mockRes();
+    errorHandler({ type: 'entity.parse.failed', status: 400 }, mockReq(), res, jest.fn());
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(res.json).toHaveBeenCalledWith({ error: 'Invalid JSON' });
+  });
+
+  it('answers 413 for a body over the size limit', () => {
+    const res = mockRes();
+    errorHandler({ type: 'entity.too.large', status: 413 }, mockReq(), res, jest.fn());
+    expect(res.status).toHaveBeenCalledWith(413);
+  });
+
+  it('never sends the internal error message for a 500', () => {
+    const spy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    const res = mockRes();
+    errorHandler(new Error('relation "users" does not exist'), mockReq(), res, jest.fn());
+    expect(JSON.stringify((res.json as jest.Mock).mock.calls[0][0])).not.toContain('relation');
+    spy.mockRestore();
+  });
+});
+
+describe('uuidParam()', () => {
+  it('lower-cases the uuid so lookups match the database', () => {
+    const req = mockReq({ params: { uuid: 'ABCDEF12-3456-7890-ABCD-EF1234567890' } } as any);
+    expect(uuidParam(req)).toBe('abcdef12-3456-7890-abcd-ef1234567890');
+  });
+
+  it('reads a named parameter', () => {
+    const req = mockReq({ params: { deckUuid: 'abcdef12-3456-7890-abcd-ef1234567890' } } as any);
+    expect(uuidParam(req, 'deckUuid')).toBe('abcdef12-3456-7890-abcd-ef1234567890');
+  });
+});

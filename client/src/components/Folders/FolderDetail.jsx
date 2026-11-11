@@ -1,8 +1,6 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
-import { connect } from 'react-redux';
 import { withRouter } from '../../utils/withRouter';
-import { getSmallCards } from '../../actions';
 import axios from '../../utils/api';
 import { showToast } from '../../utils/toast';
 
@@ -75,27 +73,26 @@ class FolderDetail extends Component {
           </div>
         ) : (
           <ul className="folders__grid">
-            {folder.decks.map(d => (
-              <li key={d.uuid} className="folders__card">
+            {folder.decks.map(deck => (
+              <li key={deck.uuid} className="folders__card">
                 <button
                   className="folders__delete"
                   title="Remove from folder"
-                  onClick={() => this.removeDeck(d.uuid, d.title)}
+                  onClick={() => this.removeDeck(deck.uuid, deck.title)}
                 >
                   &times;
                 </button>
                 <Link
-                  to={`/smallcards/${d.uuid}`}
+                  to={`/smallcards/${deck.uuid}`}
                   className="folders__card-link"
-                  onClick={() => this.props.getSmallCards(d.uuid, { page: 0, pageSize: 10 })}
                 >
                   <div className="folders__card-top">
                     <svg className="folders__icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                       <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/>
                     </svg>
-                    <h3 className="folders__name">{d.title}</h3>
+                    <h3 className="folders__name">{deck.title}</h3>
                   </div>
-                  <p className="folders__meta">{d.cardCount} card{d.cardCount === 1 ? '' : 's'}</p>
+                  <p className="folders__meta">{deck.cardCount} card{deck.cardCount === 1 ? '' : 's'}</p>
                 </Link>
               </li>
             ))}
@@ -106,4 +103,4 @@ class FolderDetail extends Component {
   }
 }
 
-export default withRouter(connect(null, { getSmallCards })(FolderDetail));
+export default withRouter(FolderDetail);

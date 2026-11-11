@@ -13,11 +13,11 @@ export const TUTORIAL_CARDS: { title: string; descriptions: string }[] = [
   },
   {
     title: 'How do I create a deck?',
-    descriptions: 'On the Home page, scroll to Create Main Cards. Type a deck title, add cards by hand or attach a spreadsheet, then click Create Master Card. Your new deck shows up on the Study page.',
+    descriptions: 'On the Home page, scroll to Create Main Cards. Type a deck title, attach a spreadsheet if you have one (or leave it empty and add cards later), then click Create Master Card. Your new deck shows up on the Study page.',
   },
   {
     title: 'How do I import cards from a spreadsheet?',
-    descriptions: 'Use an Excel (.xlsx, .xls) or CSV file. Row 1 is a header. Column A is the question, column B is the answer, and column C is an optional "learn more" link. When you create a deck from Home, every sheet in the workbook becomes its own deck named after the sheet. Inside a deck, Add Cards > Upload File adds cards to that deck and updates any question that is already there.',
+    descriptions: 'Use an Excel (.xlsx) or CSV file. Row 1 can be a header such as "Question | Answer | Link" and is skipped. Column A is the question, column B is the answer, and column C is an optional "learn more" link. When you create a deck from Home, the first sheet becomes the deck and the title starts as the file name. Inside a deck, Add Cards > Upload File adds cards to that deck and updates any question that is already there.',
   },
   {
     title: 'How do I add cards to an existing deck?',

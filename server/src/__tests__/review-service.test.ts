@@ -2,225 +2,152 @@ jest.mock('inversify', () => ({
   injectable: () => (target: Function) => target,
   inject: () => () => undefined,
 }));
+jest.mock('typeorm', () => require('./support/typeormMock'));
 
-jest.mock('typeorm', () => {
-  const noop = () => () => undefined;
-  return {
-    Entity: noop, Column: noop, PrimaryGeneratedColumn: noop, Generated: noop,
-    CreateDateColumn: noop, UpdateDateColumn: noop, ManyToOne: noop, OneToMany: noop,
-    ManyToMany: noop, JoinTable: noop, In: (v: unknown) => v,
-    DataSource: () => undefined, Repository: () => undefined,
-    IsNull: () => undefined, LessThanOrEqual: (v: unknown) => v,
-  };
+import { ReviewService, qualityFor } from '../services/ReviewService';
+import { buildWith, makeQueryBuilder, makeRepository } from './support/mocks';
+
+const reviewRepository = makeRepository();
+const cardRepository = makeRepository();
+const folderRepository = makeRepository();
+const userRepository = makeRepository();
+
+const service = buildWith(ReviewService, {
+  reviews: reviewRepository,
+  subCards: cardRepository,
+  folders: folderRepository,
+  users: userRepository,
 });
 
-import { ReviewService } from '../services/ReviewService';
+beforeEach(() => {
+  jest.resetAllMocks();
+  userRepository.findOne.mockResolvedValue({ id: 1 });
+  reviewRepository.create.mockImplementation((data: any) => ({ ...data }));
+  reviewRepository.find.mockResolvedValue([]);
+});
 
-function makeMockRepo() {
-  return {
-    findOneBy: jest.fn(),
-    findOne: jest.fn(),
-    find: jest.fn().mockResolvedValue([]),
-    create: jest.fn((data: any) => ({ ...data })),
-    save: jest.fn((entity: any) => Promise.resolve(entity)),
-    remove: jest.fn(),
-    createQueryBuilder: jest.fn(),
-  };
-}
+describe('qualityFor', () => {
+  it('scores wrong as 0, multiple choice as 3 and flash card as 4', () => {
+    expect(qualityFor({ correct: false, mode: 'flash' })).toBe(0);
+    expect(qualityFor({ correct: true, mode: 'choice' })).toBe(3);
+    expect(qualityFor({ correct: true, mode: 'flash' })).toBe(4);
+  });
+});
 
-const mockReviews = makeMockRepo();
-const mockSubCards = makeMockRepo();
-const mockMasterCards = makeMockRepo();
-const mockFolders = makeMockRepo();
-const mockUsers = makeMockRepo();
+describe('ReviewService.submitResults', () => {
+  it('creates review records for new cards', async () => {
+    const query = makeQueryBuilder({ getMany: [{ id: 10, uuid: 'card-1' }, { id: 20, uuid: 'card-2' }] });
+    cardRepository.createQueryBuilder.mockReturnValue(query);
 
-function buildService(): ReviewService {
-  const svc = Object.create(ReviewService.prototype);
-  (svc as any).reviews = mockReviews;
-  (svc as any).subCards = mockSubCards;
-  (svc as any).masterCards = mockMasterCards;
-  (svc as any).folders = mockFolders;
-  (svc as any).users = mockUsers;
-  return svc;
-}
+    await service.submitResults('user-1', [
+      { subCardUuid: 'card-1', correct: true, mode: 'flash' },
+      { subCardUuid: 'card-2', correct: false, mode: 'choice' },
+    ]);
 
-beforeEach(() => jest.clearAllMocks());
-
-const user = { id: 1, uuid: 'user-1', name: 'alice' };
-
-describe('ReviewService', () => {
-  const svc = buildService();
-
-  describe('submitResults', () => {
-    it('creates new review records for never-reviewed cards', async () => {
-      mockUsers.findOneBy.mockResolvedValue(user);
-      mockSubCards.find.mockResolvedValue([
-        { id: 10, uuid: 'sc-1' },
-        { id: 20, uuid: 'sc-2' },
-      ]);
-      // No existing reviews
-      mockReviews.find.mockResolvedValue([]);
-      mockReviews.create.mockImplementation((data: any) => ({ ...data }));
-
-      await svc.submitResults('user-1', [
-        { subCardUuid: 'sc-1', correct: true, mode: 'flash' },
-        { subCardUuid: 'sc-2', correct: false, mode: 'choice' },
-      ]);
-
-      expect(mockReviews.save).toHaveBeenCalled();
-      const saved = mockReviews.save.mock.calls[0][0] as any[];
-      expect(saved).toHaveLength(2);
-
-      // sc-1: correct flash → quality 4 → reps=1, interval=1, ease increases
-      const r1 = saved.find((r: any) => r.subCardId === 10);
-      expect(r1.repetitions).toBe(1);
-      expect(r1.interval).toBe(1);
-      expect(r1.easeFactor).toBeCloseTo(2.6);
-
-      // sc-2: wrong → quality 0 → reps=0, interval=1
-      const r2 = saved.find((r: any) => r.subCardId === 20);
-      expect(r2.repetitions).toBe(0);
-      expect(r2.interval).toBe(1);
-    });
-
-    it('updates existing review records', async () => {
-      mockUsers.findOneBy.mockResolvedValue(user);
-      mockSubCards.find.mockResolvedValue([{ id: 10, uuid: 'sc-1' }]);
-
-      const existingReview = {
-        id: 99, userId: 1, subCardId: 10,
-        easeFactor: 2.5, interval: 6, repetitions: 2,
-        nextReviewAt: new Date(), lastReviewedAt: new Date(),
-      };
-      // reviews.find is called once in submitResults (for existing reviews by subCardId)
-      mockReviews.find.mockResolvedValue([existingReview]);
-
-      await svc.submitResults('user-1', [
-        { subCardUuid: 'sc-1', correct: true, mode: 'choice' },
-      ]);
-
-      expect(mockReviews.save).toHaveBeenCalled();
-      const saved = mockReviews.save.mock.calls[0][0] as any[];
-      const r = saved[0];
-      // quality 3 (choice correct), was rep 2 → now rep 3, interval = round(6 * 2.5) = 15
-      expect(r.repetitions).toBe(3);
-      expect(r.interval).toBe(15);
-      expect(r.easeFactor).toBe(2.5); // quality 3 doesn't increase ease
-    });
-
-    it('does nothing for empty results', async () => {
-      await svc.submitResults('user-1', []);
-      expect(mockUsers.findOneBy).not.toHaveBeenCalled();
-    });
+    const saved = reviewRepository.save.mock.calls[0][0] as any[];
+    expect(saved).toHaveLength(2);
+    const firstReview = saved.find((review) => review.subCardId === 10);
+    expect(firstReview).toMatchObject({ repetitions: 1, interval: 1 });
+    expect(firstReview.easeFactor).toBeCloseTo(2.6);
+    expect(saved.find((review) => review.subCardId === 20)).toMatchObject({ repetitions: 0, interval: 1 });
   });
 
-  describe('getDueCounts', () => {
-    it('returns 0 when user has no cards', async () => {
-      mockUsers.findOneBy.mockResolvedValue(user);
-      const qb = {
-        innerJoin: jest.fn().mockReturnThis(),
-        select: jest.fn().mockReturnThis(),
-        where: jest.fn().mockReturnThis(),
-        getMany: jest.fn().mockResolvedValue([]),
-      };
-      mockSubCards.createQueryBuilder.mockReturnValue(qb);
+  it("only accepts cards from the user's own decks", async () => {
+    const query = makeQueryBuilder({ getMany: [] });
+    cardRepository.createQueryBuilder.mockReturnValue(query);
 
-      const result = await svc.getDueCounts('user-1');
-      expect(result).toEqual({ total: 0, byFolder: [] });
-    });
+    await service.submitResults('user-1', [{ subCardUuid: 'someone-elses-card', correct: true, mode: 'flash' }]);
 
-    it('counts due and new cards grouped by folder', async () => {
-      mockUsers.findOneBy.mockResolvedValue(user);
-
-      // User has 3 sub cards across 2 master cards
-      const qb = {
-        innerJoin: jest.fn().mockReturnThis(),
-        select: jest.fn().mockReturnThis(),
-        where: jest.fn().mockReturnThis(),
-        getMany: jest.fn().mockResolvedValue([
-          { id: 10, masterCardId: 1 },
-          { id: 20, masterCardId: 1 },
-          { id: 30, masterCardId: 2 },
-        ]),
-      };
-      mockSubCards.createQueryBuilder.mockReturnValue(qb);
-
-      // reviews.find is called twice:
-      // 1st: due reviews (nextReviewAt <= now) → card 10 is due
-      // 2nd: all reviews → cards 10 and 20 are reviewed (card 30 is new)
-      mockReviews.find
-        .mockResolvedValueOnce([{ subCardId: 10 }])
-        .mockResolvedValueOnce([{ subCardId: 10 }, { subCardId: 20 }]);
-
-      // Folders
-      mockFolders.find.mockResolvedValue([
-        { uuid: 'f-1', name: 'AWS', masterCards: [{ id: 1 }, { id: 2 }] },
-      ]);
-
-      const result = await svc.getDueCounts('user-1');
-      // Card 10 (due) + Card 30 (new/unreviewed) = 2 due
-      expect(result.total).toBe(2);
-      expect(result.byFolder).toEqual([
-        { folderUuid: 'f-1', folderName: 'AWS', count: 2 },
-      ]);
-    });
+    expect(query.andWhere).toHaveBeenCalledWith('deck.userId = :userId', { userId: 1 });
+    expect(reviewRepository.save).not.toHaveBeenCalled();
   });
 
-  describe('getDueCards', () => {
-    it('throws when folder not found', async () => {
-      mockUsers.findOneBy.mockResolvedValue(user);
-      mockFolders.findOne.mockResolvedValue(null);
+  it('updates an existing review', async () => {
+    cardRepository.createQueryBuilder.mockReturnValue(makeQueryBuilder({ getMany: [{ id: 10, uuid: 'card-1' }] }));
+    reviewRepository.find.mockResolvedValue([{
+      id: 99, userId: 1, subCardId: 10, easeFactor: 2.5, interval: 6, repetitions: 2,
+      nextReviewAt: new Date(), lastReviewedAt: new Date(),
+    }]);
 
-      await expect(svc.getDueCards('user-1', 'bad-uuid')).rejects.toThrow('Folder not found');
-    });
+    await service.submitResults('user-1', [{ subCardUuid: 'card-1', correct: true, mode: 'choice' }]);
 
-    it('returns quiz-shaped response for due cards', async () => {
-      mockUsers.findOneBy.mockResolvedValue(user);
-      mockFolders.findOne.mockResolvedValue({
-        uuid: 'f-1', name: 'AWS', userId: 1,
-        masterCards: [{ id: 1, uuid: 'mc-1', title: 'EC2' }],
-      });
+    const [review] = reviewRepository.save.mock.calls[0][0] as any[];
+    expect(review).toMatchObject({ repetitions: 3, interval: 15, easeFactor: 2.5 });
+  });
 
-      const cards = [
-        { id: 10, uuid: 'sc-1', title: 'Q1', descriptions: 'A1', link: '', masterCardId: 1 },
-        { id: 20, uuid: 'sc-2', title: 'Q2', descriptions: 'A2', link: '', masterCardId: 1 },
-        { id: 30, uuid: 'sc-3', title: 'Q3', descriptions: 'A3', link: '', masterCardId: 1 },
-        { id: 40, uuid: 'sc-4', title: 'Q4', descriptions: 'A4', link: '', masterCardId: 1 },
-      ];
-      mockSubCards.find.mockResolvedValue(cards);
+  it('saves a card answered twice in one quiz only once', async () => {
+    cardRepository.createQueryBuilder.mockReturnValue(makeQueryBuilder({ getMany: [{ id: 10, uuid: 'card-1' }] }));
 
-      // reviews.find: card 10 is due (past date), cards 20-40 have no review → new/due
-      const pastDate = new Date(Date.now() - 86400000);
-      mockReviews.find.mockResolvedValue([
-        { subCardId: 10, nextReviewAt: pastDate },
-      ]);
+    await service.submitResults('user-1', [
+      { subCardUuid: 'card-1', correct: true, mode: 'choice' },
+      { subCardUuid: 'card-1', correct: true, mode: 'choice' },
+    ]);
 
-      const result = await svc.getDueCards('user-1', 'f-1');
+    const saved = reviewRepository.save.mock.calls[0][0] as any[];
+    expect(saved).toHaveLength(1);
+    expect(saved[0].repetitions).toBe(2);
+  });
 
-      expect(result.folder).toEqual({ uuid: 'f-1', name: 'AWS' });
-      expect(result.available).toBe(4); // 1 due + 3 new (no review record)
-      expect(result.cards.length).toBe(4);
-      expect(result.cards[0]).toHaveProperty('question');
-      expect(result.cards[0]).toHaveProperty('answer');
-      expect(result.cards[0]).toHaveProperty('choices');
-    });
+  it('does nothing for an empty list', async () => {
+    await service.submitResults('user-1', []);
+    expect(userRepository.findOne).not.toHaveBeenCalled();
+  });
+});
 
-    it('respects count limit', async () => {
-      mockUsers.findOneBy.mockResolvedValue(user);
-      mockFolders.findOne.mockResolvedValue({
-        uuid: 'f-1', name: 'AWS', userId: 1,
-        masterCards: [{ id: 1, uuid: 'mc-1', title: 'EC2' }],
-      });
+describe('ReviewService.getDueCounts', () => {
+  it('returns zero without a second query when nothing is due', async () => {
+    cardRepository.createQueryBuilder.mockReturnValue(makeQueryBuilder({ getCount: 0 }));
 
-      const cards = Array.from({ length: 20 }, (_, i) => ({
-        id: i + 1, uuid: `sc-${i}`, title: `Q${i}`, descriptions: `A${i}`, link: '', masterCardId: 1,
-      }));
-      mockSubCards.find.mockResolvedValue(cards);
-      mockReviews.find.mockResolvedValue([]); // all new
+    expect(await service.getDueCounts('user-1')).toEqual({ total: 0, byFolder: [] });
+    expect(folderRepository.createQueryBuilder).not.toHaveBeenCalled();
+  });
 
-      const result = await svc.getDueCards('user-1', 'f-1', 5);
-      expect(result.cards.length).toBe(5);
-      expect(result.available).toBe(20);
-    });
+  it('counts due cards in SQL, in total and per folder', async () => {
+    const totalQuery = makeQueryBuilder({ getCount: 5 });
+    cardRepository.createQueryBuilder.mockReturnValue(totalQuery);
+    folderRepository.createQueryBuilder.mockReturnValue(makeQueryBuilder({
+      getRawMany: [{ folderUuid: 'folder-1', folderName: 'AWS', count: '3' }],
+    }));
+
+    const result = await service.getDueCounts('user-1');
+
+    expect(totalQuery.andWhere).toHaveBeenCalledWith(expect.stringContaining('review.id IS NULL'), expect.any(Object));
+    expect(result).toEqual({ total: 5, byFolder: [{ folderUuid: 'folder-1', folderName: 'AWS', count: 3 }] });
+  });
+});
+
+describe('ReviewService.getDueCards', () => {
+  it('gives 404 for a folder that is not the user\'s', async () => {
+    folderRepository.findOne.mockResolvedValue(null);
+    await expect(service.getDueCards('user-1', 'folder-x')).rejects.toThrow('Folder not found');
+  });
+
+  it('builds a quiz from the due cards only', async () => {
+    folderRepository.findOne.mockResolvedValue({ uuid: 'folder-1', name: 'AWS', masterCards: [{ id: 1, title: 'EC2' }] });
+    const countQuery = makeQueryBuilder({ getCount: 2 });
+    const pickQuery = makeQueryBuilder({ getMany: [
+      { id: 10, uuid: 'card-1', title: 'Q1', descriptions: 'A1', link: '', masterCardId: 1 },
+      { id: 20, uuid: 'card-2', title: 'Q2', descriptions: 'A2', link: '', masterCardId: 1 },
+    ] });
+    const answerQuery = makeQueryBuilder({ getMany: [] });
+    cardRepository.createQueryBuilder
+      .mockReturnValueOnce(countQuery)
+      .mockReturnValueOnce(pickQuery)
+      .mockReturnValueOnce(answerQuery);
+
+    const quiz = await service.getDueCards('user-1', 'folder-1', 5);
+
+    expect(countQuery.leftJoin).toHaveBeenCalled();
+    expect(pickQuery.limit).toHaveBeenCalledWith(2);
+    expect(quiz.folder).toEqual({ uuid: 'folder-1', name: 'AWS' });
+    expect(quiz.available).toBe(2);
+    expect(quiz.cards.map((card) => card.question)).toEqual(['Q1', 'Q2']);
+    expect(quiz.cards[0]).toMatchObject({ answer: 'A1', deck: 'EC2' });
+  });
+
+  it('says so when nothing is due', async () => {
+    folderRepository.findOne.mockResolvedValue({ uuid: 'folder-1', name: 'AWS', masterCards: [{ id: 1, title: 'EC2' }] });
+    cardRepository.createQueryBuilder.mockReturnValue(makeQueryBuilder({ getCount: 0 }));
+    await expect(service.getDueCards('user-1', 'folder-1')).rejects.toThrow('No cards are due');
   });
 });

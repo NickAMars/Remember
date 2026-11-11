@@ -1,8 +1,9 @@
-import { Column, CreateDateColumn, Entity, Generated, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import { Column, CreateDateColumn, Entity, Generated, Index, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 import type { User } from './User';
 import type { SubCard } from './SubCard';
 import type { Progress } from './Progress';
 
+/** A deck. Its cards are SubCards. */
 @Entity('master_cards')
 export class MasterCard {
   @PrimaryGeneratedColumn({ type: 'int' })
@@ -33,14 +34,20 @@ export class MasterCard {
   @ManyToOne('User', 'masterCards', { onDelete: 'CASCADE' })
   user: User;
 
+  @Index('idx_master_cards_user_id')
   @Column({ type: 'int' })
   userId: number;
 
-  @OneToMany('SubCard', 'masterCard', { cascade: true, eager: true })
+  // perf Increase: not eager. Before, every lookup of a deck (even an ownership check)
+  // loaded all of its cards. Ask for them with `relations: ['subCards']` when needed.
+  @OneToMany('SubCard', 'masterCard', { cascade: true })
   subCards: SubCard[];
 
-  @OneToMany('Progress', 'masterCard', { cascade: true, eager: true })
+  @OneToMany('Progress', 'masterCard', { cascade: true })
   progress: Progress[];
+
+  /** Filled in by `loadRelationCountAndMap` on list queries, not a column. */
+  subCardCount?: number;
 
   @CreateDateColumn({ type: 'timestamptz' })
   createdAt: Date;

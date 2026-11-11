@@ -1,9 +1,8 @@
- import axios from '../utils/api';
+import axios from '../utils/api';
 import * as type from '../actions/types';
-// Initially making all the small cards
-// const smallcards=
-export default {// subCardRouts
-  getSmallCards : (id, { page, pageSize, search, shuffle } = {}) =>{
+/** Cards ("sub cards") inside a deck. */
+export default {
+  getSmallCards : (deckUuid, { page, pageSize, search, shuffle } = {}) =>{
     return async dispatch => {
       try {
        const params = {};
@@ -11,15 +10,17 @@ export default {// subCardRouts
        if (pageSize !== undefined) params.pageSize = pageSize;
        if (search) params.search = search;
        if (shuffle) params.shuffle = 'true';
-       const res = await axios.get(`/api/profile/MasterCard/${id}/subcards`, { params });
-       const data = res.data || {};
+       const response = await axios.get(`/api/profile/MasterCard/${deckUuid}/subcards`, { params });
+       const data = response.data || {};
        dispatch( {type: type.GET_SUBCARDS, payload: data.items || data, total: data.total } );
-      } catch (err) {
-        console.error('getSmallCards failed', err);
+      } catch (error) {
+        console.error('getSmallCards failed', error);
         dispatch( {type: type.GET_SUBCARDS, payload: [], total: 0 } );
       }
      }
   },
+  /** Empty the card list, so the previous deck's cards don't show while a new deck loads. */
+  clearSubCards: () => ({ type: type.GET_SUBCARDS, payload: [], total: 0 }),
   addCard : (card)=>{
     return {
       type: type.ADD_CARD,

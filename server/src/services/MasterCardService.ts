@@ -2,206 +2,203 @@ import { inject, injectable } from 'inversify';
 import { DataSource, Repository } from 'typeorm';
 import { MasterCard, SubCard, Progress, User, PoolCard } from '../entities';
 import { TYPES } from '../types';
-import { notFound, badRequest } from './errors';
-import { currentDate, previousEight, mixdate, calculateTimeSpent, topFiveCards, type TopFiveEntry } from './helpers';
-import { MAX_PROGRESS_DAYS } from '../constants';
+import { badRequest } from './errors';
+import { currentDate, previousEight, mixdate, calculateTimeSpent, type TopFiveEntry } from './helpers';
+import { requireOwnedDeck, requireUserId } from './ownership';
+import { DATABASE_INSERT_CHUNK_SIZE, MAX_PROGRESS_DAYS, MAX_STUDY_SESSION_MS } from '../constants';
+import { escapeLikePattern, type Pagination } from '../utils/validation';
 
+export interface NewCard {
+  title: string;
+  description: string;
+  link?: string;
+}
+
+export interface DeckPage {
+  items: MasterCard[];
+  total: number;
+}
+
+/** Decks ("master cards"): list, create, rename, delete and record study time. */
 @injectable()
 export class MasterCardService {
+  private dataSource: DataSource;
   private masterCards: Repository<MasterCard>;
-  private subCards: Repository<SubCard>;
-  private progressRepo: Repository<Progress>;
+  private progressRepository: Repository<Progress>;
   private users: Repository<User>;
   private poolCards: Repository<PoolCard>;
 
   constructor(@inject(TYPES.DataSource) dataSource: DataSource) {
+    this.dataSource = dataSource;
     this.masterCards = dataSource.getRepository(MasterCard);
-    this.subCards = dataSource.getRepository(SubCard);
-    this.progressRepo = dataSource.getRepository(Progress);
+    this.progressRepository = dataSource.getRepository(Progress);
     this.users = dataSource.getRepository(User);
     this.poolCards = dataSource.getRepository(PoolCard);
   }
 
-  async getOne(uuid: string, userUuid: string): Promise<MasterCard> {
-    const user = await this.users.findOneBy({ uuid: userUuid });
-    if (!user) throw notFound('User not found');
-
-    const card = await this.masterCards.findOne({
-      where: { uuid, userId: user.id },
-      relations: ['subCards', 'progress'],
-    });
-    if (!card) throw notFound('Master card not found');
-    await this.masterCards.increment({ uuid }, 'views', 1);
-    card.views += 1;
-    return card;
+  /** One deck's details (title, flags, counters). Counts as a view. */
+  async getOne(deckUuid: string, userUuid: string): Promise<MasterCard> {
+    const userId = await requireUserId(this.users, userUuid);
+    // perf Increase: the deck page only needs the deck itself. Its cards come from the
+    // paginated cards endpoint, so they are no longer loaded here.
+    const deck = await requireOwnedDeck(this.masterCards, deckUuid, userId);
+    await this.masterCards.increment({ id: deck.id }, 'views', 1);
+    deck.views += 1;
+    return deck;
   }
 
-  async getAllForUser(userUuid: string, page?: number, pageSize?: number, search?: string): Promise<{ items: MasterCard[]; total: number }> {
-    const user = await this.users.findOneBy({ uuid: userUuid });
-    if (!user) throw notFound('User not found');
+  /** The user's decks, newest first, each with a card count. Optional paging and title search. */
+  async getAllForUser(userUuid: string, pagination: Pagination = {}): Promise<DeckPage> {
+    const userId = await requireUserId(this.users, userUuid);
 
-    const qb = this.masterCards.createQueryBuilder('mc')
-      .loadRelationCountAndMap('mc.subCardCount', 'mc.subCards')
-      .leftJoinAndSelect('mc.progress', 'p')
-      .where('mc.userId = :userId', { userId: user.id });
+    // perf Increase: count cards in SQL instead of loading them, and skip the progress
+    // rows, which the deck list never shows.
+    const query = this.masterCards.createQueryBuilder('deck')
+      .loadRelationCountAndMap('deck.subCardCount', 'deck.subCards')
+      .where('deck.userId = :userId', { userId });
 
-    if (search) {
-      qb.andWhere('LOWER(mc.title) LIKE :search', { search: `%${search.toLowerCase()}%` });
+    if (pagination.search) {
+      query.andWhere("LOWER(deck.title) LIKE :search ESCAPE '\\'", {
+        search: `%${escapeLikePattern(pagination.search.toLowerCase())}%`,
+      });
     }
 
-    const total = await qb.getCount();
-
-    qb.orderBy('mc.createdAt', 'DESC');
-
-    if (page !== undefined && pageSize !== undefined) {
-      qb.skip(page * pageSize).take(pageSize);
+    query.orderBy('deck.createdAt', 'DESC');
+    if (pagination.page !== undefined && pagination.pageSize !== undefined) {
+      query.skip(pagination.page * pagination.pageSize).take(pagination.pageSize);
     }
 
-    const items = await qb.getMany();
+    // perf Increase: one round trip for the rows and the total.
+    const [items, total] = await query.getManyAndCount();
     return { items, total };
   }
 
-  async create(userUuid: string, title: string, cards: { title: string; description: string; link?: string }[]): Promise<{ items: MasterCard[]; total: number }> {
-    const user = await this.users.findOneBy({ uuid: userUuid });
-    if (!user) throw notFound('User not found');
+  /** Create a deck with its cards in one transaction, so a failure never leaves half a deck. */
+  async create(userUuid: string, title: string, cards: NewCard[]): Promise<MasterCard> {
+    const userId = await requireUserId(this.users, userUuid);
+    const trimmedTitle = title.trim();
 
-    const existing = await this.masterCards.findOneBy({ title, userId: user.id });
-    if (existing) throw badRequest('You already have a deck with this title');
+    const existing = await this.masterCards.findOneBy({ title: trimmedTitle, userId });
+    if (existing) throw badRequest(`You already have a deck called "${trimmedTitle}"`);
 
-    // Check for duplicate questions within the provided cards
-    const titles = cards.map(c => c.title);
-    const uniqueTitles = new Set(titles);
-    if (uniqueTitles.size !== titles.length) throw badRequest('Duplicate questions found in the provided cards');
-
-    const masterCard = this.masterCards.create({ title, userId: user.id });
-    await this.masterCards.save(masterCard);
-
-    const subCards = cards.map(card =>
-      this.subCards.create({ title: card.title, descriptions: card.description, link: card.link || '', masterCardId: masterCard.id }),
-    );
-    await this.subCards.save(subCards);
-
-    return this.getAllForUser(userUuid);
-  }
-
-  async update(uuid: string, userUuid: string, title: string, date?: string): Promise<MasterCard> {
-    const user = await this.users.findOneBy({ uuid: userUuid });
-    if (!user) throw notFound('User not found');
-
-    const card = await this.masterCards.findOneBy({ uuid, userId: user.id });
-    if (!card) throw notFound('Master card not found');
-    if (card.isDefault) throw badRequest('Cannot edit the default tutorial card');
-
-    if (title !== card.title) {
-      const duplicate = await this.masterCards.findOneBy({ title, userId: user.id });
-      if (duplicate) throw badRequest('You already have a deck with this title');
+    const questions = cards.map((card) => card.title);
+    if (new Set(questions).size !== questions.length) {
+      throw badRequest('Duplicate questions found in the provided cards');
     }
 
-    card.title = title;
-    if (date) card.createdAt = new Date(date);
-    await this.masterCards.save(card);
-    return card;
-  }
-
-  async delete(uuid: string, userUuid: string): Promise<void> {
-    const user = await this.users.findOneBy({ uuid: userUuid });
-    if (!user) throw notFound('User not found');
-
-    const card = await this.masterCards.findOneBy({ uuid, userId: user.id });
-    if (!card) throw notFound('Master card not found');
-    if (card.isDefault) throw badRequest('Cannot delete the default tutorial card');
-
-    // Also remove any associated pool card (public copy)
-    const poolCard = await this.poolCards.findOneBy({ author: userUuid, title: card.title });
-    if (poolCard) {
-      await this.poolCards.remove(poolCard);
-    }
-
-    await this.masterCards.remove(card);
-  }
-
-  async recordTime(uuid: string, userUuid: string, time: number): Promise<{ items: MasterCard[]; total: number }> {
-    const user = await this.users.findOneBy({ uuid: userUuid });
-    if (!user) throw notFound('User not found');
-
-    const card = await this.masterCards.findOne({
-      where: { uuid, userId: user.id },
-      relations: ['progress'],
+    const deck = await this.dataSource.transaction(async (transaction) => {
+      const deckRepository = transaction.getRepository(MasterCard);
+      const cardRepository = transaction.getRepository(SubCard);
+      const newDeck = await deckRepository.save(deckRepository.create({ title: trimmedTitle, userId }));
+      const newCards = cards.map((card) =>
+        cardRepository.create({ title: card.title, descriptions: card.description, link: card.link || '', masterCardId: newDeck.id }),
+      );
+      await cardRepository.save(newCards, { chunk: DATABASE_INSERT_CHUNK_SIZE });
+      return newDeck;
     });
-    if (!card) throw notFound('Master card not found');
+
+    // perf Increase: return only the new deck. This used to return every deck the user owns.
+    deck.subCardCount = cards.length;
+    return deck;
+  }
+
+  async update(deckUuid: string, userUuid: string, title: string, date?: string): Promise<MasterCard> {
+    const userId = await requireUserId(this.users, userUuid);
+    const deck = await requireOwnedDeck(this.masterCards, deckUuid, userId);
+    if (deck.isDefault) throw badRequest('Cannot edit the default tutorial card');
+
+    const trimmedTitle = title.trim();
+    if (trimmedTitle !== deck.title) {
+      const duplicate = await this.masterCards.findOneBy({ title: trimmedTitle, userId });
+      if (duplicate) throw badRequest(`You already have a deck called "${trimmedTitle}"`);
+      // Keep the public copy's title in step, since sharing is matched by title.
+      await this.poolCards.update({ author: userUuid, title: deck.title }, { title: trimmedTitle });
+    }
+
+    deck.title = trimmedTitle;
+    if (date) {
+      const parsedDate = new Date(date);
+      // Bug fix: an invalid date used to be saved and crash with a database error.
+      if (Number.isNaN(parsedDate.getTime())) throw badRequest('Invalid date');
+      deck.createdAt = parsedDate;
+    }
+    await this.masterCards.save(deck);
+    return deck;
+  }
+
+  async delete(deckUuid: string, userUuid: string): Promise<void> {
+    const userId = await requireUserId(this.users, userUuid);
+    const deck = await requireOwnedDeck(this.masterCards, deckUuid, userId);
+    if (deck.isDefault) throw badRequest('Cannot delete the default tutorial card');
+
+    // Also remove the public copy, if the deck was shared.
+    await this.poolCards.delete({ author: userUuid, title: deck.title });
+    await this.masterCards.remove(deck);
+  }
+
+  /**
+   * Add `timeMs` of study time to today's entry for this deck and keep the last
+   * MAX_PROGRESS_DAYS days. Returns the deck's new total.
+   */
+  async recordTime(deckUuid: string, userUuid: string, timeMs: number): Promise<{ uuid: string; timespent: number }> {
+    const userId = await requireUserId(this.users, userUuid);
+    const deck = await requireOwnedDeck(this.masterCards, deckUuid, userId);
+    const sessionTime = Math.min(Math.max(0, Math.round(timeMs)), MAX_STUDY_SESSION_MS);
 
     const today = currentDate(new Date());
-    const progressEntries = card.progress || [];
+    // Bug fix: progress rows used to come back in no fixed order, so "the last entry"
+    // could be any day. Sort them by day.
+    const progressEntries = await this.progressRepository.find({
+      where: { masterCardId: deck.id },
+      order: { dayCreated: 'ASC' },
+    });
 
-    if (progressEntries.length === 0) {
-      const prevDays = previousEight();
-      const newEntries = prevDays.map(day =>
-        this.progressRepo.create({ time: 0, dayCreated: new Date(day), masterCardId: card.id }),
-      );
-      newEntries.push(this.progressRepo.create({ time, dayCreated: today, masterCardId: card.id }));
-      await this.progressRepo.save(newEntries);
-    } else {
+    await this.dataSource.transaction(async (transaction) => {
+      const progressRepository = transaction.getRepository(Progress);
       const lastEntry = progressEntries[progressEntries.length - 1];
-      const lastDate = currentDate(new Date(lastEntry.dayCreated));
 
-      if (Number(lastDate) === Number(today)) {
-        lastEntry.time += time;
-        await this.progressRepo.save(lastEntry);
-      } else {
-        const prevDays = previousEight();
-        const mixed = mixdate(prevDays, progressEntries.map(e => ({ time: e.time, dayCreated: e.dayCreated })));
-
-        await this.progressRepo.delete({ masterCardId: card.id });
-
-        const newEntries = mixed.map(entry =>
-          this.progressRepo.create({ time: entry.time, dayCreated: new Date(entry.dayCreated), masterCardId: card.id }),
-        );
-        newEntries.push(this.progressRepo.create({ time, dayCreated: today, masterCardId: card.id }));
-
-        if (newEntries.length > MAX_PROGRESS_DAYS) {
-          newEntries.splice(0, newEntries.length - MAX_PROGRESS_DAYS);
-        }
-
-        await this.progressRepo.save(newEntries);
+      if (lastEntry && Number(currentDate(new Date(lastEntry.dayCreated))) === Number(today)) {
+        await progressRepository.increment({ id: lastEntry.id }, 'time', sessionTime);
+        return;
       }
-    }
 
-    const updatedCard = await this.masterCards.findOne({ where: { id: card.id }, relations: ['progress'] });
-    if (updatedCard) {
-      updatedCard.timespent = calculateTimeSpent(updatedCard.progress.map(p => ({ time: p.time, dayCreated: p.dayCreated })));
-      await this.masterCards.save(updatedCard);
-    }
+      const previousDays = previousEight();
+      const earlierDays = progressEntries.length === 0
+        ? previousDays.map((day) => ({ time: 0, dayCreated: day }))
+        : mixdate(previousDays, progressEntries.map((entry) => ({ time: entry.time, dayCreated: entry.dayCreated })));
 
-    return this.getAllForUser(userUuid);
-  }
+      const newEntries = [...earlierDays, { time: sessionTime, dayCreated: today }]
+        .slice(-MAX_PROGRESS_DAYS)
+        .map((entry) => progressRepository.create({ time: entry.time, dayCreated: new Date(entry.dayCreated), masterCardId: deck.id }));
 
-  async getTopFive(userUuid: string): Promise<TopFiveEntry[]> {
-    const user = await this.users.findOneBy({ uuid: userUuid });
-    if (!user) return [];
-
-    const cards = await this.masterCards.find({
-      where: { userId: user.id },
-      order: { views: 'DESC' },
-      take: 5,
+      await progressRepository.delete({ masterCardId: deck.id });
+      await progressRepository.save(newEntries);
     });
 
-    return topFiveCards(cards);
+    const savedEntries = await this.progressRepository.find({ where: { masterCardId: deck.id }, select: ['time', 'dayCreated'] });
+    const timespent = calculateTimeSpent(savedEntries);
+    await this.masterCards.update({ id: deck.id }, { timespent });
+    // perf Increase: return the new total only. This used to return every deck the user owns.
+    return { uuid: deck.uuid, timespent };
   }
 
+  /** Every deck the user owns, most viewed first, in the shape the Home page list and chart use. */
   async getAllByViews(userUuid: string): Promise<TopFiveEntry[]> {
-    const user = await this.users.findOneBy({ uuid: userUuid });
+    const user = await this.users.findOne({ where: { uuid: userUuid }, select: ['id'] });
     if (!user) return [];
 
-    const cards = await this.masterCards.find({
+    // perf Increase: only the four columns the Home page shows.
+    const decks = await this.masterCards.find({
       where: { userId: user.id },
+      select: ['uuid', 'title', 'views', 'createdAt'],
       order: { views: 'DESC' },
     });
 
-    return cards.map(card => ({
-      maxTime: card.views,
-      referenceID: card.uuid,
-      title: card.title,
-      timestamp: card.createdAt,
+    return decks.map((deck) => ({
+      maxTime: deck.views,
+      referenceID: deck.uuid,
+      title: deck.title,
+      timestamp: deck.createdAt,
     }));
   }
 }

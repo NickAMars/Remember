@@ -7,7 +7,22 @@ import { AuthService } from '../services/AuthService';
 import { ReviewService } from '../services/ReviewService';
 import { TYPES } from '../types';
 import type { Controller } from '../interfaces/controller';
+import { MAX_QUIZ_QUESTIONS, MAX_REVIEW_RESULTS_PER_REQUEST } from '../constants';
+import { UUID_REGEX, UUID_ROUTE_PATTERN } from '../utils/validation';
 
+const resultsBody = z.object({
+  results: z.array(z.object({
+    subCardUuid: z.string().regex(UUID_REGEX, 'Invalid card id').transform((cardUuid) => cardUuid.toLowerCase()),
+    correct: z.boolean(),
+    mode: z.enum(['choice', 'flash']),
+  })).max(MAX_REVIEW_RESULTS_PER_REQUEST),
+});
+
+const dueCardsQuery = z.object({
+  count: z.coerce.number().int().min(0).max(MAX_QUIZ_QUESTIONS).optional(),
+});
+
+/** Spaced repetition: save quiz answers and list the cards that are due. */
 @injectable()
 export class ReviewController implements Controller {
   basePath = '/api/review';
@@ -21,27 +36,17 @@ export class ReviewController implements Controller {
     const router = Router();
     router.use(requireAuth(this.auth));
 
-    router.post('/results', handle(async (req) => {
-      const { results } = parse(z.object({
-        results: z.array(z.object({
-          subCardUuid: z.string(),
-          correct: z.boolean(),
-          mode: z.enum(['choice', 'flash']),
-        })),
-      }), req.body);
-      await this.service.submitResults(userUuid(req), results);
+    router.post('/results', handle(async (request) => {
+      const { results } = parse(resultsBody, request.body);
+      await this.service.submitResults(userUuid(request), results);
       return { ok: true };
     }));
 
-    router.get('/due', handle(async (req) => {
-      return this.service.getDueCounts(userUuid(req));
-    }));
+    router.get('/due', handle(async (request) => this.service.getDueCounts(userUuid(request))));
 
-    const uuidPattern = '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}';
-
-    router.get(`/due/:uuid(${uuidPattern})`, handle(async (req) => {
-      const count = req.query.count !== undefined ? parseInt(req.query.count as string, 10) : undefined;
-      return this.service.getDueCards(userUuid(req), uuidParam(req), count);
+    router.get(`/due/:uuid(${UUID_ROUTE_PATTERN})`, handle(async (request) => {
+      const { count } = parse(dueCardsQuery, request.query);
+      return this.service.getDueCards(userUuid(request), uuidParam(request), count);
     }));
 
     return router;

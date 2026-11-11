@@ -1,13 +1,21 @@
 import type { NextFunction, Request, RequestHandler, Response } from 'express';
+import { MulterError } from 'multer';
 import { z, ZodError, type ZodTypeAny } from 'zod';
 import { HttpError } from '../services/errors';
+import { UUID_REGEX } from '../utils/validation';
 
+/**
+ * Wrap an async route. Whatever the function returns is sent as JSON;
+ * returning `undefined` sends 204 No Content; thrown errors go to `errorHandler`.
+ */
 export const handle =
-  (fn: (req: Request, res: Response) => Promise<unknown> | unknown): RequestHandler =>
-  async (req, res, next) => {
+  (routeHandler: (request: Request, response: Response) => Promise<unknown> | unknown): RequestHandler =>
+  async (request, response, next) => {
     try {
-      const out = await fn(req, res);
-      if (!res.headersSent) out === undefined ? res.status(204).end() : res.json(out);
+      const result = await routeHandler(request, response);
+      if (response.headersSent) return;
+      if (result === undefined) response.status(204).end();
+      else response.json(result);
     } catch (error) {
       next(error);
     }
@@ -16,38 +24,54 @@ export const handle =
 export const parse = <Schema extends ZodTypeAny>(schema: Schema, data: unknown): z.infer<Schema> =>
   schema.parse(data);
 
-export const idParam = (req: Request) => {
-  const id = Number(req.params.id);
+export const idParam = (request: Request) => {
+  const id = Number(request.params.id);
   if (!Number.isInteger(id) || id < 1) throw new HttpError(400, 'Invalid id');
   return id;
 };
 
-const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-
-export const uuidParam = (req: Request, key = 'uuid') => {
-  const uuid = req.params[key];
+/** Read a uuid route parameter and reject anything that is not a uuid (keeps bad input away from Postgres). */
+export const uuidParam = (request: Request, key = 'uuid') => {
+  const uuid = request.params[key];
   if (!uuid || !UUID_REGEX.test(uuid)) throw new HttpError(400, 'Invalid uuid');
-  return uuid;
+  return uuid.toLowerCase();
 };
 
-export const queryInt = (value: unknown, fallback: number, min = 0): number => {
-  if (value === undefined || value === null) return Math.max(min, fallback);
-  const parsed = Number(value);
-  return Number.isInteger(parsed) ? Math.max(min, parsed) : fallback;
-};
+interface StatusError {
+  status?: number;
+  statusCode?: number;
+  type?: string;
+  expose?: boolean;
+  message?: string;
+}
 
-export function errorHandler(err: unknown, _req: Request, res: Response, _next: NextFunction) {
-  if (err instanceof ZodError) {
-    const first = err.issues[0];
-    return res.status(400).json({
-      error: first ? `${first.path.join('.') || 'input'}: ${first.message}` : 'Invalid input',
-      issues: err.issues,
+export function errorHandler(error: unknown, _request: Request, response: Response, _next: NextFunction) {
+  if (error instanceof ZodError) {
+    const firstIssue = error.issues[0];
+    return response.status(400).json({
+      error: firstIssue ? `${firstIssue.path.join('.') || 'input'}: ${firstIssue.message}` : 'Invalid input',
+      issues: error.issues,
     });
   }
-  if (err instanceof HttpError) return res.status(err.status).json({ error: err.message });
-  if (err && typeof err === 'object' && 'type' in err && (err as { type: unknown }).type === 'entity.parse.failed') {
-    return res.status(400).json({ error: 'Invalid JSON' });
+  if (error instanceof HttpError) return response.status(error.status).json({ error: error.message });
+
+  if (error instanceof MulterError) {
+    const message = error.code === 'LIMIT_FILE_SIZE' ? 'File is too large (5 MB max)' : 'File upload failed';
+    return response.status(error.code === 'LIMIT_FILE_SIZE' ? 413 : 400).json({ error: message });
   }
-  console.error(err);
-  res.status(500).json({ error: 'Something went wrong on our side' });
+
+  // Errors from express.json(): bad JSON (400) or body too large (413).
+  const statusError = (error && typeof error === 'object' ? error : {}) as StatusError;
+  if (statusError.type === 'entity.parse.failed') return response.status(400).json({ error: 'Invalid JSON' });
+  if (statusError.type === 'entity.too.large') {
+    return response.status(413).json({ error: 'Request is too large. Try importing fewer cards at once.' });
+  }
+  const status = statusError.status ?? statusError.statusCode;
+  if (status && status >= 400 && status < 500 && statusError.expose) {
+    return response.status(status).json({ error: statusError.message || 'Bad request' });
+  }
+
+  // Security: never send stack traces or database errors to the browser.
+  console.error(error);
+  response.status(500).json({ error: 'Something went wrong on our side' });
 }

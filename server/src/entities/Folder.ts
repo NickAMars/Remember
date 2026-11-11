@@ -1,4 +1,4 @@
-import { Column, CreateDateColumn, Entity, Generated, JoinTable, ManyToMany, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import { Column, CreateDateColumn, Entity, Generated, Index, JoinTable, ManyToMany, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 import type { User } from './User';
 import type { MasterCard } from './MasterCard';
 
@@ -18,6 +18,7 @@ export class Folder {
   @ManyToOne('User', { onDelete: 'CASCADE' })
   user: User;
 
+  @Index('idx_folders_user_id')
   @Column({ type: 'int' })
   userId: number;
 

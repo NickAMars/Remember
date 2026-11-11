@@ -19,28 +19,12 @@ jest.mock('../config', () => ({
 }));
 
 jest.mock('../constants', () => ({
+  ...jest.requireActual('../constants'),
   BCRYPT_SALT_ROUNDS: 12,
 }));
 
 // Suppress TypeORM decorator errors
-jest.mock('typeorm', () => {
-  const noop = () => () => undefined;
-  const noopClass = () => undefined;
-  return {
-    Entity: noop,
-    Column: noop,
-    PrimaryGeneratedColumn: noop,
-    Generated: noop,
-    CreateDateColumn: noop,
-    UpdateDateColumn: noop,
-    ManyToOne: noop,
-    OneToMany: noop,
-    ManyToMany: noop,
-    JoinTable: noop,
-    DataSource: noopClass,
-    Repository: noopClass,
-  };
-});
+jest.mock('typeorm', () => require('./support/typeormMock'));
 
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
@@ -61,12 +45,22 @@ const mockRepo = {
   createQueryBuilder: jest.fn(() => mockQueryBuilder),
 };
 
+const mockDeckRepo = { create: jest.fn((data: any) => ({ ...data, id: 1 })), save: jest.fn((entity: any) => Promise.resolve(entity)) };
+const mockCardRepo = { create: jest.fn((data: any) => data), save: jest.fn((entity: any) => Promise.resolve(entity)) };
+
+// The transaction hands back the same mock repositories, keyed by entity class name.
+const mockTransaction = {
+  getRepository: jest.fn((entity: { name: string }) =>
+    ({ User: mockRepo, MasterCard: mockDeckRepo, SubCard: mockCardRepo } as Record<string, unknown>)[entity.name]),
+};
+const mockDataSource = { transaction: jest.fn((work: (manager: unknown) => unknown) => work(mockTransaction)) };
+
 function buildService(): AuthService {
-  const svc = Object.create(AuthService.prototype);
-  (svc as any).users = mockRepo;
-  (svc as any).masterCards = { create: jest.fn((d: any) => ({ ...d, id: 1 })), save: jest.fn((e: any) => Promise.resolve(e)) };
-  (svc as any).subCards = { create: jest.fn((d: any) => d), save: jest.fn((e: any) => Promise.resolve(e)) };
-  return svc;
+  const service = Object.create(AuthService.prototype);
+  (service as any).users = mockRepo;
+  (service as any).poolCards = { delete: jest.fn() };
+  (service as any).dataSource = mockDataSource;
+  return service;
 }
 
 beforeEach(() => jest.clearAllMocks());
@@ -88,7 +82,11 @@ describe('AuthService', () => {
         authType: 'local',
       });
       expect(mockRepo.save).toHaveBeenCalled();
-      expect(jwt.sign).toHaveBeenCalled();
+      // The welcome deck is made in the same transaction as the user.
+      expect(mockDataSource.transaction).toHaveBeenCalledTimes(1);
+      expect(mockDeckRepo.save).toHaveBeenCalledWith(expect.objectContaining({ isDefault: true, userId: 1 }));
+      expect(mockCardRepo.save).toHaveBeenCalled();
+      expect(jwt.sign).toHaveBeenCalledWith(expect.anything(), 'test-secret', expect.objectContaining({ algorithm: 'HS256' }));
       expect(result).toEqual({
         token: 'mock-jwt-token',
         user: { uuid: 'test-uuid', name: 'alice', authType: 'local' },
@@ -140,7 +138,8 @@ describe('AuthService', () => {
 
       const claims = await svc.verify('valid-token');
 
-      expect(jwt.verify).toHaveBeenCalledWith('valid-token', 'test-secret');
+      // Security: the algorithm is pinned, so a token signed with "none" or RS256 is refused.
+      expect(jwt.verify).toHaveBeenCalledWith('valid-token', 'test-secret', { algorithms: ['HS256'] });
       expect(claims).toEqual({ sub: 'u-1', name: 'alice', authType: 'local' });
     });
 
@@ -152,6 +151,12 @@ describe('AuthService', () => {
       await expect(svc.verify('bad-token')).rejects.toThrow(
         expect.objectContaining({ status: 401, message: 'Please sign in again' }),
       );
+    });
+
+    it('throws 401 when the token has no subject', async () => {
+      (jwt.verify as jest.Mock).mockReturnValue({ name: 'alice' });
+
+      await expect(svc.verify('token')).rejects.toThrow(expect.objectContaining({ status: 401 }));
     });
 
     it('throws 401 for nonexistent user', async () => {

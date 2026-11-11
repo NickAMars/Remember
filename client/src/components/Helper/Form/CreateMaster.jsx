@@ -1,9 +1,9 @@
 import React, {Component} from 'react';
 import { connect } from 'react-redux';
 import { getMyCards, fetchUser } from '../../../actions';
-import axios from '../../../utils/api';
+import axios, { errorMessage } from '../../../utils/api';
 import { showToast } from '../../../utils/toast';
-import readXlsxFile from 'read-excel-file/browser';
+import { readCardsFromFile } from '../../../utils/spreadsheet';
 
 class CreateMaster extends Component{
   constructor(props){
@@ -17,51 +17,19 @@ class CreateMaster extends Component{
     this.fileInput = React.createRef();
   }
 
-  onFileSelect = () => {
+  onFileSelect = async () => {
     const file = this.fileInput.current.files[0];
     if (!file) return;
-
-    const ext = file.name.split('.').pop().toLowerCase();
-    if (!['xlsx', 'xls', 'csv'].includes(ext)) {
-      showToast('Please upload an .xlsx, .xls, or .csv file');
+    try {
+      const cards = await readCardsFromFile(file);
+      if (cards.length === 0) throw new Error('No valid cards found in file');
+      // Fill in the deck title from the file name when it is empty.
+      const nameFromFile = file.name.replace(/\.[^/.]+$/, '').replace(/_/g, ' ');
+      this.setState(prev => ({ parsedCards: cards, fileName: file.name, title: prev.title || nameFromFile }));
+    } catch (error) {
+      showToast(error.message || 'Could not read file');
       this.fileInput.current.value = '';
-      return;
     }
-
-    readXlsxFile(file).then((rows) => {
-      try {
-        const firstCell = rows.length > 0 ? String(rows[0][0] || '').toLowerCase() : '';
-        const startRow = (firstCell === 'title' || firstCell === 'question') ? 1 : 0;
-
-        const cards = [];
-        for (let i = startRow; i < rows.length; i++) {
-          const question = String(rows[i][0] || '').trim();
-          const answer = String(rows[i][1] || '').trim();
-          const link = String(rows[i][2] || '').trim();
-          if (question) cards.push({ title: question, description: answer, link });
-        }
-
-        if (cards.length === 0) {
-          showToast('No valid cards found in file');
-          this.fileInput.current.value = '';
-          return;
-        }
-
-        // Auto-fill title from file name if empty
-        const baseName = file.name.replace(/\.[^/.]+$/, '').replace(/_/g, ' ');
-        this.setState({
-          parsedCards: cards,
-          fileName: file.name,
-          title: this.state.title || baseName,
-        });
-      } catch (err) {
-        showToast('Could not read file');
-        this.fileInput.current.value = '';
-      }
-    }).catch(() => {
-      showToast('Could not read file');
-      this.fileInput.current.value = '';
-    });
   }
 
   clearFile = () => {
@@ -85,10 +53,10 @@ class CreateMaster extends Component{
       showToast(`"${title.trim()}" created with ${parsedCards.length} card${parsedCards.length !== 1 ? 's' : ''}`);
       this.setState({ title: '', parsedCards: [], fileName: '' });
       if (this.fileInput.current) this.fileInput.current.value = '';
-      this.props.getMyCards('/study');
+      this.props.getMyCards('/study', { page: 0, pageSize: 10 });
       this.props.fetchUser();
-    } catch (err) {
-      showToast(err.response ? err.response.data.error : 'Failed to create deck');
+    } catch (error) {
+      showToast(errorMessage(error, 'Failed to create deck'));
     } finally {
       this.setState({ creating: false });
     }
@@ -96,7 +64,7 @@ class CreateMaster extends Component{
 
   removeCard = (index) => {
     this.setState(prev => ({
-      parsedCards: prev.parsedCards.filter((_, i) => i !== index),
+      parsedCards: prev.parsedCards.filter((_, cardIndex) => cardIndex !== index),
     }));
   }
 
@@ -117,7 +85,7 @@ class CreateMaster extends Component{
               <input
                 ref={this.fileInput}
                 type="file"
-                accept=".xlsx,.xls,.csv"
+                accept=".xlsx,.csv"
                 style={{ display: 'none' }}
                 onChange={this.onFileSelect}
               />
@@ -143,11 +111,11 @@ class CreateMaster extends Component{
             {parsedCards.length > 0 && <div className="create__preview">
               <h5 className="create__preview-title">Preview ({parsedCards.length} cards)</h5>
               <div className="create__preview-list">
-                {parsedCards.map((card, i) => (
-                  <div key={i} className="create__preview-card">
+                {parsedCards.map((card, cardIndex) => (
+                  <div key={card.title} className="create__preview-card">
                     <div className="create__preview-q">{card.title}</div>
                     {card.description && <div className="create__preview-a">{card.description}</div>}
-                    <button className="create__preview-remove" onClick={() => this.removeCard(i)} title="Remove card">&times;</button>
+                    <button className="create__preview-remove" onClick={() => this.removeCard(cardIndex)} title="Remove card">&times;</button>
                   </div>
                 ))}
               </div>

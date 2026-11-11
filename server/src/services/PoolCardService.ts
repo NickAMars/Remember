@@ -1,11 +1,24 @@
 import { inject, injectable } from 'inversify';
 import { DataSource, Repository } from 'typeorm';
 import { MasterCard, SubCard, PoolCard, PoolSubCard, User } from '../entities';
+import { DATABASE_INSERT_CHUNK_SIZE, MAX_PUBLIC_DECKS_PER_USER } from '../constants';
 import { TYPES } from '../types';
 import { notFound, badRequest } from './errors';
+import { requireOwnedDeck, requireUserId } from './ownership';
 
+/** A public deck as shown on the Browse page (no cards, just a count). */
+export interface PublicDeckSummary {
+  uuid: string;
+  author: string;
+  title: string;
+  createdAt: Date;
+  subCardCount: number;
+}
+
+/** Public decks ("pool cards"): share a deck, unshare it, browse and copy other people's decks. */
 @injectable()
 export class PoolCardService {
+  private dataSource: DataSource;
   private poolCards: Repository<PoolCard>;
   private poolSubCards: Repository<PoolSubCard>;
   private masterCards: Repository<MasterCard>;
@@ -13,6 +26,7 @@ export class PoolCardService {
   private users: Repository<User>;
 
   constructor(@inject(TYPES.DataSource) dataSource: DataSource) {
+    this.dataSource = dataSource;
     this.poolCards = dataSource.getRepository(PoolCard);
     this.poolSubCards = dataSource.getRepository(PoolSubCard);
     this.masterCards = dataSource.getRepository(MasterCard);
@@ -20,84 +34,109 @@ export class PoolCardService {
     this.users = dataSource.getRepository(User);
   }
 
-  async getAll(): Promise<PoolCard[]> {
-    return this.poolCards.find({ relations: ['subCards'], order: { createdAt: 'DESC' } });
+  /** Every public deck, newest first. */
+  async getAll(): Promise<PublicDeckSummary[]> {
+    // perf Increase: count the cards in SQL. This used to send every card of every public deck.
+    const decks = await this.poolCards
+      .createQueryBuilder('publicDeck')
+      .loadRelationCountAndMap('publicDeck.subCardCount', 'publicDeck.subCards')
+      .orderBy('publicDeck.createdAt', 'DESC')
+      .getMany();
+    return decks.map((deck) => ({
+      uuid: deck.uuid,
+      author: deck.author,
+      title: deck.title,
+      createdAt: deck.createdAt,
+      subCardCount: deck.subCardCount ?? 0,
+    }));
   }
 
-  async create(masterCardUuid: string, userUuid: string): Promise<PoolCard[]> {
-    const masterCard = await this.masterCards.findOne({
-      where: { uuid: masterCardUuid },
-      relations: ['subCards'],
+  /** One public deck's title and author (no cards). */
+  async getSummary(publicDeckUuid: string): Promise<{ uuid: string; title: string; author: string }> {
+    const deck = await this.poolCards.findOne({ where: { uuid: publicDeckUuid }, select: ['uuid', 'title', 'author'] });
+    if (!deck) throw notFound('Pool card not found');
+    return { uuid: deck.uuid, title: deck.title, author: deck.author };
+  }
+
+  /** Share one of the user's own decks. */
+  async create(deckUuid: string, userUuid: string): Promise<PublicDeckSummary[]> {
+    const userId = await requireUserId(this.users, userUuid);
+    // Security fix: this used to accept any deck uuid, so anyone could publish someone else's deck.
+    const deck = await requireOwnedDeck(this.masterCards, deckUuid, userId);
+
+    if (deck.isDefault) throw badRequest('Cannot make the default tutorial card public');
+    if (deck.isCopied) throw badRequest('Cannot share a copied card');
+
+    const alreadyShared = await this.poolCards.findOneBy({ author: userUuid, title: deck.title });
+    if (alreadyShared) throw badRequest('This deck is already public');
+
+    const sharedCount = await this.poolCards.countBy({ author: userUuid });
+    if (sharedCount >= MAX_PUBLIC_DECKS_PER_USER) {
+      throw badRequest(`You can have at most ${MAX_PUBLIC_DECKS_PER_USER} public cards`);
+    }
+
+    const cards = await this.subCards.find({
+      where: { masterCardId: deck.id },
+      select: ['title', 'descriptions', 'link'],
     });
-    if (!masterCard) throw notFound('Master card not found');
+    if (cards.length === 0) throw badRequest('Cannot make a card public without any subcards');
 
-    // Don't allow default tutorial cards to be made public
-    if (masterCard.isDefault) {
-      throw badRequest('Cannot make the default tutorial card public');
-    }
-
-    // Don't allow copied cards to be re-shared
-    if (masterCard.isCopied) {
-      throw badRequest('Cannot share a copied card');
-    }
-
-    // Don't allow cards with no subcards to be made public
-    if (!masterCard.subCards || masterCard.subCards.length === 0) {
-      throw badRequest('Cannot make a card public without any subcards');
-    }
-
-    // Limit to 5 public cards per user
-    const userPoolCount = await this.poolCards.countBy({ author: userUuid });
-    if (userPoolCount >= 5) {
-      throw badRequest('You can have at most 5 public cards');
-    }
-
-    const poolCard = this.poolCards.create({ author: userUuid, title: masterCard.title });
-    await this.poolCards.save(poolCard);
-
-    const poolSubCards = masterCard.subCards.map(sub =>
-      this.poolSubCards.create({ title: sub.title, descriptions: sub.descriptions, link: sub.link || '', poolCardId: poolCard.id }),
-    );
-    await this.poolSubCards.save(poolSubCards);
+    await this.dataSource.transaction(async (transaction) => {
+      const publicDeckRepository = transaction.getRepository(PoolCard);
+      const publicCardRepository = transaction.getRepository(PoolSubCard);
+      const publicDeck = await publicDeckRepository.save(publicDeckRepository.create({ author: userUuid, title: deck.title }));
+      await publicCardRepository.save(
+        cards.map((card) => publicCardRepository.create({
+          title: card.title, descriptions: card.descriptions, link: card.link || '', poolCardId: publicDeck.id,
+        })),
+        { chunk: DATABASE_INSERT_CHUNK_SIZE },
+      );
+    });
 
     return this.getAll();
   }
 
-  async remove(uuid: string): Promise<PoolCard[]> {
-    const poolCard = await this.poolCards.findOneBy({ uuid });
-    if (!poolCard) throw notFound('Pool card not found');
-    await this.poolCards.remove(poolCard);
+  /** Unshare a deck. Security fix: only the person who shared it can remove it. */
+  async remove(publicDeckUuid: string, userUuid: string): Promise<PublicDeckSummary[]> {
+    const publicDeck = await this.poolCards.findOneBy({ uuid: publicDeckUuid });
+    if (!publicDeck || publicDeck.author !== userUuid) throw notFound('Pool card not found');
+    await this.poolCards.remove(publicDeck);
     return this.getAll();
   }
 
-  async getSubCards(uuid: string): Promise<PoolSubCard[]> {
-    const poolCard = await this.poolCards.findOneBy({ uuid });
-    if (!poolCard) throw notFound('Pool card not found');
-    return this.poolSubCards.find({ where: { poolCardId: poolCard.id } });
+  /** The cards of a public deck. */
+  async getSubCards(publicDeckUuid: string): Promise<PoolSubCard[]> {
+    const publicDeck = await this.poolCards.findOne({ where: { uuid: publicDeckUuid }, select: ['id'] });
+    if (!publicDeck) throw notFound('Pool card not found');
+    return this.poolSubCards.find({ where: { poolCardId: publicDeck.id }, order: { id: 'ASC' } });
   }
 
-  async storeToMaster(poolCardUuid: string, userUuid: string): Promise<MasterCard[]> {
-    const user = await this.users.findOneBy({ uuid: userUuid });
-    if (!user) throw notFound('User not found');
+  /** Copy a public deck into the user's own decks. */
+  async storeToMaster(publicDeckUuid: string, userUuid: string): Promise<MasterCard> {
+    const userId = await requireUserId(this.users, userUuid);
 
-    const poolCard = await this.poolCards.findOne({
-      where: { uuid: poolCardUuid },
-      relations: ['subCards'],
+    const publicDeck = await this.poolCards.findOne({ where: { uuid: publicDeckUuid }, relations: ['subCards'] });
+    if (!publicDeck) throw notFound('Pool card not found');
+
+    // Bug fix: copying a deck you already have used to create a second deck with the same title.
+    const sameTitle = await this.masterCards.findOneBy({ title: publicDeck.title, userId });
+    if (sameTitle) throw badRequest(`You already have a deck called "${publicDeck.title}"`);
+
+    const copiedDeck = await this.dataSource.transaction(async (transaction) => {
+      const deckRepository = transaction.getRepository(MasterCard);
+      const cardRepository = transaction.getRepository(SubCard);
+      const newDeck = await deckRepository.save(deckRepository.create({ title: publicDeck.title, userId, isCopied: true }));
+      await cardRepository.save(
+        publicDeck.subCards.map((card) => cardRepository.create({
+          title: card.title, descriptions: card.descriptions, link: card.link || '', masterCardId: newDeck.id,
+        })),
+        { chunk: DATABASE_INSERT_CHUNK_SIZE },
+      );
+      return newDeck;
     });
-    if (!poolCard) throw notFound('Pool card not found');
 
-    const masterCard = this.masterCards.create({ title: poolCard.title, userId: user.id, isCopied: true });
-    await this.masterCards.save(masterCard);
-
-    const subCards = poolCard.subCards.map(sub =>
-      this.subCards.create({ title: sub.title, descriptions: sub.descriptions, link: sub.link || '', masterCardId: masterCard.id }),
-    );
-    await this.subCards.save(subCards);
-
-    return this.masterCards.find({
-      where: { userId: user.id },
-      relations: ['subCards', 'progress'],
-      order: { createdAt: 'DESC' },
-    });
+    // perf Increase: return only the copied deck. This used to return all of the user's decks with all their cards.
+    copiedDeck.subCardCount = publicDeck.subCards.length;
+    return copiedDeck;
   }
 }

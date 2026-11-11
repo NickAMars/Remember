@@ -29,10 +29,10 @@ export class CardSizeControl extends React.Component {
     const sizes = this.getSizes();
     const saved = localStorage.getItem(this.getStorageKey());
     if (saved !== null) {
-      const idx = parseInt(saved, 10);
-      if (idx >= 0 && idx < sizes.length) {
-        this.setState({ sizeIndex: idx });
-        this.applySize(idx);
+      const sizeIndex = parseInt(saved, 10);
+      if (sizeIndex >= 0 && sizeIndex < sizes.length) {
+        this.setState({ sizeIndex: sizeIndex });
+        this.applySize(sizeIndex);
       }
     } else {
       const defaultIdx = this.props.variant === 'master' ? 0 : 2;
@@ -41,23 +41,23 @@ export class CardSizeControl extends React.Component {
     }
   }
 
-  applySize = (idx) => {
+  applySize = (sizeIndex) => {
     const sizes = this.getSizes();
-    const s = sizes[idx];
+    const size = sizes[sizeIndex];
     if (this.props.variant === 'master') {
-      document.documentElement.style.setProperty('--master-card-cols', s.cols);
-      document.documentElement.style.setProperty('--master-card-height', s.height);
+      document.documentElement.style.setProperty('--master-card-cols', size.cols);
+      document.documentElement.style.setProperty('--master-card-height', size.height);
     } else {
-      document.documentElement.style.setProperty('--card-columns', s.cols);
-      document.documentElement.style.setProperty('--card-height', s.height);
+      document.documentElement.style.setProperty('--card-columns', size.cols);
+      document.documentElement.style.setProperty('--card-height', size.height);
     }
   }
 
-  onChange = (e) => {
-    const idx = parseInt(e.target.value, 10);
-    this.setState({ sizeIndex: idx });
-    this.applySize(idx);
-    localStorage.setItem(this.getStorageKey(), idx);
+  onChange = (event) => {
+    const sizeIndex = parseInt(event.target.value, 10);
+    this.setState({ sizeIndex: sizeIndex });
+    this.applySize(sizeIndex);
+    localStorage.setItem(this.getStorageKey(), sizeIndex);
   }
 
   render() {

@@ -1,18 +1,21 @@
-import React, {PureComponent} from  'react';
-import { BrowserRouter as Router, Route, Navigate, Routes} from 'react-router-dom';
-import MultipleCards from './MultipleCards';
-import {Landing} from './Landing';
-import Main from './Main';
-import Mine from './Mine';
-import SmallCards from './SmallCards';
-import Header from './Header';
-import Folders from './Folders';
-import FolderDetail from './Folders/FolderDetail';
-import Quiz from './Quiz';
-import Breadcrumb from './Breadcrumb';
+import React, { PureComponent, Suspense, lazy } from 'react';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { connect } from 'react-redux';
-import { getMyCards, getPoolCards, fetchUser} from '../actions';
-import { BrowseRoute, StudyRoute, HomeRoute, RootRoute } from './AppRoutes';
+import Header from './Header';
+import Breadcrumb from './Breadcrumb';
+import { fetchUser } from '../actions';
+import { RootRoute } from './RootRoute';
+
+// perf Increase: each page is its own download, loaded the first time it is opened, so the
+// landing page doesn't wait for the charts, quiz and folder code.
+const MultipleCards = lazy(() => import('./MultipleCards'));
+const SmallCards = lazy(() => import('./SmallCards'));
+const Folders = lazy(() => import('./Folders'));
+const FolderDetail = lazy(() => import('./Folders/FolderDetail'));
+const Quiz = lazy(() => import('./Quiz'));
+const BrowseRoute = lazy(() => import('./AppRoutes').then(routes => ({ default: routes.BrowseRoute })));
+const StudyRoute = lazy(() => import('./AppRoutes').then(routes => ({ default: routes.StudyRoute })));
+const HomeRoute = lazy(() => import('./AppRoutes').then(routes => ({ default: routes.HomeRoute })));
 
 class App extends PureComponent{
   componentDidMount(){
@@ -20,7 +23,7 @@ class App extends PureComponent{
   }
 
   render(){
-    const {master, user} = this.props;
+    const { user } = this.props;
 
     return(
       <Router >
@@ -36,6 +39,7 @@ class App extends PureComponent{
         </div>}
         {user && user.uuid && <Header />}
 
+          <Suspense fallback={<div className="page-loading" aria-busy="true" />}>
           <Routes>
             <Route path='/home/subcards/:title' element={<MultipleCards />} />
             <Route path='/smallcards/:idMaster' element={<SmallCards />} />
@@ -43,11 +47,12 @@ class App extends PureComponent{
             <Route path='/folders/:folderUuid' element={<FolderDetail />} />
             <Route path='/quiz/:folderUuid' element={<Quiz />} />
             <Route path='/quiz' element={<Quiz />} />
-            <Route path='/browse' element={<BrowseRoute getPoolCards={this.props.getPoolCards} />} />
-            <Route path='/study' element={<StudyRoute master={master} getMyCards={this.props.getMyCards} />} />
+            <Route path='/browse' element={<BrowseRoute />} />
+            <Route path='/study' element={<StudyRoute />} />
             <Route path='/home' element={<HomeRoute />} />
             <Route path='/' element={<RootRoute user={user} />} />
           </Routes>
+          </Suspense>
 
           </div>
         </Router>
@@ -59,7 +64,6 @@ class App extends PureComponent{
 export const mapStateToProps = (state) => {
   return {
     user: state.user,
-    master: state.master_card
   };
 }
-export default connect(mapStateToProps,{getMyCards, getPoolCards, fetchUser})(App);
+export default connect(mapStateToProps, { fetchUser })(App);

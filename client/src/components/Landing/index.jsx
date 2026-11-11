@@ -1,6 +1,8 @@
 import React from 'react';
 import {Description} from './Description';
-import {SignIn} from '../Helper/Form';
+// perf Increase: import SignIn directly. The Form index also pulls in the spreadsheet reader,
+// which the landing page doesn't need.
+import SignIn from '../Helper/Form/SignIn';
 
 
 export const Landing = () =>{

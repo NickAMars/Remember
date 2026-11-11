@@ -1,21 +1,13 @@
-import reducers from './reducer';
-import { legacy_createStore as createStore, applyMiddleware  } from 'redux';
+import { legacy_createStore as createStore, applyMiddleware } from 'redux';
 import { thunk } from 'redux-thunk';
+import reducers from './reducer';
+import { LOGOUT } from './actions/types';
+import { setUnauthorizedHandler } from './utils/api';
 
-// applyMiddleware waits untill we recieve from server infromation
+// redux-thunk lets action creators wait for API calls before they dispatch.
 export const store = createStore(reducers, {}, applyMiddleware(thunk));
-// export default store;
 
-
-// placing this at the top level
-// import axios from 'axios';
-// creating the redux store and listener
-// import reducers from './reducer';
-// import { createStore, applyMiddleware  } from 'redux';
-// import thunk from 'redux-thunk';
-
-// const store = createStore(reducers, {}, applyMiddleware(thunk));
-/*
-  Going to use redux-thunk for the middleware
-   flag which waits for api request to finish
-*/
+// An expired or invalid token signs the user out everywhere in the app.
+setUnauthorizedHandler(() => {
+  if (store.getState().user) store.dispatch({ type: LOGOUT });
+});

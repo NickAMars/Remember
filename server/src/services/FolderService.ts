@@ -3,6 +3,8 @@ import { DataSource, In, Repository } from 'typeorm';
 import { Folder, MasterCard, SubCard, User } from '../entities';
 import { TYPES } from '../types';
 import { badRequest, notFound } from './errors';
+import { requireUserId } from './ownership';
+import { buildQuizCards, type Quiz } from './quiz';
 
 export interface DeckSummary {
   uuid: string;
@@ -18,60 +20,9 @@ export interface FolderSummary {
   cardCount: number;
 }
 
-export interface QuizCard {
-  uuid: string;
-  question: string;
-  answer: string;
-  link: string;
-  deck: string;
-  // Shuffled answer options (includes the right one). Empty when there aren't enough
-  // other answers to build a multiple choice question.
-  choices: string[];
-}
-
-export interface Quiz {
-  folder: { uuid: string; name: string };
-  available: number;
-  cards: QuizCard[];
-}
-
-export const QUIZ_CHOICES = 4;
-
-export function shuffle<T>(items: T[], random: () => number = Math.random): T[] {
-  const out = [...items];
-  for (let i = out.length - 1; i > 0; i--) {
-    const j = Math.floor(random() * (i + 1));
-    [out[i], out[j]] = [out[j], out[i]];
-  }
-  return out;
-}
-
-// Pick wrong answers for a card. Answers from the same deck come first because they
-// look more alike, then answers from the rest of the folder fill any gap.
-export function pickChoices(
-  card: { answer: string; deckId: number },
-  pool: { answer: string; deckId: number }[],
-  size = QUIZ_CHOICES,
-  random: () => number = Math.random,
-): string[] {
-  const right = card.answer.trim();
-  if (!right) return [];
-  const seen = new Set([right.toLowerCase()]);
-  const wrong: string[] = [];
-  const take = (candidates: { answer: string }[]) => {
-    for (const c of shuffle(candidates, random)) {
-      if (wrong.length >= size - 1) return;
-      const text = c.answer.trim();
-      if (!text || seen.has(text.toLowerCase())) continue;
-      seen.add(text.toLowerCase());
-      wrong.push(text);
-    }
-  };
-  take(pool.filter(p => p.deckId === card.deckId));
-  take(pool.filter(p => p.deckId !== card.deckId));
-  if (wrong.length < size - 1) return [];
-  return shuffle([right, ...wrong], random);
-}
+// The quiz helpers moved to ./quiz. Re-exported so older imports keep working.
+export { pickChoices, shuffle, QUIZ_CHOICES } from './quiz';
+export type { Quiz, QuizCard } from './quiz';
 
 @injectable()
 export class FolderService {
@@ -87,14 +38,17 @@ export class FolderService {
     this.users = dataSource.getRepository(User);
   }
 
-  private async userId(userUuid: string): Promise<number> {
-    const user = await this.users.findOneBy({ uuid: userUuid });
-    if (!user) throw notFound('User not found');
-    return user.id;
+  private userId(userUuid: string): Promise<number> {
+    return requireUserId(this.users, userUuid);
   }
 
   private async ownedFolder(uuid: string, userId: number): Promise<Folder> {
-    const folder = await this.folders.findOne({ where: { uuid, userId }, relations: ['masterCards'] });
+    // perf Increase: only the deck columns a folder needs (not the deck's counters or flags).
+    const folder = await this.folders.createQueryBuilder('folder')
+      .leftJoin('folder.masterCards', 'deck')
+      .addSelect(['deck.id', 'deck.uuid', 'deck.title'])
+      .where('folder.uuid = :uuid AND folder.userId = :userId', { uuid, userId })
+      .getOne();
     if (!folder) throw notFound('Folder not found');
     return folder;
   }
@@ -102,52 +56,58 @@ export class FolderService {
   private async cardCounts(deckIds: number[]): Promise<Map<number, number>> {
     if (deckIds.length === 0) return new Map();
     const rows: { masterCardId: number; count: string }[] = await this.subCards
-      .createQueryBuilder('sc')
-      .select('sc.masterCardId', 'masterCardId')
+      .createQueryBuilder('card')
+      .select('card.masterCardId', 'masterCardId')
       .addSelect('COUNT(*)', 'count')
-      .where('sc.masterCardId IN (:...deckIds)', { deckIds })
-      .groupBy('sc.masterCardId')
+      .where('card.masterCardId IN (:...deckIds)', { deckIds })
+      .groupBy('card.masterCardId')
       .getRawMany();
-    return new Map(rows.map(r => [Number(r.masterCardId), Number(r.count)]));
+    return new Map(rows.map((row) => [Number(row.masterCardId), Number(row.count)]));
   }
 
   private summarize(folder: Folder, counts: Map<number, number>): FolderSummary {
     const decks = [...(folder.masterCards || [])]
       .sort((a, b) => a.title.localeCompare(b.title))
-      .map(mc => ({ uuid: mc.uuid, title: mc.title, cardCount: counts.get(mc.id) || 0 }));
+      .map((deck) => ({ uuid: deck.uuid, title: deck.title, cardCount: counts.get(deck.id) || 0 }));
     return {
       uuid: folder.uuid,
       name: folder.name,
       createdAt: folder.createdAt,
       decks,
-      cardCount: decks.reduce((sum, d) => sum + d.cardCount, 0),
+      cardCount: decks.reduce((sum, deck) => sum + deck.cardCount, 0),
     };
   }
 
   async list(userUuid: string): Promise<FolderSummary[]> {
     const userId = await this.userId(userUuid);
-    const folders = await this.folders.find({ where: { userId }, relations: ['masterCards'], order: { name: 'ASC' } });
-    const deckIds = [...new Set(folders.flatMap(f => (f.masterCards || []).map(mc => mc.id)))];
+    // perf Increase: only the deck columns a folder needs.
+    const folders = await this.folders.createQueryBuilder('folder')
+      .leftJoin('folder.masterCards', 'deck')
+      .addSelect(['deck.id', 'deck.uuid', 'deck.title'])
+      .where('folder.userId = :userId', { userId })
+      .orderBy('folder.name', 'ASC')
+      .getMany();
+    const deckIds = [...new Set(folders.flatMap((folder) => (folder.masterCards || []).map((deck) => deck.id)))];
     const counts = await this.cardCounts(deckIds);
-    return folders.map(f => this.summarize(f, counts));
+    return folders.map((folder) => this.summarize(folder, counts));
   }
 
   async get(uuid: string, userUuid: string): Promise<FolderSummary> {
     const folder = await this.ownedFolder(uuid, await this.userId(userUuid));
-    const counts = await this.cardCounts((folder.masterCards || []).map(mc => mc.id));
+    const counts = await this.cardCounts((folder.masterCards || []).map((deck) => deck.id));
     return this.summarize(folder, counts);
   }
 
   // All of the user's decks, light (no cards), for the "pick decks" list.
   async decks(userUuid: string): Promise<DeckSummary[]> {
     const userId = await this.userId(userUuid);
-    const decks = await this.masterCards.createQueryBuilder('mc')
-      .select(['mc.id', 'mc.uuid', 'mc.title'])
-      .where('mc.userId = :userId', { userId })
-      .orderBy('mc.title', 'ASC')
+    const decks = await this.masterCards.createQueryBuilder('deck')
+      .select(['deck.id', 'deck.uuid', 'deck.title'])
+      .where('deck.userId = :userId', { userId })
+      .orderBy('deck.title', 'ASC')
       .getMany();
-    const counts = await this.cardCounts(decks.map(d => d.id));
-    return decks.map(d => ({ uuid: d.uuid, title: d.title, cardCount: counts.get(d.id) || 0 }));
+    const counts = await this.cardCounts(decks.map((deck) => deck.id));
+    return decks.map((deck) => ({ uuid: deck.uuid, title: deck.title, cardCount: counts.get(deck.id) || 0 }));
   }
 
   async create(userUuid: string, name: string): Promise<FolderSummary> {
@@ -184,11 +144,12 @@ export class FolderService {
   async setDecks(uuid: string, userUuid: string, deckUuids: string[]): Promise<FolderSummary> {
     const userId = await this.userId(userUuid);
     const folder = await this.ownedFolder(uuid, userId);
-    const unique = [...new Set(deckUuids)];
-    const decks = unique.length
-      ? await this.masterCards.find({ where: { uuid: In(unique), userId }, select: ['id', 'uuid', 'title'], loadEagerRelations: false })
+    const uniqueDeckUuids = [...new Set(deckUuids.map((deckUuid) => deckUuid.toLowerCase()))];
+    // Security: only the user's own decks can go in a folder.
+    const decks = uniqueDeckUuids.length
+      ? await this.masterCards.find({ where: { uuid: In(uniqueDeckUuids), userId }, select: ['id', 'uuid', 'title'] })
       : [];
-    if (decks.length !== unique.length) throw notFound('One or more decks were not found');
+    if (decks.length !== uniqueDeckUuids.length) throw notFound('One or more decks were not found');
     folder.masterCards = decks;
     await this.folders.save(folder);
     return this.get(uuid, userUuid);
@@ -197,8 +158,10 @@ export class FolderService {
   async removeDeck(uuid: string, userUuid: string, deckUuid: string): Promise<FolderSummary> {
     const userId = await this.userId(userUuid);
     const folder = await this.ownedFolder(uuid, userId);
-    folder.masterCards = (folder.masterCards || []).filter(mc => mc.uuid !== deckUuid);
-    await this.folders.save(folder);
+    const deckToRemove = (folder.masterCards || []).find((deck) => deck.uuid === deckUuid.toLowerCase());
+    if (!deckToRemove) throw notFound('That deck is not in this folder');
+    // perf Increase: delete one link row instead of re-saving the whole folder.
+    await this.folders.createQueryBuilder().relation(Folder, 'masterCards').of(folder.id).remove(deckToRemove.id);
     return this.get(uuid, userUuid);
   }
 
@@ -207,32 +170,13 @@ export class FolderService {
     const folder = await this.ownedFolder(uuid, userId);
     let decks = folder.masterCards || [];
     if (deckUuids && deckUuids.length) {
-      const wanted = new Set(deckUuids);
-      decks = decks.filter(d => wanted.has(d.uuid));
+      const wantedDeckUuids = new Set(deckUuids.map((deckUuid) => deckUuid.toLowerCase()));
+      decks = decks.filter((deck) => wantedDeckUuids.has(deck.uuid));
     }
     if (decks.length === 0) throw badRequest('Add at least one deck to this folder before starting a quiz');
 
-    const titles = new Map(decks.map(d => [d.id, d.title]));
-    const cards = await this.subCards.find({
-      where: { masterCardId: In(decks.map(d => d.id)) },
-      select: ['id', 'uuid', 'title', 'descriptions', 'link', 'masterCardId'],
-    });
-    if (cards.length === 0) throw badRequest('The decks in this folder have no cards yet');
-
-    const pool = cards.map(c => ({ answer: c.descriptions || '', deckId: c.masterCardId }));
-    const picked = shuffle(cards).slice(0, count && count > 0 ? count : cards.length);
-
-    return {
-      folder: { uuid: folder.uuid, name: folder.name },
-      available: cards.length,
-      cards: picked.map(c => ({
-        uuid: c.uuid,
-        question: c.title,
-        answer: c.descriptions || '',
-        link: c.link || '',
-        deck: titles.get(c.masterCardId) || '',
-        choices: pickChoices({ answer: c.descriptions || '', deckId: c.masterCardId }, pool),
-      })),
-    };
+    const quiz = await buildQuizCards(this.subCards, decks, { count });
+    if (quiz.available === 0) throw badRequest('The decks in this folder have no cards yet');
+    return { folder: { uuid: folder.uuid, name: folder.name }, ...quiz };
   }
 }

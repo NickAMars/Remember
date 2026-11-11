@@ -3,18 +3,22 @@ import { connect } from 'react-redux';
 import { withRouter } from '../../utils/withRouter';
 import {SubCard} from '../Helper/Cards';
 import {PieChart} from '../Main/PieChart';
-import { getMasterTime, getSmallCards, getPoolSubCard } from '../../actions'
-import axios from '../../utils/api';
+import { getMasterTime, getSmallCards, getPoolSubCard, clearSubCards } from '../../actions'
+import axios, { errorMessage } from '../../utils/api';
+import { MAX_UPLOAD_BYTES } from '../../constance';
 import {CardSizeControl} from '../CardSizeControl';
 import { showToast } from '../../utils/toast';
 
+const DEFAULT_PAGE_SIZE = 10;
+const SEARCH_DELAY_MS = 300;
+const PIE_CHART_SLICES = 6;
+
+/** One deck's cards, with paging, search, shuffle and an "add cards" dialog. */
 class SmallCards extends PureComponent{
 
   constructor(props){
     super(props)
     this.state = {
-      time: 0,
-      current: Date.now(),
       prevent: true,
       isOwner: true,
       localViews: {},
@@ -22,6 +26,7 @@ class SmallCards extends PureComponent{
       dialogTab: 'single',
       title: '',
       descriptions: '',
+      link: '',
       uploading: false,
       uploadMsg: '',
       masterTitle: '',
@@ -30,81 +35,89 @@ class SmallCards extends PureComponent{
       resetFlip: 0,
       shuffled: false,
       page: 0,
-      pageSize: 10,
+      pageSize: DEFAULT_PAGE_SIZE,
       pieData: [],
     }
     this.fileInput = React.createRef();
     this.searchTimer = null;
+    // perf Increase: study time is the gap between two timestamps. This used to be a
+    // setInterval that re-rendered the whole page every millisecond.
+    this.studyStartedAt = null;
+    // The deck whose cards are on screen (changes when a public deck turns out to be yours).
+    this.deckUuid = props.match.params.idMaster;
   }
 
   fetchCards = () => {
-    const masterUuid = this.props.match.params.idMaster;
     const { page, pageSize, searchQuery, shuffled } = this.state;
-    this.props.getSmallCards(masterUuid, { page, pageSize, search: searchQuery || undefined, shuffle: shuffled });
+    this.props.getSmallCards(this.deckUuid, { page, pageSize, search: searchQuery || undefined, shuffle: shuffled });
   }
 
   fetchPieData = () => {
-    const masterUuid = this.props.match.params.idMaster;
-    axios.get(`/api/profile/MasterCard/${masterUuid}/subcards/top-viewed`)
-      .then(res => this.setState({ pieData: res.data || [] }))
+    axios.get(`/api/profile/MasterCard/${this.deckUuid}/subcards/top-viewed`)
+      .then(response => this.setState({ pieData: response.data || [] }))
       .catch(() => {});
   }
 
-  async componentDidMount(){
-    const masterUuid = this.props.match.params.idMaster;
-    const isPool = this.props.location.state && this.props.location.state.prevent;
+  /** Show one of the user's own decks and start timing the study session. */
+  openOwnDeck = (deck) => {
+    this.deckUuid = deck.uuid;
+    this.setState({ masterTitle: deck.title, isOwner: true, prevent: false, isDefaultCard: !!deck.isDefault });
+    document.title = `${deck.title} - Remember`;
+    this.props.getSmallCards(deck.uuid, { page: 0, pageSize: this.state.pageSize });
+    this.fetchPieData();
+    this.studyStartedAt = Date.now();
+  }
 
-    if (isPool) {
-      try {
-        const poolRes = await axios.get('/api/poolcards');
-        const poolCard = poolRes.data.find(p => p.uuid === masterUuid);
-        if (poolCard) {
-          let myCards = this.props.masterCards;
-          if (!myCards || myCards.length === 0) {
-            try {
-              const myRes = await axios.get('/api/profile/MasterCard');
-              myCards = myRes.data || [];
-            } catch (e) { myCards = []; }
-          }
-          const ownCard = myCards.find(mc => mc.title === poolCard.title);
-          if (ownCard) {
-            this.props.getSmallCards(ownCard.uuid, { page: 0, pageSize: this.state.pageSize });
-            this.props.history.replace(`/smallcards/${ownCard.uuid}`);
-            this.setState({ masterTitle: ownCard.title, isOwner: true, prevent: false, isDefaultCard: !!ownCard.isDefault });
-            this.fetchPieData();
-            document.title = `${ownCard.title} - Remember`;
-            this.timer = setInterval(() =>
-              this.setState({ time: Date.now() - this.state.current })
-            , 1);
-            return;
-          }
-          this.setState({ masterTitle: poolCard.title });
-          document.title = `${poolCard.title} - Remember`;
-        }
-      } catch (err) {}
-      this.props.getPoolSubCard(masterUuid);
-    } else {
-      try {
-        const res = await axios.get(`/api/profile/MasterCard/${masterUuid}`);
-        this.setState({ masterTitle: res.data.title, isDefaultCard: !!res.data.isDefault });
-        document.title = `${res.data.title} - Remember`;
-        this.props.getSmallCards(masterUuid, { page: 0, pageSize: this.state.pageSize });
-        this.fetchPieData();
-      } catch (err) {
-        try {
-          this.props.getPoolSubCard(masterUuid);
-          const poolRes = await axios.get('/api/poolcards');
-          const poolCard = poolRes.data.find(p => p.uuid === masterUuid);
-          if (poolCard) {
-            this.setState({ masterTitle: poolCard.title, isOwner: false, prevent: true });
-          }
-        } catch (e) {}
+  /** Show a public deck someone else shared (read only, not timed). */
+  openPublicDeck = async (publicDeckUuid) => {
+    this.props.getPoolSubCard(publicDeckUuid);
+    try {
+      // perf Increase: ask for this one deck's title instead of downloading every public deck.
+      const { data: publicDeck } = await axios.get(`/api/poolcards/${publicDeckUuid}/summary`);
+      this.setState({ masterTitle: publicDeck.title, isOwner: false, prevent: true });
+      document.title = `${publicDeck.title} - Remember`;
+      return publicDeck;
+    } catch {
+      return null;
+    }
+  }
+
+  /** If the user already has a deck with this title (their own shared deck), return it. */
+  findOwnDeckByTitle = async (title) => {
+    try {
+      // perf Increase: a title search instead of loading every deck the user has.
+      const { data } = await axios.get('/api/profile/MasterCard', { params: { search: title, page: 0, pageSize: 100 } });
+      return (data.items || []).find(deck => deck.title === title) || null;
+    } catch {
+      return null;
+    }
+  }
+
+  async componentDidMount(){
+    const routeUuid = this.props.match.params.idMaster;
+    const cameFromBrowse = this.props.location.state && this.props.location.state.prevent;
+    // Don't flash the previous deck's cards while this one loads.
+    this.props.clearSubCards();
+
+    if (cameFromBrowse) {
+      const publicDeck = await this.openPublicDeck(routeUuid);
+      const ownDeck = publicDeck && publicDeck.author === (this.props.user && this.props.user.uuid)
+        ? await this.findOwnDeckByTitle(publicDeck.title)
+        : null;
+      if (ownDeck) {
+        this.props.history.replace(`/smallcards/${ownDeck.uuid}`);
+        this.openOwnDeck(ownDeck);
       }
+      return;
     }
 
-    this.timer = setInterval(() =>
-      this.setState({ time: Date.now() - this.state.current })
-    , 1)
+    try {
+      const { data: deck } = await axios.get(`/api/profile/MasterCard/${routeUuid}`);
+      this.openOwnDeck(deck);
+    } catch {
+      // Not one of the user's decks: it may be a public deck opened from a shared link.
+      await this.openPublicDeck(routeUuid);
+    }
   }
 
 static getDerivedStateFromProps(nextProps, prevState){
@@ -121,44 +134,50 @@ static getDerivedStateFromProps(nextProps, prevState){
     }));
   }
 
+  /** Called by a card after it is edited or deleted, so the current page reloads. */
+  onCardChanged = () => {
+    this.fetchCards();
+    this.fetchPieData();
+  }
+
   shuffleCards = () => {
     this.setState(prev => ({ shuffled: !prev.shuffled, page: 0 }), this.fetchCards);
   }
 
-  setPage = (p) => {
-    this.setState({ page: p }, this.fetchCards);
+  setPage = (pageNumber) => {
+    this.setState({ page: pageNumber }, this.fetchCards);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
-  onSearchChange = (e) => {
-    const searchQuery = e.target.value;
+  onSearchChange = (event) => {
+    const searchQuery = event.target.value;
     this.setState({ searchQuery, page: 0 });
     clearTimeout(this.searchTimer);
-    this.searchTimer = setTimeout(() => {
-      this.fetchCards();
-    }, 300);
+    // perf Increase: wait until typing pauses before asking the server.
+    this.searchTimer = setTimeout(this.fetchCards, SEARCH_DELAY_MS);
   }
 
   clearSearch = () => {
     this.setState({ searchQuery: '', page: 0 }, this.fetchCards);
   }
 
-  changePageSize = (e) => {
-    const size = parseInt(e.target.value, 10);
+  changePageSize = (event) => {
+    const size = parseInt(event.target.value, 10);
     if (size > 0) {
       this.setState({ pageSize: size, page: 0 }, this.fetchCards);
     }
   }
 
-  pageSlots(current, total) {
-    if (total <= 5) return Array.from({ length: total }, (_, i) => i);
+  /** Page buttons to show: first, last, and the pages around the current one, with gaps. */
+  pageSlots(currentPage, totalPages) {
+    if (totalPages <= 5) return Array.from({ length: totalPages }, (_, pageNumber) => pageNumber);
     const slots = [0];
-    const start = Math.max(1, current - 1);
-    const end = Math.min(total - 2, current + 1);
+    const start = Math.max(1, currentPage - 1);
+    const end = Math.min(totalPages - 2, currentPage + 1);
     if (start > 1) slots.push('gap');
-    for (let i = start; i <= end; i++) slots.push(i);
-    if (end < total - 2) slots.push('gap');
-    slots.push(total - 1);
+    for (let pageNumber = start; pageNumber <= end; pageNumber++) slots.push(pageNumber);
+    if (end < totalPages - 2) slots.push('gap');
+    slots.push(totalPages - 1);
     return slots;
   }
 
@@ -173,10 +192,10 @@ static getDerivedStateFromProps(nextProps, prevState){
         {totalPages > 1 && <>
           <button className="pagination__btn" disabled={page === 0} onClick={() => this.setPage(0)}>&laquo;</button>
           <button className="pagination__btn" disabled={page === 0} onClick={() => this.setPage(page - 1)}>&lsaquo;</button>
-          {slots.map((s, i) =>
-            s === 'gap'
-              ? <span key={`gap-${i}`} className="pagination__gap">&hellip;</span>
-              : <button key={s} className={`pagination__btn ${s === page ? 'pagination__btn--active' : ''}`} onClick={() => this.setPage(s)}>{s + 1}</button>
+          {slots.map((slot, slotIndex) =>
+            slot === 'gap'
+              ? <span key={`gap-${slotIndex}`} className="pagination__gap">&hellip;</span>
+              : <button key={slot} className={`pagination__btn ${slot === page ? 'pagination__btn--active' : ''}`} onClick={() => this.setPage(slot)}>{slot + 1}</button>
           )}
           <button className="pagination__btn" disabled={page === totalPages - 1} onClick={() => this.setPage(page + 1)}>&rsaquo;</button>
           <button className="pagination__btn" disabled={page === totalPages - 1} onClick={() => this.setPage(totalPages - 1)}>&raquo;</button>
@@ -203,23 +222,29 @@ static getDerivedStateFromProps(nextProps, prevState){
   addSubCard = async () => {
     const { title, descriptions, link } = this.state;
     if (!title.trim()) return;
-    const masterUuid = this.props.match.params.idMaster;
     try {
-      await axios.post(`/api/profile/MasterCard/${masterUuid}/subcards`, { title, descriptions, link });
+      await axios.post(`/api/profile/MasterCard/${this.deckUuid}/subcards`, { title, descriptions, link });
       this.setState({ title: '', descriptions: '', link: '', dialogOpen: false });
       this.fetchCards();
       showToast(`"${title}" added successfully`);
-    } catch (err) {
-      showToast(err.response ? err.response.data.error : 'Failed to add card');
+    } catch (error) {
+      showToast(errorMessage(error, 'Failed to add card'));
     }
   }
 
   onFileSelect = () => {
     const file = this.fileInput.current.files[0];
     if (!file) return;
-    const ext = file.name.split('.').pop().toLowerCase();
-    if (!['xlsx', 'xls', 'csv'].includes(ext)) {
-      this.setState({ uploadMsg: 'Please upload an .xlsx, .xls, or .csv file', selectedFileName: '' });
+    const extension = file.name.split('.').pop().toLowerCase();
+    if (!['xlsx', 'csv'].includes(extension)) {
+      const message = extension === 'xls'
+        ? 'Old .xls files are not supported. Open it in Excel and save as .xlsx.'
+        : 'Please upload an .xlsx or .csv file';
+      this.setState({ uploadMsg: message, selectedFileName: '' });
+      return;
+    }
+    if (file.size > MAX_UPLOAD_BYTES) {
+      this.setState({ uploadMsg: 'File is too large (5 MB max)', selectedFileName: '' });
       return;
     }
     this.setState({ selectedFileName: file.name, uploadMsg: '' });
@@ -233,26 +258,24 @@ static getDerivedStateFromProps(nextProps, prevState){
   onFileUpload = async () => {
     const file = this.fileInput.current.files[0];
     if (!file) return;
-    const masterUuid = this.props.match.params.idMaster;
     const formData = new FormData();
     formData.append('file', file);
     this.setState({ uploading: true, uploadMsg: '' });
     try {
-      const res = await axios.post(`/api/profile/MasterCard/${masterUuid}/subcards/upload`, formData, {
+      const response = await axios.post(`/api/profile/MasterCard/${this.deckUuid}/subcards/upload`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
-      const { added, updated } = res.data;
+      const { added, updated, count } = response.data;
       const parts = [];
       if (added > 0) parts.push(`${added} added`);
       if (updated > 0) parts.push(`${updated} updated`);
-      const msg = parts.join(', ') || `${res.data.count} cards processed`;
-      this.setState({ uploadMsg: msg, dialogOpen: false, page: 0, selectedFileName: '' });
-      this.fetchCards();
-      showToast(msg);
-    } catch (err) {
-      const errMsg = err.response ? err.response.data.error : 'Upload failed';
-      this.setState({ uploadMsg: errMsg });
-      showToast(errMsg);
+      const message = parts.join(', ') || `${count} cards processed`;
+      this.setState({ uploadMsg: message, dialogOpen: false, page: 0, selectedFileName: '' }, this.fetchCards);
+      showToast(message);
+    } catch (error) {
+      const message = errorMessage(error, 'Upload failed');
+      this.setState({ uploadMsg: message });
+      showToast(message);
     } finally {
       this.setState({ uploading: false });
       if (this.fileInput.current) this.fileInput.current.value = '';
@@ -260,37 +283,30 @@ static getDerivedStateFromProps(nextProps, prevState){
   }
 
   render(){
-    if(this.state.prevent)
-      clearInterval( this.timer );
     const { dialogOpen, dialogTab, title, descriptions, uploading, uploadMsg, isOwner, localViews, isDefaultCard, searchQuery } = this.state;
-    const cards = this.props.showsubcards.items || this.props.showsubcards;
-    const totalCards = this.props.showsubcards.total !== undefined ? this.props.showsubcards.total : (Array.isArray(this.props.showsubcards) ? this.props.showsubcards.length : 0);
-    const displayCards = Array.isArray(cards) ? cards : [];
+    const { items: displayCards, total: totalCards } = this.props.showsubcards;
     let pieData;
     if (isOwner) {
-      const pieMap = new Map();
-      // Start with server-side top-viewed data
-      for (const sc of this.state.pieData) {
-        const local = localViews[sc.uuid];
-        pieMap.set(sc.uuid, { ...sc, views: sc.views + (local ? local.count : 0) });
+      const viewsByCard = new Map();
+      // Start with the server's most viewed cards, plus flips from this visit.
+      for (const card of this.state.pieData) {
+        const localView = localViews[card.uuid];
+        viewsByCard.set(card.uuid, { ...card, views: card.views + (localView ? localView.count : 0) });
       }
-      // Add any cards flipped this session that aren't in server data
-      for (const [uuid, info] of Object.entries(localViews)) {
-        if (!pieMap.has(uuid)) {
-          pieMap.set(uuid, { uuid, title: info.title, views: info.count });
+      // Add cards flipped this visit that the server hasn't counted yet.
+      for (const [cardUuid, localView] of Object.entries(localViews)) {
+        if (!viewsByCard.has(cardUuid)) {
+          viewsByCard.set(cardUuid, { uuid: cardUuid, title: localView.title, views: localView.count });
         }
       }
-      pieData = Array.from(pieMap.values())
-        .filter(sc => sc.views > 0)
-        .sort((a, b) => b.views - a.views)
-        .slice(0, 6);
+      pieData = Array.from(viewsByCard.values());
     } else {
-      pieData = displayCards
-        .map(sc => ({ ...sc, views: (localViews[sc.uuid] ? localViews[sc.uuid].count : 0) }))
-        .filter(sc => sc.views > 0)
-        .sort((a, b) => b.views - a.views)
-        .slice(0, 6);
+      pieData = displayCards.map(card => ({ ...card, views: (localViews[card.uuid] ? localViews[card.uuid].count : 0) }));
     }
+    pieData = pieData
+      .filter(card => card.views > 0)
+      .sort((first, second) => second.views - first.views)
+      .slice(0, PIE_CHART_SLICES);
     return (
       <div className="remember">
         {this.state.masterTitle && <div className="header-box">
@@ -305,7 +321,7 @@ static getDerivedStateFromProps(nextProps, prevState){
         </div>}
 
         {dialogOpen && <div className="dialog-overlay" onClick={this.closeDialog}>
-          <div className="dialog" onClick={(e) => e.stopPropagation()}>
+          <div className="dialog" onClick={(event) => event.stopPropagation()}>
             <div className="dialog__header">
               <h3 className="dialog__title">Add Cards</h3>
               <button className="dialog__close" onClick={this.closeDialog}>&times;</button>
@@ -323,14 +339,14 @@ static getDerivedStateFromProps(nextProps, prevState){
                     placeholder="Question"
                     maxLength="1000"
                     value={title}
-                    onChange={(e) => this.setState({ title: e.target.value })}
+                    onChange={(event) => this.setState({ title: event.target.value })}
                   />
                   <textarea
                     className="dialog__textarea"
                     placeholder="Answer"
                     maxLength="5000"
                     value={descriptions}
-                    onChange={(e) => this.setState({ descriptions: e.target.value })}
+                    onChange={(event) => this.setState({ descriptions: event.target.value })}
                   />
                   <input
                     className="dialog__input"
@@ -338,7 +354,7 @@ static getDerivedStateFromProps(nextProps, prevState){
                     placeholder="Reference link (optional)"
                     maxLength="2000"
                     value={this.state.link || ''}
-                    onChange={(e) => this.setState({ link: e.target.value })}
+                    onChange={(event) => this.setState({ link: event.target.value })}
                   />
                   <button className="dialog__submit" onClick={this.addSubCard}>Add Card</button>
                 </div>
@@ -348,7 +364,7 @@ static getDerivedStateFromProps(nextProps, prevState){
                   <input
                     ref={this.fileInput}
                     type="file"
-                    accept=".xlsx,.xls,.csv"
+                    accept=".xlsx,.csv"
                     className="dialog__upload-native"
                     onChange={this.onFileSelect}
                     disabled={uploading}
@@ -409,7 +425,7 @@ static getDerivedStateFromProps(nextProps, prevState){
         {this.renderPagination(totalCards, 'top')}
         <div className="row">
         {
-         displayCards.map((smallcard, index) => <SubCard  key={smallcard.uuid}  {...smallcard} masterCardUuid={this.props.match.params.idMaster} isOwner={isOwner} isDefault={isDefaultCard} onView={this.onCardView} resetFlip={this.state.resetFlip} />)
+         displayCards.map((card) => <SubCard key={card.uuid} {...card} masterCardUuid={this.deckUuid} isOwner={isOwner} isDefault={isDefaultCard} onView={this.onCardView} onChanged={this.onCardChanged} resetFlip={this.state.resetFlip} />)
         }
         </div>
         {this.renderPagination(totalCards, 'bottom')}
@@ -418,9 +434,10 @@ static getDerivedStateFromProps(nextProps, prevState){
   }
 
 componentWillUnmount(){
-  if(!this.state.prevent){
-    this.props.getMasterTime(this.props.match.params.idMaster,this.state.time);
-    clearInterval( this.timer );
+  // Bug fix: time was only saved when the page's "prevent" flag happened to be false, and it
+  // was counted for public decks too. Now only the user's own decks are timed.
+  if (this.studyStartedAt !== null) {
+    this.props.getMasterTime(this.deckUuid, Date.now() - this.studyStartedAt);
   }
   clearTimeout(this.searchTimer);
 }
@@ -428,10 +445,9 @@ componentWillUnmount(){
 }
 export const mapStateToProps = (state) => {
   return {
-    smallcards: state.smallcards,
+    user: state.user,
     showsubcards: state.showsubcards,
-    masterCards: (state.master_card && state.master_card.items) || (Array.isArray(state.master_card) ? state.master_card : []),
   };
 }
 
-export default withRouter(connect(mapStateToProps, {getMasterTime, getSmallCards, getPoolSubCard})(SmallCards));
+export default withRouter(connect(mapStateToProps, {getMasterTime, getSmallCards, getPoolSubCard, clearSubCards})(SmallCards));

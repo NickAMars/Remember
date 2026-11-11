@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import { withRouter } from '../../utils/withRouter';
 import axios from '../../utils/api';
+import { safeHref } from '../../utils/safeLink';
 import { showToast } from '../../utils/toast';
 
 const errorText = (err, fallback) =>
@@ -51,22 +52,27 @@ class Quiz extends Component {
 
   loadDueCounts = async () => {
     try {
-      const res = await axios.get('/api/review/due');
-      this.setState({ dueCounts: res.data });
+      const response = await axios.get('/api/review/due');
+      this.setState({ dueCounts: response.data });
     } catch {
       // silently ignore — due counts are supplemental
     }
   };
 
-  submitResults = () => {
+  submitResults = async () => {
     const { results, mode } = this.state;
     if (results.length === 0) return;
-    const payload = results.map(r => ({
-      subCardUuid: r.card.uuid,
-      correct: r.correct,
+    const payload = results.map(result => ({
+      subCardUuid: result.card.uuid,
+      correct: result.correct,
       mode: mode === 'choice' ? 'choice' : 'flash',
     }));
-    axios.post('/api/review/results', { results: payload }).catch(() => {});
+    try {
+      // Bug fix: due counts were reloaded before the results were saved, so they were stale.
+      await axios.post('/api/review/results', { results: payload });
+    } catch {
+      // Results are a bonus for spaced repetition; the quiz itself still finished.
+    }
     this.loadDueCounts();
   };
 
@@ -77,8 +83,8 @@ class Quiz extends Component {
     try {
       const params = {};
       if (count) params.count = count;
-      const res = await axios.get(`/api/review/due/${folderUuid}`, { params });
-      this.begin(res.data.cards, res.data.folder.name);
+      const response = await axios.get(`/api/review/due/${folderUuid}`, { params });
+      this.begin(response.data.cards, response.data.folder.name);
     } catch (err) {
       showToast(errorText(err, 'No cards due for review'));
     } finally {
@@ -88,26 +94,26 @@ class Quiz extends Component {
 
   loadFolders = async () => {
     try {
-      const res = await axios.get('/api/folders');
+      const response = await axios.get('/api/folders');
       const fromUrl = this.props.match.params.folderUuid;
-      const usable = res.data.filter(f => f.cardCount > 0);
-      const folderUuid = (fromUrl && res.data.some(f => f.uuid === fromUrl))
+      const usable = response.data.filter(folder => folder.cardCount > 0);
+      const folderUuid = (fromUrl && response.data.some(folder => folder.uuid === fromUrl))
         ? fromUrl
         : (usable[0] ? usable[0].uuid : '');
-      this.setState({ folders: res.data, folderUuid });
+      this.setState({ folders: response.data, folderUuid });
     } catch (err) {
       showToast(errorText(err, 'Failed to load folders'));
     }
   };
 
   currentFolder() {
-    return this.state.folders.find(f => f.uuid === this.state.folderUuid);
+    return this.state.folders.find(folder => folder.uuid === this.state.folderUuid);
   }
 
   includedDecks() {
     const folder = this.currentFolder();
     if (!folder) return [];
-    return folder.decks.filter(d => this.state.deckFilter[d.uuid] !== false && d.cardCount > 0);
+    return folder.decks.filter(deck => this.state.deckFilter[deck.uuid] !== false && deck.cardCount > 0);
   }
 
   start = async () => {
@@ -122,9 +128,9 @@ class Quiz extends Component {
     try {
       const params = {};
       if (this.state.count) params.count = this.state.count;
-      if (decks.length !== folder.decks.length) params.decks = decks.map(d => d.uuid).join(',');
-      const res = await axios.get(`/api/folders/${folder.uuid}/quiz`, { params });
-      this.begin(res.data.cards, res.data.folder.name);
+      if (decks.length !== folder.decks.length) params.decks = decks.map(deck => deck.uuid).join(',');
+      const response = await axios.get(`/api/folders/${folder.uuid}/quiz`, { params });
+      this.begin(response.data.cards, response.data.folder.name);
     } catch (err) {
       showToast(errorText(err, 'Failed to start quiz'));
     } finally {
@@ -175,21 +181,21 @@ class Quiz extends Component {
     return this.state.results.length > this.state.index;
   }
 
-  onKey = (e) => {
+  onKey = (event) => {
     if (this.state.stage !== 'running') return;
-    if (e.target && ['INPUT', 'TEXTAREA', 'SELECT'].includes(e.target.tagName)) return;
+    if (event.target && ['INPUT', 'TEXTAREA', 'SELECT'].includes(event.target.tagName)) return;
     const card = this.card();
     if (!card) return;
     if (this.useChoices(card)) {
-      const n = parseInt(e.key, 10);
-      if (!this.answered() && n >= 1 && n <= card.choices.length) this.pick(card.choices[n - 1]);
-      else if (this.answered() && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); this.next(); }
-    } else if (!this.state.revealed && (e.key === 'Enter' || e.key === ' ')) {
-      e.preventDefault();
+      const choiceNumber = parseInt(event.key, 10);
+      if (!this.answered() && choiceNumber >= 1 && choiceNumber <= card.choices.length) this.pick(card.choices[choiceNumber - 1]);
+      else if (this.answered() && (event.key === 'Enter' || event.key === ' ')) { event.preventDefault(); this.next(); }
+    } else if (!this.state.revealed && (event.key === 'Enter' || event.key === ' ')) {
+      event.preventDefault();
       this.setState({ revealed: true });
     } else if (this.state.revealed && !this.answered()) {
-      if (e.key === 'y' || e.key === '1') this.grade(true);
-      if (e.key === 'n' || e.key === '2') this.grade(false);
+      if (event.key === 'y' || event.key === '1') this.grade(true);
+      if (event.key === 'n' || event.key === '2') this.grade(false);
     }
   };
 
@@ -198,7 +204,7 @@ class Quiz extends Component {
   folderDueCount(folderUuid) {
     const { dueCounts } = this.state;
     if (!dueCounts || !dueCounts.byFolder) return 0;
-    const entry = dueCounts.byFolder.find(f => f.folderUuid === folderUuid);
+    const entry = dueCounts.byFolder.find(dueFolder => dueFolder.folderUuid === folderUuid);
     return entry ? entry.count : 0;
   }
 
@@ -206,7 +212,7 @@ class Quiz extends Component {
     const { folders, folderUuid, count, mode, loading, deckFilter, dueCounts } = this.state;
     const folder = this.currentFolder();
     const decks = this.includedDecks();
-    const available = decks.reduce((s, d) => s + d.cardCount, 0);
+    const available = decks.reduce((sum, deck) => sum + deck.cardCount, 0);
     const dueForFolder = this.folderDueCount(folderUuid);
 
     if (folders.length === 0) {
@@ -226,12 +232,12 @@ class Quiz extends Component {
 
         <label className="quiz__label">Folder</label>
         <select className="quiz__select" value={folderUuid}
-          onChange={e => this.setState({ folderUuid: e.target.value, deckFilter: {} })}>
-          {folders.map(f => {
-            const due = this.folderDueCount(f.uuid);
+          onChange={event => this.setState({ folderUuid: event.target.value, deckFilter: {} })}>
+          {folders.map(folder => {
+            const due = this.folderDueCount(folder.uuid);
             return (
-              <option key={f.uuid} value={f.uuid} disabled={f.cardCount === 0}>
-                {f.name} ({f.cardCount} cards{due > 0 ? `, ${due} due` : ''})
+              <option key={folder.uuid} value={folder.uuid} disabled={folder.cardCount === 0}>
+                {folder.name} ({folder.cardCount} cards{due > 0 ? `, ${due} due` : ''})
               </option>
             );
           })}
@@ -240,13 +246,13 @@ class Quiz extends Component {
         {folder && folder.decks.length > 0 && <>
           <label className="quiz__label">Decks <span className="quiz__hint">click to leave one out</span></label>
           <div className="quiz__chips">
-            {folder.decks.map(d => {
-              const on = deckFilter[d.uuid] !== false && d.cardCount > 0;
+            {folder.decks.map(deck => {
+              const on = deckFilter[deck.uuid] !== false && deck.cardCount > 0;
               return (
-                <button key={d.uuid} type="button" disabled={d.cardCount === 0}
+                <button key={deck.uuid} type="button" disabled={deck.cardCount === 0}
                   className={`quiz__chip ${on ? 'quiz__chip--on' : ''}`}
-                  onClick={() => this.setState(prev => ({ deckFilter: { ...prev.deckFilter, [d.uuid]: !on } }))}>
-                  {d.title} <span className="quiz__chip-count">{d.cardCount}</span>
+                  onClick={() => this.setState(prev => ({ deckFilter: { ...prev.deckFilter, [deck.uuid]: !on } }))}>
+                  {deck.title} <span className="quiz__chip-count">{deck.cardCount}</span>
                 </button>
               );
             })}
@@ -255,11 +261,11 @@ class Quiz extends Component {
 
         <label className="quiz__label">Questions</label>
         <div className="quiz__segment">
-          {COUNTS.map(c => (
-            <button key={c} type="button"
-              className={`quiz__seg ${count === c ? 'quiz__seg--on' : ''}`}
-              onClick={() => this.setState({ count: c })}>
-              {c === 0 ? `All (${available})` : c}
+          {COUNTS.map(questionCount => (
+            <button key={questionCount} type="button"
+              className={`quiz__seg ${count === questionCount ? 'quiz__seg--on' : ''}`}
+              onClick={() => this.setState({ count: questionCount })}>
+              {questionCount === 0 ? `All (${available})` : questionCount}
             </button>
           ))}
         </div>
@@ -300,7 +306,7 @@ class Quiz extends Component {
     const { cards, index, picked, revealed, results, folderName } = this.state;
     const card = this.card();
     if (!card) return null;
-    const correctSoFar = results.filter(r => r.correct).length;
+    const correctSoFar = results.filter(result => result.correct).length;
     const answered = this.answered();
     const right = card.answer.trim();
     const choice = this.useChoices(card);
@@ -319,18 +325,18 @@ class Quiz extends Component {
 
         {choice ? (
           <ol className="quiz__options">
-            {card.choices.map((opt, i) => {
-              let cls = 'quiz__option';
+            {card.choices.map((option, optionIndex) => {
+              let optionClass = 'quiz__option';
               if (answered) {
-                if (opt === right) cls += ' quiz__option--right';
-                else if (opt === picked) cls += ' quiz__option--wrong';
-                else cls += ' quiz__option--dim';
+                if (option === right) optionClass += ' quiz__option--right';
+                else if (option === picked) optionClass += ' quiz__option--wrong';
+                else optionClass += ' quiz__option--dim';
               }
               return (
-                <li key={i}>
-                  <button className={cls} disabled={answered} onClick={() => this.pick(opt)}>
-                    <span className="quiz__letter">{LETTERS[i]}</span>
-                    <span className="quiz__option-text">{opt}</span>
+                <li key={optionIndex}>
+                  <button className={optionClass} disabled={answered} onClick={() => this.pick(option)}>
+                    <span className="quiz__letter">{LETTERS[optionIndex]}</span>
+                    <span className="quiz__option-text">{option}</span>
                   </button>
                 </li>
               );
@@ -349,8 +355,8 @@ class Quiz extends Component {
             {picked === right ? 'Correct!' : 'Not quite. The right answer is highlighted.'}
           </p>
         )}
-        {(answered || revealed) && card.link && (
-          <a className="quiz__link" href={card.link} target="_blank" rel="noopener noreferrer">Learn more</a>
+        {(answered || revealed) && safeHref(card.link) && (
+          <a className="quiz__link" href={safeHref(card.link)} target="_blank" rel="noopener noreferrer">Learn more</a>
         )}
 
         <div className="quiz__controls">
@@ -371,8 +377,8 @@ class Quiz extends Component {
 
   renderDone() {
     const { results, folderName, folderUuid } = this.state;
-    const correct = results.filter(r => r.correct).length;
-    const missed = results.filter(r => !r.correct);
+    const correct = results.filter(result => result.correct).length;
+    const missed = results.filter(result => !result.correct);
     const pct = results.length ? Math.round((correct / results.length) * 100) : 0;
 
     return (
@@ -386,7 +392,7 @@ class Quiz extends Component {
 
         <div className="quiz__controls quiz__controls--left">
           {missed.length > 0 && (
-            <button className="folders__btn folders__btn--primary" onClick={() => this.begin(missed.map(r => r.card))}>
+            <button className="folders__btn folders__btn--primary" onClick={() => this.begin(missed.map(result => result.card))}>
               Retry {missed.length} missed
             </button>
           )}
@@ -397,12 +403,12 @@ class Quiz extends Component {
         {missed.length > 0 && <>
           <h3 className="quiz__missed-title">Review what you missed</h3>
           <ul className="quiz__missed">
-            {missed.map((r, i) => (
-              <li key={i} className="quiz__missed-item">
-                <p className="quiz__missed-q">{r.card.question}</p>
-                {r.given && <p className="quiz__missed-given"><strong>Your answer:</strong> {r.given}</p>}
-                <p className="quiz__missed-a"><strong>Correct answer:</strong> {r.card.answer}</p>
-                {r.card.link && <a className="quiz__link" href={r.card.link} target="_blank" rel="noopener noreferrer">Learn more</a>}
+            {missed.map((result) => (
+              <li key={result.card.uuid} className="quiz__missed-item">
+                <p className="quiz__missed-q">{result.card.question}</p>
+                {result.given && <p className="quiz__missed-given"><strong>Your answer:</strong> {result.given}</p>}
+                <p className="quiz__missed-a"><strong>Correct answer:</strong> {result.card.answer}</p>
+                {safeHref(result.card.link) && <a className="quiz__link" href={safeHref(result.card.link)} target="_blank" rel="noopener noreferrer">Learn more</a>}
               </li>
             ))}
           </ul>

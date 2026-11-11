@@ -55,7 +55,7 @@ class Mine extends Component{
     // Browse: client-side filtering
     const cards = poolcards || [];
     if (!this.state.search) return cards.length;
-    return cards.filter(c => c.title.toLowerCase().includes(this.state.search.toLowerCase())).length;
+    return cards.filter(card => card.title.toLowerCase().includes(this.state.search.toLowerCase())).length;
   }
 
 poolCardMatchUser(poolcard){
@@ -66,8 +66,8 @@ poolCardMatchUser(poolcard){
     return false;
 }
 
-setPage = (p) => {
-  this.setState({ page: p }, () => {
+setPage = (pageNumber) => {
+  this.setState({ page: pageNumber }, () => {
     if (this.props.pathname === '/study') this.fetchStudyCards();
   });
   window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -83,8 +83,8 @@ onSearch = (search) => {
   }
 }
 
-changePageSize = (e) => {
-  const size = parseInt(e.target.value, 10);
+changePageSize = (event) => {
+  const size = parseInt(event.target.value, 10);
   if (size > 0) {
     this.setState({ pageSize: size, page: 0 }, () => {
       if (this.props.pathname === '/study') this.fetchStudyCards();
@@ -93,12 +93,12 @@ changePageSize = (e) => {
 }
 
 pageSlots(current, total) {
-  if (total <= 5) return Array.from({ length: total }, (_, i) => i);
+  if (total <= 5) return Array.from({ length: total }, (_, pageNumber) => pageNumber);
   const slots = [0];
   const start = Math.max(1, current - 1);
   const end = Math.min(total - 2, current + 1);
   if (start > 1) slots.push('gap');
-  for (let i = start; i <= end; i++) slots.push(i);
+  for (let pageNumber = start; pageNumber <= end; pageNumber++) slots.push(pageNumber);
   if (end < total - 2) slots.push('gap');
   slots.push(total - 1);
   return slots;
@@ -115,10 +115,10 @@ renderPagination(totalItems, position) {
       {totalPages > 1 && <>
         <button className="pagination__btn" disabled={page === 0} onClick={() => this.setPage(0)}>&laquo;</button>
         <button className="pagination__btn" disabled={page === 0} onClick={() => this.setPage(page - 1)}>&lsaquo;</button>
-        {slots.map((s, i) =>
-          s === 'gap'
-            ? <span key={`gap-${i}`} className="pagination__gap">&hellip;</span>
-            : <button key={s} className={`pagination__btn ${s === page ? 'pagination__btn--active' : ''}`} onClick={() => this.setPage(s)}>{s + 1}</button>
+        {slots.map((slot, slotIndex) =>
+          slot === 'gap'
+            ? <span key={`gap-${slotIndex}`} className="pagination__gap">&hellip;</span>
+            : <button key={slot} className={`pagination__btn ${slot === page ? 'pagination__btn--active' : ''}`} onClick={() => this.setPage(slot)}>{slot + 1}</button>
         )}
         <button className="pagination__btn" disabled={page === totalPages - 1} onClick={() => this.setPage(page + 1)}>&rsaquo;</button>
         <button className="pagination__btn" disabled={page === totalPages - 1} onClick={() => this.setPage(totalPages - 1)}>&raquo;</button>

@@ -3,15 +3,7 @@ jest.mock('inversify', () => ({
   inject: () => () => undefined,
 }));
 
-jest.mock('typeorm', () => {
-  const noop = () => () => undefined;
-  return {
-    Entity: noop, Column: noop, PrimaryGeneratedColumn: noop, Generated: noop,
-    CreateDateColumn: noop, UpdateDateColumn: noop, ManyToOne: noop, OneToMany: noop,
-    ManyToMany: noop, JoinTable: noop, In: (v: unknown) => v,
-    DataSource: () => undefined, Repository: () => undefined,
-  };
-});
+jest.mock('typeorm', () => require('./support/typeormMock'));
 
 import { pickChoices, shuffle } from '../services/FolderService';
 
@@ -57,5 +49,93 @@ describe('pickChoices', () => {
 
   it('returns no options when the card has no answer', () => {
     expect(pickChoices({ answer: '  ', deckId: 1 }, pool)).toEqual([]);
+  });
+});
+
+import { FolderService } from '../services/FolderService';
+import { buildQuizCards } from '../services/quiz';
+import { MAX_QUIZ_QUESTIONS } from '../constants';
+import { buildWith, makeQueryBuilder, makeRepository } from './support/mocks';
+
+describe('buildQuizCards', () => {
+  const decks = [{ id: 1, title: 'EC2' }];
+
+  it('asks the database for random cards, capped at the requested count', async () => {
+    const cardRepository = makeRepository();
+    const pickQuery = makeQueryBuilder({ getMany: [{ id: 1, uuid: 'c-1', title: 'Q', descriptions: 'A', link: '', masterCardId: 1 }] });
+    cardRepository.createQueryBuilder
+      .mockReturnValueOnce(makeQueryBuilder({ getCount: 50 }))
+      .mockReturnValueOnce(pickQuery)
+      .mockReturnValueOnce(makeQueryBuilder({ getMany: [] }));
+
+    const quiz = await buildQuizCards(cardRepository as any, decks, { count: 10 });
+
+    expect(pickQuery.orderBy).toHaveBeenCalledWith('RANDOM()');
+    expect(pickQuery.limit).toHaveBeenCalledWith(10);
+    expect(quiz.available).toBe(50);
+    expect(quiz.cards[0]).toMatchObject({ uuid: 'c-1', question: 'Q', answer: 'A', deck: 'EC2' });
+  });
+
+  it('never returns more than the maximum number of questions', async () => {
+    const cardRepository = makeRepository();
+    const pickQuery = makeQueryBuilder({ getMany: [] });
+    cardRepository.createQueryBuilder
+      .mockReturnValueOnce(makeQueryBuilder({ getCount: MAX_QUIZ_QUESTIONS * 5 }))
+      .mockReturnValueOnce(pickQuery)
+      .mockReturnValueOnce(makeQueryBuilder({ getMany: [] }));
+
+    await buildQuizCards(cardRepository as any, decks);
+
+    expect(pickQuery.limit).toHaveBeenCalledWith(MAX_QUIZ_QUESTIONS);
+  });
+
+  it('skips the extra queries when there are no cards', async () => {
+    const cardRepository = makeRepository();
+    cardRepository.createQueryBuilder.mockReturnValue(makeQueryBuilder({ getCount: 0 }));
+    expect(await buildQuizCards(cardRepository as any, decks)).toEqual({ available: 0, cards: [] });
+    expect(cardRepository.createQueryBuilder).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('FolderService', () => {
+  const folderRepository = makeRepository();
+  const deckRepository = makeRepository();
+  const cardRepository = makeRepository();
+  const userRepository = makeRepository();
+  const service = buildWith(FolderService, {
+    folders: folderRepository,
+    masterCards: deckRepository,
+    subCards: cardRepository,
+    users: userRepository,
+  });
+  const folder = { id: 4, uuid: 'folder-4', name: 'AWS', createdAt: new Date(0), masterCards: [{ id: 3, uuid: 'deck-3', title: 'EC2' }] };
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    userRepository.findOne.mockResolvedValue({ id: 1 });
+  });
+
+  it("refuses to add decks the user doesn't own", async () => {
+    folderRepository.createQueryBuilder.mockReturnValue(makeQueryBuilder({ getOne: folder }));
+    deckRepository.find.mockResolvedValue([{ id: 3 }]);
+
+    await expect(service.setDecks('folder-4', 'user-1', ['deck-3', 'someone-elses-deck']))
+      .rejects.toThrow('One or more decks were not found');
+    expect(folderRepository.save).not.toHaveBeenCalled();
+  });
+
+  it('gives 404 when removing a deck that is not in the folder', async () => {
+    folderRepository.createQueryBuilder.mockReturnValue(makeQueryBuilder({ getOne: folder }));
+    await expect(service.removeDeck('folder-4', 'user-1', 'deck-99')).rejects.toThrow('not in this folder');
+  });
+
+  it('gives 404 for a folder that is not the user\'s', async () => {
+    folderRepository.createQueryBuilder.mockReturnValue(makeQueryBuilder({ getOne: null }));
+    await expect(service.get('folder-x', 'user-1')).rejects.toThrow('Folder not found');
+  });
+
+  it('rejects a duplicate folder name', async () => {
+    folderRepository.findOneBy.mockResolvedValue({ id: 2 });
+    await expect(service.create('user-1', ' AWS ')).rejects.toThrow('already have a folder');
   });
 });

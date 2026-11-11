@@ -3,16 +3,7 @@ jest.mock('inversify', () => ({
   inject: () => () => undefined,
 }));
 
-jest.mock('typeorm', () => {
-  const noop = () => () => undefined;
-  return {
-    Entity: noop, Column: noop, PrimaryGeneratedColumn: noop, Generated: noop,
-    CreateDateColumn: noop, UpdateDateColumn: noop, ManyToOne: noop, OneToMany: noop,
-    ManyToMany: noop, JoinTable: noop, In: (v: unknown) => v,
-    DataSource: () => undefined, Repository: () => undefined,
-    IsNull: () => undefined, LessThanOrEqual: (v: unknown) => v,
-  };
-});
+jest.mock('typeorm', () => require('./support/typeormMock'));
 
 import { sm2, type SM2Input } from '../services/ReviewService';
 

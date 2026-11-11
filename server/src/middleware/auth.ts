@@ -11,26 +11,23 @@ declare global {
   }
 }
 
+/** Reject the request with 401 unless it carries a valid `Authorization: Bearer <token>` header. */
 export const requireAuth =
-  (auth: AuthService): RequestHandler =>
-  async (req, _res, next) => {
+  (authService: AuthService): RequestHandler =>
+  async (request, _response, next) => {
     try {
-      const header = req.headers.authorization;
-      const token = header?.startsWith('Bearer ') ? header.slice(7) : '';
+      const header = request.headers.authorization;
+      const token = header?.startsWith('Bearer ') ? header.slice(7).trim() : '';
       if (!token) throw new HttpError(401, 'Please sign in');
-      req.currentUser = await auth.verify(token);
+      request.currentUser = await authService.verify(token);
       next();
     } catch (error) {
       next(error);
     }
   };
 
-export const userId = (req: Request): number => {
-  if (!req.currentUser) throw new HttpError(401, 'Please sign in');
-  return (req as any)._userId;
-};
-
-export const userUuid = (req: Request): string => {
-  if (!req.currentUser) throw new HttpError(401, 'Please sign in');
-  return req.currentUser.sub;
+/** The signed-in user's uuid. Only call this on routes behind `requireAuth`. */
+export const userUuid = (request: Request): string => {
+  if (!request.currentUser) throw new HttpError(401, 'Please sign in');
+  return request.currentUser.sub;
 };

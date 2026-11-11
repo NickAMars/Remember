@@ -5,7 +5,7 @@ jest.mock('../constants', () => ({
   MILLISECONDS_PER_DAY: 86_400_000,
 }));
 
-import { currentDate, previousEight, mixdate, calculateTimeSpent, topFiveCards } from '../services/helpers';
+import { currentDate, previousEight, mixdate, calculateTimeSpent } from '../services/helpers';
 
 describe('currentDate', () => {
   it('returns date with zeroed time', () => {
@@ -74,39 +74,5 @@ describe('calculateTimeSpent', () => {
 
   it('returns 0 for empty array', () => {
     expect(calculateTimeSpent([])).toBe(0);
-  });
-});
-
-describe('topFiveCards', () => {
-  it('returns top 5 sorted by views', () => {
-    const cards = Array.from({ length: 7 }, (_, i) => ({
-      views: (i + 1) * 10,
-      uuid: `uuid-${i}`,
-      title: `Card ${i}`,
-      createdAt: new Date(),
-    }));
-
-    const result = topFiveCards(cards);
-
-    expect(result).toHaveLength(5);
-    // Should be sorted descending
-    expect(result[0].maxTime).toBe(70);
-    expect(result[4].maxTime).toBe(30);
-    expect(result[0]).toHaveProperty('referenceID');
-    expect(result[0]).toHaveProperty('title');
-    expect(result[0]).toHaveProperty('timestamp');
-  });
-
-  it('handles fewer than 5 cards', () => {
-    const cards = [
-      { views: 50, uuid: 'u-1', title: 'Only Card', createdAt: new Date() },
-      { views: 20, uuid: 'u-2', title: 'Second Card', createdAt: new Date() },
-    ];
-
-    const result = topFiveCards(cards);
-
-    expect(result).toHaveLength(2);
-    expect(result[0].maxTime).toBe(50);
-    expect(result[1].maxTime).toBe(20);
   });
 });

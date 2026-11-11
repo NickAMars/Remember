@@ -37,19 +37,19 @@ class Folders extends Component {
 
   replaceFolder = (folder) => {
     this.setState(prev => ({
-      folders: prev.folders.map(f => (f.uuid === folder.uuid ? folder : f)),
+      folders: prev.folders.map(existing => (existing.uuid === folder.uuid ? folder : existing)),
     }));
   };
 
-  createFolder = async (e) => {
-    e.preventDefault();
+  createFolder = async (event) => {
+    event.preventDefault();
     const name = this.state.newName.trim();
     if (!name) return;
     try {
       const res = await axios.post('/api/folders', { name });
       this.setState(prev => ({
         newName: '',
-        folders: [...prev.folders, res.data].sort((a, b) => a.name.localeCompare(b.name)),
+        folders: [...prev.folders, res.data].sort((first, second) => first.name.localeCompare(second.name)),
       }));
       showToast(`Folder "${name}" created`);
       this.openDecks(res.data);
@@ -60,7 +60,7 @@ class Folders extends Component {
 
   openDecks = async (folder) => {
     const selected = {};
-    folder.decks.forEach(d => { selected[d.uuid] = true; });
+    folder.decks.forEach(deck => { selected[deck.uuid] = true; });
     this.setState({ dialog: { type: 'decks', folder }, selected, deckSearch: '' });
     try {
       const res = await axios.get('/api/folders/decks');
@@ -76,7 +76,7 @@ class Folders extends Component {
 
   saveDecks = async () => {
     const { dialog, selected } = this.state;
-    const masterCardUuids = Object.keys(selected).filter(k => selected[k]);
+    const masterCardUuids = Object.keys(selected).filter(deckUuid => selected[deckUuid]);
     this.setState({ saving: true });
     try {
       const res = await axios.put(`/api/folders/${dialog.folder.uuid}/decks`, { masterCardUuids });
@@ -90,8 +90,8 @@ class Folders extends Component {
     }
   };
 
-  saveRename = async (e) => {
-    e.preventDefault();
+  saveRename = async (event) => {
+    event.preventDefault();
     const { dialog, renameValue } = this.state;
     const name = renameValue.trim();
     if (!name) return;
@@ -108,7 +108,7 @@ class Folders extends Component {
     const { folder } = this.state.dialog;
     try {
       await axios.delete(`/api/folders/${folder.uuid}`);
-      this.setState(prev => ({ dialog: null, folders: prev.folders.filter(f => f.uuid !== folder.uuid) }));
+      this.setState(prev => ({ dialog: null, folders: prev.folders.filter(existing => existing.uuid !== folder.uuid) }));
       showToast(`Folder "${folder.name}" deleted. Your decks were kept.`);
     } catch (err) {
       showToast(errorText(err, 'Failed to delete folder'));
@@ -125,8 +125,8 @@ class Folders extends Component {
     let title, body;
     if (dialog.type === 'decks') {
       const term = deckSearch.toLowerCase();
-      const shown = term ? allDecks.filter(d => d.title.toLowerCase().includes(term)) : allDecks;
-      const count = Object.keys(selected).filter(k => selected[k]).length;
+      const shown = term ? allDecks.filter(deck => deck.title.toLowerCase().includes(term)) : allDecks;
+      const count = Object.keys(selected).filter(deckUuid => selected[deckUuid]).length;
       title = `Decks in "${folder.name}"`;
       body = (
         <>
@@ -134,17 +134,17 @@ class Folders extends Component {
             className="dialog__input"
             placeholder="Search your decks..."
             value={deckSearch}
-            onChange={e => this.setState({ deckSearch: e.target.value })}
+            onChange={event => this.setState({ deckSearch: event.target.value })}
             autoFocus
           />
           <ul className="folders__picker">
             {shown.length === 0 && <li className="folders__empty-small">No decks found.</li>}
-            {shown.map(d => (
-              <li key={d.uuid}>
-                <label className={`folders__pick ${selected[d.uuid] ? 'folders__pick--on' : ''}`}>
-                  <input type="checkbox" checked={!!selected[d.uuid]} onChange={() => this.toggleDeck(d.uuid)} />
-                  <span className="folders__pick-title">{d.title}</span>
-                  <span className="folders__pick-count">{d.cardCount} cards</span>
+            {shown.map(deck => (
+              <li key={deck.uuid}>
+                <label className={`folders__pick ${selected[deck.uuid] ? 'folders__pick--on' : ''}`}>
+                  <input type="checkbox" checked={!!selected[deck.uuid]} onChange={() => this.toggleDeck(deck.uuid)} />
+                  <span className="folders__pick-title">{deck.title}</span>
+                  <span className="folders__pick-count">{deck.cardCount} cards</span>
                 </label>
               </li>
             ))}
@@ -163,7 +163,7 @@ class Folders extends Component {
       body = (
         <form onSubmit={this.saveRename}>
           <input className="dialog__input" value={renameValue} maxLength={255} autoFocus
-            onChange={e => this.setState({ renameValue: e.target.value })} />
+            onChange={event => this.setState({ renameValue: event.target.value })} />
           <div className="dialog__confirm-actions folders__dialog-actions">
             <button type="submit" className="dialog__confirm-btn dialog__confirm-btn--primary">Save</button>
             <button type="button" className="dialog__confirm-btn dialog__confirm-btn--cancel" onClick={this.closeDialog}>Cancel</button>
@@ -185,7 +185,7 @@ class Folders extends Component {
 
     return (
       <div className="dialog-overlay" onClick={this.closeDialog}>
-        <div className={`dialog ${dialog.type === 'decks' ? '' : 'dialog--sm'}`} onClick={e => e.stopPropagation()}>
+        <div className={`dialog ${dialog.type === 'decks' ? '' : 'dialog--sm'}`} onClick={event => event.stopPropagation()}>
           <div className="dialog__header">
             <h3 className="dialog__title">{title}</h3>
             <button className="dialog__close" onClick={this.closeDialog}>&times;</button>
@@ -211,7 +211,7 @@ class Folders extends Component {
               placeholder="New folder name"
               value={newName}
               maxLength={255}
-              onChange={e => this.setState({ newName: e.target.value })}
+              onChange={event => this.setState({ newName: event.target.value })}
             />
             <button className="folders__btn folders__btn--primary" type="submit" disabled={!newName.trim()}>Create folder</button>
           </form>
@@ -228,7 +228,7 @@ class Folders extends Component {
         <ul className="folders__grid">
           {folders.map(folder => (
             <li key={folder.uuid} className="folders__card">
-              <button className="folders__delete" title="Delete folder" onClick={(e) => { e.stopPropagation(); this.setState({ dialog: { type: 'delete', folder } }); }}>
+              <button className="folders__delete" title="Delete folder" onClick={(event) => { event.stopPropagation(); this.setState({ dialog: { type: 'delete', folder } }); }}>
                 &times;
               </button>
               <Link to={`/folders/${folder.uuid}`} className="folders__card-link">
