@@ -4,12 +4,11 @@ import {TopFiveCard} from '../Helper/Cards';
 import {CreateMaster} from '../Helper/Form';
 import {Chart} from  './chart';
 import { connect } from 'react-redux';
-import { fetchUser, getMyCard, getSmallCards } from '../../actions';
+import { getMyCard, getSmallCards } from '../../actions';
 import axios from '../../utils/api';
 
 class MasterCard extends Component{
-  async componentDidMount(){
-   await this.props.fetchUser();
+  componentDidMount(){
    this.loadDueCounts();
   }
   constructor(props){
@@ -110,4 +109,4 @@ const mapStateToProps = (state) => {
     user: state.user
   };
 }
-export default connect(mapStateToProps, {fetchUser, getMyCard, getSmallCards})(MasterCard);
+export default connect(mapStateToProps, {getMyCard, getSmallCards})(MasterCard);

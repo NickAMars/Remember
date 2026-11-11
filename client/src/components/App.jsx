@@ -5,6 +5,7 @@ import Header from './Header';
 import Breadcrumb from './Breadcrumb';
 import { fetchUser } from '../actions';
 import { RootRoute } from './RootRoute';
+import { ProtectedRoute } from './ProtectedRoute';
 import { GuestTopbar } from './GuestTopbar';
 
 // perf Increase: each page is its own download, loaded the first time it is opened, so the
@@ -48,15 +49,15 @@ class App extends PureComponent{
 
           <Suspense fallback={<div className="page-loading" aria-busy="true" />}>
           <Routes>
-            <Route path='/home/subcards/:title' element={<MultipleCards />} />
-            <Route path='/smallcards/:idMaster' element={<SmallCards />} />
-            <Route path='/folders' element={<Folders />} />
-            <Route path='/folders/:folderUuid' element={<FolderDetail />} />
-            <Route path='/quiz/:folderUuid' element={<Quiz />} />
-            <Route path='/quiz' element={<Quiz />} />
+            <Route path='/home/subcards/:title' element={<ProtectedRoute user={user}><MultipleCards /></ProtectedRoute>} />
+            <Route path='/smallcards/:idMaster' element={<ProtectedRoute user={user}><SmallCards /></ProtectedRoute>} />
+            <Route path='/folders' element={<ProtectedRoute user={user}><Folders /></ProtectedRoute>} />
+            <Route path='/folders/:folderUuid' element={<ProtectedRoute user={user}><FolderDetail /></ProtectedRoute>} />
+            <Route path='/quiz/:folderUuid' element={<ProtectedRoute user={user}><Quiz /></ProtectedRoute>} />
+            <Route path='/quiz' element={<ProtectedRoute user={user}><Quiz /></ProtectedRoute>} />
             <Route path='/browse' element={<BrowseRoute />} />
-            <Route path='/study' element={<StudyRoute />} />
-            <Route path='/home' element={<HomeRoute />} />
+            <Route path='/study' element={<ProtectedRoute user={user}><StudyRoute /></ProtectedRoute>} />
+            <Route path='/home' element={<ProtectedRoute user={user}><HomeRoute /></ProtectedRoute>} />
             <Route path='/' element={<RootRoute user={user} />} />
           </Routes>
           </Suspense>
