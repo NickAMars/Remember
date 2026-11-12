@@ -63,8 +63,8 @@ export interface DueCounts {
   byFolder: { folderUuid: string; folderName: string; count: number }[];
 }
 
-/** A card is due when the user never reviewed it, or its next review time has passed. */
-const DUE_CONDITION = '(review.id IS NULL OR review.nextReviewAt <= :now)';
+/** A card is due when the user has marked it for review. */
+const DUE_CONDITION = 'card.markedForReview = true';
 const REVIEW_JOIN = 'review.subCardId = card.id AND review.userId = :userId';
 
 @injectable()
@@ -140,6 +140,16 @@ export class ReviewService {
     }
 
     if (reviewsToSave.size > 0) await this.reviews.save([...reviewsToSave]);
+
+    // Unmark reviewed cards so the due count decreases
+    const reviewedCardIds = [...cardIdByUuid.values()];
+    if (reviewedCardIds.length > 0) {
+      await this.subCards.createQueryBuilder()
+        .update(SubCard)
+        .set({ markedForReview: false })
+        .where('id IN (:...ids)', { ids: reviewedCardIds })
+        .execute();
+    }
   }
 
   /**
@@ -149,13 +159,11 @@ export class ReviewService {
    */
   async getDueCounts(userUuid: string): Promise<DueCounts> {
     const userId = await requireUserId(this.users, userUuid);
-    const now = new Date();
 
     const total = await this.subCards.createQueryBuilder('card')
       .innerJoin('card.masterCard', 'deck')
-      .leftJoin(CardReview, 'review', REVIEW_JOIN, { userId })
       .where('deck.userId = :userId', { userId })
-      .andWhere(DUE_CONDITION, { now })
+      .andWhere(DUE_CONDITION)
       .getCount();
 
     if (total === 0) return { total: 0, byFolder: [] };
@@ -164,12 +172,11 @@ export class ReviewService {
       .createQueryBuilder('folder')
       .innerJoin('folder.masterCards', 'deck')
       .innerJoin(SubCard, 'card', 'card.masterCardId = deck.id')
-      .leftJoin(CardReview, 'review', REVIEW_JOIN, { userId })
       .select('folder.uuid', 'folderUuid')
       .addSelect('folder.name', 'folderName')
       .addSelect('COUNT(DISTINCT card.id)', 'count')
       .where('folder.userId = :userId', { userId })
-      .andWhere(DUE_CONDITION, { now })
+      .andWhere(DUE_CONDITION)
       .groupBy('folder.id')
       .addGroupBy('folder.uuid')
       .addGroupBy('folder.name')

@@ -1,5 +1,5 @@
 import type { Repository } from 'typeorm';
-import { CardReview, SubCard } from '../entities';
+import { SubCard } from '../entities';
 import { MAX_QUIZ_QUESTIONS, QUIZ_ANSWER_POOL_SIZE, QUIZ_CHOICES } from '../constants';
 
 export { QUIZ_CHOICES };
@@ -77,9 +77,8 @@ export function pickChoices(
 export interface QuizCardOptions {
   /** How many questions to return. 0 or missing means all (up to MAX_QUIZ_QUESTIONS). */
   count?: number;
-  /** When set, only cards this user has never reviewed or that are due now. */
+  /** When set, only cards marked for review are included. */
   dueForUserId?: number;
-  now?: Date;
 }
 
 /**
@@ -94,16 +93,11 @@ export async function buildQuizCards(
 ): Promise<{ available: number; cards: QuizCard[] }> {
   const deckIds = decks.map((deck) => deck.id);
   const deckTitles = new Map(decks.map((deck) => [deck.id, deck.title]));
-  const now = options.now ?? new Date();
 
   const cardQuery = () => {
     const query = subCards.createQueryBuilder('card').where('card.masterCardId IN (:...deckIds)', { deckIds });
     if (options.dueForUserId !== undefined) {
-      query
-        .leftJoin(CardReview, 'review', 'review.subCardId = card.id AND review.userId = :reviewUserId', {
-          reviewUserId: options.dueForUserId,
-        })
-        .andWhere('(review.id IS NULL OR review.nextReviewAt <= :now)', { now });
+      query.andWhere('card.markedForReview = true');
     }
     return query;
   };
