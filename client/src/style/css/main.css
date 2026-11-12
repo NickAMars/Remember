@@ -670,11 +670,30 @@ ul { list-style: none; }
   width: 100%;
   padding: 1rem 2rem;
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   display: flex;
   flex-direction: column;
+  position: relative;
 }
 .card__title-text {
   margin: auto 0;
+}
+/* Fade hint when question text overflows */
+.card__title--center::after {
+  content: '';
+  position: sticky;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2.5rem;
+  flex-shrink: 0;
+  background: linear-gradient(transparent, var(--color-primary-dark));
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.card__title--center.has-overflow::after {
+  opacity: 1;
 }
 .card__title--center::-webkit-scrollbar { width: 4px; }
 .card__title--center::-webkit-scrollbar-track { background: transparent; }

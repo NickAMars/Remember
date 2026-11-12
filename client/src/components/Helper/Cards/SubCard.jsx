@@ -6,6 +6,8 @@ import { showToast } from '../../../utils/toast';
 import WrongAnswers from '../InputField/WrongAnswers';
 
 class SubCard extends Component {
+  titleRef = React.createRef();
+
   state = {
     flipped: false,
     localViews: 0,
@@ -101,6 +103,21 @@ class SubCard extends Component {
     }
   }
 
+  checkOverflow = () => {
+    const el = this.titleRef.current;
+    if (!el) return;
+    const overflows = el.scrollHeight > el.clientHeight + 2;
+    const atBottom = el.scrollTop + el.clientHeight >= el.scrollHeight - 4;
+    el.classList.toggle('has-overflow', overflows && !atBottom);
+  }
+
+  onTitleScroll = () => { this.checkOverflow(); }
+
+  componentDidMount() {
+    this.checkOverflow();
+    if (this.titleRef.current) this.titleRef.current.addEventListener('scroll', this.onTitleScroll);
+  }
+
   componentDidUpdate(prevProps) {
     if (prevProps.title !== this.props.title || prevProps.descriptions !== this.props.descriptions
       || prevProps.link !== this.props.link || prevProps.markedForReview !== this.props.markedForReview
@@ -116,6 +133,11 @@ class SubCard extends Component {
     if (prevProps.resetFlip !== this.props.resetFlip) {
       this.setState({ flipped: false });
     }
+    if (prevProps.title !== this.props.title) this.checkOverflow();
+  }
+
+  componentWillUnmount() {
+    if (this.titleRef.current) this.titleRef.current.removeEventListener('scroll', this.onTitleScroll);
   }
 
   render() {
@@ -141,7 +163,7 @@ class SubCard extends Component {
                 {this.props.markedForReview && <span className="card__review-badge">Review</span>}
               </div>
             )}
-            <div className="card__title card__title--center"><span className="card__title-text">{this.props.title}</span></div>
+            <div className="card__title card__title--center" ref={this.titleRef}><span className="card__title-text">{this.props.title}</span></div>
           </div>
           <div className="card__side card__side--back">
             {this.props.isOwner !== false && !this.props.isDefault && <div className="card__svg u-br-bt">
