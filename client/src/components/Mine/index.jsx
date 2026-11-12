@@ -156,7 +156,8 @@ renderPagination(totalItems, position) {
    return (
      <div className="remember">
        <SearchBar onSearch={this.onSearch}/>
-       <div style={{ visibility: visible ? 'visible' : 'hidden' }}>
+       {/* Bug fix: the hidden form still took up space, leaving a big gap above the decks. */}
+       <div style={{ display: visible ? 'block' : 'none' }}>
          <MasterForm title={title} _id={uuid} toggleMasterForm ={this.toggleMasterForm}/>
        </div>
        <CardSizeControl variant="master"/>

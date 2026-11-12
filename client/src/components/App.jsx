@@ -50,7 +50,8 @@ class App extends PureComponent{
           <Suspense fallback={<div className="page-loading" aria-busy="true" />}>
           <Routes>
             <Route path='/home/subcards/:title' element={<ProtectedRoute user={user}><MultipleCards /></ProtectedRoute>} />
-            <Route path='/smallcards/:idMaster' element={<ProtectedRoute user={user}><SmallCards /></ProtectedRoute>} />
+            {/* Bug fix: guests open public decks from Browse, so this page can't require sign-in. */}
+            <Route path='/smallcards/:idMaster' element={<SmallCards />} />
             <Route path='/folders' element={<ProtectedRoute user={user}><Folders /></ProtectedRoute>} />
             <Route path='/folders/:folderUuid' element={<ProtectedRoute user={user}><FolderDetail /></ProtectedRoute>} />
             <Route path='/quiz/:folderUuid' element={<ProtectedRoute user={user}><Quiz /></ProtectedRoute>} />

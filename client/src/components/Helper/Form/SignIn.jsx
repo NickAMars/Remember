@@ -60,6 +60,8 @@ class SignIn extends Component{
             <input
              onChange={(event)=>{this.setState({username: event.target.value })}}
               type="text" className="formA__input"
+              placeholder="Username" aria-label="Username"
+              autoComplete="username" autoCapitalize="none" autoCorrect="off" spellCheck="false"
                value={this.state.username} /* allows the input to depend on the state*/
                required/>
 
@@ -70,6 +72,7 @@ class SignIn extends Component{
              onChange={(event)=>{this.setState({password: event.target.value })}}
               type="password"
               className="formA__input"
+              placeholder="Password" aria-label="Password" autoComplete="current-password"
                value={this.state.password}  required/>
           </div>
           <div className="formA__group">

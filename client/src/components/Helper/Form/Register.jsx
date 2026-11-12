@@ -36,7 +36,7 @@ class Register extends PureComponent {
             <h2 className="heading__quaternary">Register</h2>
           </div>
           <div className="form__group">
-            <input id="name" className="form__input" type="text" autoComplete="username"
+            <input id="name" className="form__input" type="text" autoComplete="username" autoCapitalize="none" autoCorrect="off" spellCheck="false"
               value={this.state.username} onChange={this.updateUsername} maxLength="32" />
             <label className="form__label" htmlFor="name">UserName</label>
           </div>

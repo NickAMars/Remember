@@ -23,6 +23,16 @@ class Header extends Component{
     });
   }
 
+  closeNav = () => {
+    document.body.classList.remove('nav-open');
+    this.setState({ buttonEvent: false, settingsOpen: false });
+  }
+
+  /** On a phone the menu covers the page, so close it once a link is picked. */
+  onNavClick = (event) => {
+    if (event.target.closest('a') && window.matchMedia('(max-width: 600px)').matches) this.closeNav();
+  }
+
   toggleSettings = (event) => {
     event.stopPropagation();
     this.setState(prev => ({ settingsOpen: !prev.settingsOpen }));
@@ -81,13 +91,17 @@ class Header extends Component{
       <div style={{position: 'fixed', zIndex:10000}} >
         <button
           style={ { right: buttonEvent ? '20rem' : 0 } }
-          onClick={this.navClick} className="navigation__button" >
+          onClick={this.navClick} className="navigation__button"
+          aria-label={buttonEvent ? 'Close menu' : 'Open menu'} aria-expanded={buttonEvent} >
           <img className="navigation__icon" src={cog} alt='X'/>
         </button>
 
+        {buttonEvent && <div className="navbar-backdrop" onClick={this.closeNav} />}
+
         <nav
           style={ { width: buttonEvent ? '20rem' : 0 } }
-          className="navbar" >
+          className={`navbar ${buttonEvent ? 'navbar--open' : ''}`}
+          onClick={this.onNavClick} >
             {this.props.user && this.props.user.name && (
               <div className="navbar__user">
                 <div className="navbar__user-avatar">{this.props.user.name.charAt(0).toUpperCase()}</div>

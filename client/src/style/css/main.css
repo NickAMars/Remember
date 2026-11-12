@@ -45,7 +45,8 @@ html {
   scroll-behavior: smooth;
 }
 @media (max-width: 900px) { html { font-size: 56.25%; } }
-@media (max-width: 600px) { html { font-size: 50%; } }
+/* Phones keep the desktop 10px base: the old 8px base made text too small to read. */
+@media (max-width: 600px) { html { font-size: 62.5%; } }
 
 body {
   color: var(--color-text);
@@ -2534,4 +2535,147 @@ body.nav-open .breadcrumb {
 }
 @media (max-width: 600px) {
   .review-bar__actions { margin-left: 0; width: 100%; }
+}
+
+
+/* ==========================================================================
+   PHONES AND SMALL TABLETS
+   One place for the small-screen layout, so it is easy to find and adjust.
+   ========================================================================== */
+html, body { overflow-x: hidden; }
+img, svg, video { max-width: 100%; }
+
+.navbar-backdrop { display: none; }
+
+@media (max-width: 900px) {
+  /* Bug fix: in the stacked layout the chart's 460px flex-basis became its height,
+     leaving a big empty box under the Card Views chart. */
+  .xcontainer-main { padding: 1.6rem 1.6rem 0; gap: 1.6rem; align-items: stretch; }
+  .xcontainer-main > .topcards,
+  .xcontainer-main > .topcards__graph { flex: 0 0 auto; width: 100%; max-width: 560px; margin: 0 auto; }
+  .topcards__graph { overflow: hidden; }
+  .topcards__graph svg { max-width: 100%; height: auto; }
+}
+
+@media (max-width: 600px) {
+  body { padding-top: 7rem; }
+
+  /* iOS zooms into any field with text under 16px, so give every field 16px. */
+  input, textarea, select { font-size: 16px !important; }
+
+  /* Side menu: slide over the page with a backdrop instead of squeezing it. */
+  body.nav-open { margin-right: 0; overflow: hidden; }
+  body.nav-open .topbar, body.nav-open .breadcrumb { right: 0; }
+  .navbar.navbar--open { width: min(80vw, 30rem) !important; }
+  .navbar .navbar-nav__link { padding-top: 1.4rem; padding-bottom: 1.4rem; font-size: 1.5rem; }
+  .navigation__button[aria-expanded="true"] { right: min(80vw, 30rem) !important; }
+  .navbar-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55);
+    z-index: 150;
+  }
+
+  /* Page padding */
+  .remember { padding: 1rem 1.2rem 4rem; }
+  .row { padding: 1.2rem 0; gap: 1.2rem; }
+  .header-box { padding-left: 0; padding-right: 0; }
+  .heading__secondary { font-size: 2.2rem; letter-spacing: 0.15rem; line-height: 1.3; }
+
+  /* Bigger tap targets */
+  button, .pagination__btn, .review-banner__btn { min-height: 3.6rem; }
+  .pagination { flex-wrap: wrap; gap: 0.6rem; justify-content: center; }
+  .pagination__size { width: 100%; justify-content: center; }
+
+  /* Home */
+  .review-banner { margin-left: 1.2rem; margin-right: 1.2rem; flex-wrap: wrap; gap: 1rem; }
+  .review-banner__text { font-size: 1.4rem; }
+  .topcards { padding: 1.6rem; }
+  .topcards__graph { padding: 1rem; }
+  .list__title { font-size: 1.4rem; }
+
+  /* Deck page */
+  .subcards-toolbar { padding: 1rem 0; flex-direction: column; align-items: stretch; }
+  .subcards-toolbar .topcards__graph { width: 100%; max-width: none; }
+  .add-cards-btn { margin-left: 0; justify-content: center; padding: 1rem; font-size: 1.4rem; }
+  .subcards-controls { flex-wrap: wrap; gap: 0.8rem; justify-content: space-between; }
+  .flip-all-btn { font-size: 1.3rem; }
+  .search-bar { width: 100%; max-width: none; }
+  .review-bar { flex-wrap: wrap; gap: 0.8rem; padding: 1rem; }
+  .review-bar__select-all, .review-bar__count { font-size: 1.3rem; }
+  .review-bar__actions { width: 100%; flex-wrap: wrap; gap: 0.8rem; }
+  .review-bar__btn, .review-bar__clear { font-size: 1.3rem; flex: 1 1 auto; }
+
+  /* Dialogs: nearly full screen, scroll inside, keep the close button reachable. */
+  .dialog-overlay { align-items: flex-end; padding: 0; }
+  .dialog {
+    width: 100% !important;
+    max-width: none !important;
+    max-height: 92vh;
+    overflow-y: auto;
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    -webkit-overflow-scrolling: touch;
+  }
+  .dialog--sm { border-radius: var(--radius-lg) var(--radius-lg) 0 0; }
+  .dialog__header { position: sticky; top: 0; z-index: 1; background: inherit; }
+  .dialog__title { font-size: 1.7rem; }
+  .dialog__close { min-width: 4.4rem; min-height: 4.4rem; font-size: 2.6rem; }
+  .dialog__tab { font-size: 1.4rem; padding: 1.2rem; }
+  .dialog__confirm-text, .dialog__upload-hint { font-size: 1.4rem; }
+  .dialog__confirm-actions { flex-direction: column-reverse; gap: 0.8rem; }
+  .dialog__confirm-btn, .dialog__submit { width: 100%; padding: 1.2rem; font-size: 1.5rem; }
+
+  /* Deck lists (Study and Browse) */
+  .card-size-control--master { display: none; }
+  .master { padding: 1rem 0; }
+  .master__title { font-size: 1.6rem; }
+  .master__count, .master__review-count { font-size: 1.2rem; }
+  .master__date { font-size: 1.1rem; }
+  .master__copy-btn { min-width: 4rem; min-height: 4rem; }
+
+  /* Card back: bigger edit and delete buttons */
+  .card__svg { gap: 1.2rem; }
+  .card__svg > svg { width: 2.6rem; height: 2.6rem; padding: 0.2rem; }
+  .card__link { font-size: 1.3rem; }
+
+  /* Folders */
+  .folders__delete { min-width: 4.4rem; min-height: 4.4rem; top: 0; right: 0; font-size: 2.4rem; }
+}
+
+/* ==========================================================================
+   TABLET (max-width: 900px)
+   ========================================================================== */
+@media (max-width: 900px) {
+  .topbar { padding: 0 1.5rem; }
+  .breadcrumb { padding: 0.6rem 1.5rem; }
+
+  .master { padding: 2rem 1.5rem; }
+  .master__container { grid-template-columns: repeat(2, 1fr); }
+
+  .row { gap: 1.2rem; padding: 1.5rem; }
+  .remember { padding: 1.5rem 1.5rem 4rem; }
+}
+
+/* ==========================================================================
+   MOBILE (max-width: 600px)
+   ========================================================================== */
+@media (max-width: 600px) {
+  .topbar { padding: 0 1rem; height: 4.4rem; }
+  .topbar__brand { font-size: 1.4rem; gap: 0.4rem; margin-right: 1rem; }
+  .topbar__icon { width: 18px; height: 18px; }
+  .topbar__signin-link { font-size: 1.2rem; padding: 0.4rem 1rem; }
+
+  .breadcrumb { top: 4.4rem; padding: 0.5rem 1rem; font-size: 1rem; }
+
+  .card { height: var(--card-height, 26rem); }
+  .card__description { font-size: 1.1rem; padding: 0.6rem 1rem; }
+  .card__back-footer { padding: 0.4rem 0.8rem; }
+
+  .font-container { padding: 2rem 1.2rem; gap: 2rem; }
+  .formA { padding: 2rem 1.5rem; max-width: none; width: 100%; }
+
+  .create { padding: 2rem 1rem; }
+  .xcontainer-main { padding: 1rem 1rem 0; gap: 1.5rem; }
+  .navigation__button { right: 0.8rem; }
 }

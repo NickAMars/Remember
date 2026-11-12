@@ -64,7 +64,7 @@ export class CardSizeControl extends React.Component {
     const { sizeIndex } = this.state;
     const sizes = this.getSizes();
     return (
-      <div className="card-size-control">
+      <div className={`card-size-control card-size-control--${this.props.variant || 'subcard'}`}>
         <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="card-size-control__icon">
           <rect x="1" y="1" width="5" height="5" rx="1" stroke="currentColor" strokeWidth="1.5"/>
           <rect x="10" y="1" width="5" height="5" rx="1" stroke="currentColor" strokeWidth="1.5"/>

@@ -3,7 +3,10 @@ import React, {Component} from 'react'
 import { axisBottom, axisLeft, format, max, scaleBand, scaleLinear, select } from 'd3';
 import { throttleToFrame } from '../../utils/throttle';
 
-const margin = { top: 40, right: 20, bottom: 70, left: 60 };
+const WIDE_MARGIN = { top: 40, right: 20, bottom: 70, left: 60 };
+// Phones: less room on the left, more below for the slanted deck titles.
+const NARROW_MARGIN = { top: 40, right: 12, bottom: 80, left: 40 };
+const NARROW_WIDTH = 420;
 
 export class Chart extends Component{
     constructor(props){
@@ -19,10 +22,18 @@ export class Chart extends Component{
   componentDidMount(){
     // handleResize also draws, so the chart is drawn once on mount instead of twice.
     this.handleResize();
-    window.addEventListener('resize', this.onWindowResize);
+    // Bug fix: the chart only resized with the window, so it kept a stale width when its
+    // box changed (phone rotation, the side menu opening). Watch the box itself.
+    if (typeof ResizeObserver !== 'undefined') {
+      this.resizeObserver = new ResizeObserver(this.onWindowResize);
+      this.resizeObserver.observe(this.containerRef.current);
+    } else {
+      window.addEventListener('resize', this.onWindowResize);
+    }
   }
 
   componentWillUnmount(){
+    if (this.resizeObserver) this.resizeObserver.disconnect();
     window.removeEventListener('resize', this.onWindowResize);
     this.onWindowResize.cancel();
   }
@@ -38,9 +49,13 @@ export class Chart extends Component{
 
   handleResize = () => {
     if(this.containerRef.current){
-      const containerWidth = this.containerRef.current.clientWidth;
-      const width = Math.min(containerWidth - 20, 600);
-      const height = Math.max(width * 0.6, 250);
+      const container = this.containerRef.current;
+      const styles = window.getComputedStyle(container);
+      // Bug fix: the box's padding wasn't subtracted, so on phones the chart was wider than
+      // its box and the CSS squeezed it out of shape.
+      const containerWidth = container.clientWidth - parseFloat(styles.paddingLeft) - parseFloat(styles.paddingRight);
+      const width = Math.max(Math.min(Math.floor(containerWidth), 600), 220);
+      const height = Math.round(Math.max(width * 0.6, 240));
       // perf Increase: skip the redraw when the size didn't change.
       if (width === this.state.width && height === this.state.height && this.hasDrawn) return;
       this.setState({ width, height }, () => this.drawChart());
@@ -52,6 +67,9 @@ export class Chart extends Component{
     const svg = select(this.svgRef.current);
     const {data} = this.props;
     const {width, height} = this.state;
+    const narrow = width < NARROW_WIDTH;
+    const margin = narrow ? NARROW_MARGIN : WIDE_MARGIN;
+    const maxLabelLength = narrow ? 10 : 14;
 
     svg.selectAll("*").remove();
 
@@ -124,12 +142,12 @@ export class Chart extends Component{
       .attr("fill", "#b0b8cc")
       .attr("font-size", "11px")
       .attr("dy", "1em")
-      .attr("transform", "rotate(-25)")
+      .attr("transform", narrow ? "rotate(-35)" : "rotate(-25)")
       .style("text-anchor", "end")
       .each(function() {
         const text = select(this);
-        if (text.text().length > 14) {
-          text.text(text.text().substring(0, 12) + "...");
+        if (text.text().length > maxLabelLength) {
+          text.text(text.text().substring(0, maxLabelLength - 2) + "...");
         }
       });
 
@@ -174,6 +192,7 @@ export class Chart extends Component{
           ref={this.svgRef}
           width={width}
           height={height}
+          viewBox={`0 0 ${width} ${height}`}
           style={{display: 'block', margin: '0 auto'}}>
         </svg>
       </div>

@@ -8,6 +8,7 @@ import axios, { errorMessage } from '../../utils/api';
 import { MAX_UPLOAD_BYTES } from '../../constance';
 import {CardSizeControl} from '../CardSizeControl';
 import { showToast } from '../../utils/toast';
+import { getToken } from '../../utils/auth';
 import WrongAnswers from '../Helper/InputField/WrongAnswers';
 
 const DEFAULT_PAGE_SIZE = 10;
@@ -57,10 +58,8 @@ class SmallCards extends PureComponent{
   }
 
   fetchCards = () => {
-    if (!this.state.isOwner) {
-      this.props.getPoolSubCard(this.deckUuid);
-      return;
-    }
+    // A public deck is already fully loaded; paging and search happen in render.
+    if (!this.state.isOwner) return;
     const { page, pageSize, searchQuery, shuffled } = this.state;
     this.props.getSmallCards(this.deckUuid, { page, pageSize, search: searchQuery || undefined, shuffle: shuffled });
   }
@@ -111,6 +110,13 @@ class SmallCards extends PureComponent{
     const cameFromBrowse = this.props.location.state && this.props.location.state.prevent;
     // Don't flash the previous deck's cards while this one loads.
     this.props.clearSubCards();
+
+    // A guest can only see public decks, so skip the signed-in lookups.
+    if (!getToken()) {
+      this.setState({ isOwner: false, prevent: true });
+      await this.openPublicDeck(routeUuid);
+      return;
+    }
 
     if (cameFromBrowse) {
       const publicDeck = await this.openPublicDeck(routeUuid);
@@ -387,7 +393,17 @@ static getDerivedStateFromProps(nextProps, prevState){
 
   render(){
     const { dialogOpen, dialogTab, title, descriptions, uploading, uploadMsg, isOwner, localViews, isDefaultCard, searchQuery } = this.state;
-    const { items: displayCards, total: totalCards } = this.props.showsubcards;
+    let { items: displayCards, total: totalCards } = this.props.showsubcards;
+    if (!isOwner) {
+      // Bug fix: a public deck arrives as one full list, so page and search it here.
+      // It used to show every card under page buttons that did nothing.
+      const query = searchQuery.trim().toLowerCase();
+      const matches = query
+        ? displayCards.filter(card => `${card.title} ${card.descriptions || ''}`.toLowerCase().includes(query))
+        : displayCards;
+      totalCards = matches.length;
+      displayCards = matches.slice(this.state.page * this.state.pageSize, (this.state.page + 1) * this.state.pageSize);
+    }
     let pieData;
     if (isOwner) {
       const viewsByCard = new Map();
