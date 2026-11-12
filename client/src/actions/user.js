@@ -22,7 +22,8 @@ export  default  {
          const passwordDigest = await sha256(data.password);
          const res = await axios.post('/auth/signup', { username: data.username, passwordDigest });
          setToken(res.data.token);
-         dispatch( {type: type.FETCH_USER, payload: res.data.user } );
+         const profile = await axios.get('/api/profile');
+         dispatch( {type: type.FETCH_USER, payload: profile.data } );
          showToast('Account created successfully');
        } catch (err) {
          showToast(err.response ? err.response.data.error : 'Registration failed');
@@ -35,7 +36,8 @@ export  default  {
           const passwordDigest = await sha256(data.password);
           const res = await axios.post('/auth/login', { username: data.username, passwordDigest });
           setToken(res.data.token);
-          dispatch( {type: type.FETCH_USER, payload: res.data.user } );
+          const profile = await axios.get('/api/profile');
+          dispatch( {type: type.FETCH_USER, payload: profile.data } );
         } catch (err) {
           showToast(err.response ? err.response.data.error : 'Login failed');
         }
