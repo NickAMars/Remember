@@ -10,6 +10,7 @@ const errorText = (err, fallback) =>
 
 const COUNTS = [10, 20, 50, 0]; // 0 = all
 const LETTERS = ['A', 'B', 'C', 'D', 'E', 'F'];
+const TIMER_OPTIONS = [0, 45, 60, 75, 90, 120]; // 0 = off, seconds per question
 
 const initialRun = {
   cards: [],
@@ -17,6 +18,7 @@ const initialRun = {
   picked: null,      // multiple choice: the option the user chose
   revealed: false,   // flashcard: answer shown
   results: [],       // { card, correct, given }
+  timeLeft: 0,       // seconds remaining for current question
 };
 
 class Quiz extends Component {
@@ -27,6 +29,7 @@ class Quiz extends Component {
     deckFilter: {}, // deck uuid -> false when left out
     count: 20,
     mode: 'choice', // choice | flash
+    timer: 0,       // seconds per question, 0 = off
     loading: false,
     folderName: '',
     dueCounts: null, // { total, byFolder: [{ folderUuid, folderName, count }] }
@@ -42,7 +45,50 @@ class Quiz extends Component {
 
   componentWillUnmount() {
     window.removeEventListener('keydown', this.onKey);
+    this.clearTimer();
   }
+
+  clearTimer = () => {
+    if (this._timerInterval) {
+      clearInterval(this._timerInterval);
+      this._timerInterval = null;
+    }
+  };
+
+  startTimer = () => {
+    this.clearTimer();
+    const { timer } = this.state;
+    if (!timer) return;
+    this.setState({ timeLeft: timer });
+    this._timerInterval = setInterval(() => {
+      this.setState(prev => {
+        const next = prev.timeLeft - 1;
+        if (next <= 0) {
+          this.clearTimer();
+          this.onTimeUp();
+          return { timeLeft: 0 };
+        }
+        return { timeLeft: next };
+      });
+    }, 1000);
+  };
+
+  onTimeUp = () => {
+    const card = this.card();
+    if (!card || this.answered()) return;
+    const choice = this.useChoices(card);
+    if (choice) {
+      // Auto-mark as wrong for multiple choice
+      this.setState(prev => ({
+        picked: '__timeout__',
+        results: [...prev.results, { card, correct: false, given: '(time ran out)' }],
+      }));
+    } else {
+      // For flashcard, reveal and auto-grade wrong
+      this.setState({ revealed: true });
+      this.grade(false);
+    }
+  };
 
   componentDidUpdate(prevProps) {
     const prev = prevProps.match.params.folderUuid;
@@ -139,7 +185,7 @@ class Quiz extends Component {
   };
 
   begin = (cards, folderName) => {
-    this.setState({ ...initialRun, cards, folderName: folderName || this.state.folderName, stage: 'running' });
+    this.setState({ ...initialRun, cards, folderName: folderName || this.state.folderName, stage: 'running' }, this.startTimer);
     window.scrollTo({ top: 0 });
   };
 
@@ -154,6 +200,7 @@ class Quiz extends Component {
 
   pick = (option) => {
     if (this.state.picked !== null) return;
+    this.clearTimer();
     const card = this.card();
     const correct = option === card.answer.trim();
     this.setState(prev => ({
@@ -163,6 +210,7 @@ class Quiz extends Component {
   };
 
   grade = (correct) => {
+    this.clearTimer();
     const card = this.card();
     this.setState(prev => ({ results: [...prev.results, { card, correct, given: null }] }), this.next);
   };
@@ -170,10 +218,11 @@ class Quiz extends Component {
   next = () => {
     const { index, cards } = this.state;
     if (index + 1 >= cards.length) {
+      this.clearTimer();
       this.setState({ stage: 'done' }, this.submitResults);
       window.scrollTo({ top: 0 });
     } else {
-      this.setState({ index: index + 1, picked: null, revealed: false });
+      this.setState({ index: index + 1, picked: null, revealed: false }, this.startTimer);
     }
   };
 
@@ -199,7 +248,7 @@ class Quiz extends Component {
     }
   };
 
-  quit = () => this.setState({ stage: 'done' }, this.submitResults);
+  quit = () => { this.clearTimer(); this.setState({ stage: 'done' }, this.submitResults); };
 
   folderDueCount(folderUuid) {
     const { dueCounts } = this.state;
@@ -277,10 +326,22 @@ class Quiz extends Component {
           <button type="button" className={`quiz__seg ${mode === 'flash' ? 'quiz__seg--on' : ''}`}
             onClick={() => this.setState({ mode: 'flash' })}>Flashcard (grade yourself)</button>
         </div>
+        <label className="quiz__label">Timer</label>
+        <div className="quiz__segment">
+          {TIMER_OPTIONS.map(seconds => (
+            <button key={seconds} type="button"
+              className={`quiz__seg ${this.state.timer === seconds ? 'quiz__seg--on' : ''}`}
+              onClick={() => this.setState({ timer: seconds })}>
+              {seconds === 0 ? 'Off' : `${seconds}s`}
+            </button>
+          ))}
+        </div>
+
         <p className="quiz__hint quiz__hint--block">
           {mode === 'choice'
             ? 'Wrong options are taken from other answers in the same folder. Keys 1-4 pick an answer, Enter goes to the next one.'
             : 'Read the question, think of the answer, then reveal it and mark yourself right (Y) or wrong (N).'}
+          {this.state.timer > 0 && ` You have ${this.state.timer} seconds per question.`}
         </p>
 
         <div className="quiz__actions">
@@ -303,7 +364,7 @@ class Quiz extends Component {
   }
 
   renderRunning() {
-    const { cards, index, picked, revealed, results, folderName } = this.state;
+    const { cards, index, picked, revealed, results, folderName, timer, timeLeft } = this.state;
     const card = this.card();
     if (!card) return null;
     const correctSoFar = results.filter(result => result.correct).length;
@@ -311,14 +372,32 @@ class Quiz extends Component {
     const right = card.answer.trim();
     const choice = this.useChoices(card);
     const progress = ((index + (answered ? 1 : 0)) / cards.length) * 100;
+    const timerActive = timer > 0;
+    const timerPct = timerActive ? (timeLeft / timer) * 100 : 0;
+    const timerUrgent = timerActive && timeLeft > 0 && timeLeft <= 5;
 
     return (
       <div className="quiz__panel">
         <div className="quiz__top">
           <span>{folderName} · Question {index + 1} of {cards.length}</span>
-          <span>Score {correctSoFar}/{results.length}</span>
+          <span className="quiz__top-right">
+            {timerActive && !answered && (
+              <span className={`quiz__timer ${timerUrgent ? 'quiz__timer--urgent' : ''} ${timeLeft === 0 ? 'quiz__timer--expired' : ''}`}>
+                {timeLeft}s
+              </span>
+            )}
+            <span>Score {correctSoFar}/{results.length}</span>
+          </span>
         </div>
         <div className="quiz__bar"><div className="quiz__bar-fill" style={{ width: `${progress}%` }} /></div>
+        {timerActive && !answered && (
+          <div className="quiz__timer-bar">
+            <div
+              className={`quiz__timer-bar-fill ${timerUrgent ? 'quiz__timer-bar-fill--urgent' : ''}`}
+              style={{ width: `${timerPct}%` }}
+            />
+          </div>
+        )}
 
         {card.deck && <span className="quiz__deck">{card.deck}</span>}
         <p className="quiz__question">{card.question}</p>
@@ -352,7 +431,7 @@ class Quiz extends Component {
 
         {answered && choice && (
           <p className={`quiz__feedback ${picked === right ? 'quiz__feedback--right' : 'quiz__feedback--wrong'}`}>
-            {picked === right ? 'Correct!' : 'Not quite. The right answer is highlighted.'}
+            {picked === right ? 'Correct!' : picked === '__timeout__' ? "Time's up! The right answer is highlighted." : 'Not quite. The right answer is highlighted.'}
           </p>
         )}
         {(answered || revealed) && card.explanation && (
