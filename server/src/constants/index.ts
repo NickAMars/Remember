@@ -18,6 +18,7 @@ export const MAX_DECK_TITLE_LENGTH = 128;
 export const MAX_QUESTION_LENGTH = 1000;
 export const MAX_ANSWER_LENGTH = 5000;
 export const MAX_LINK_LENGTH = 2000;
+export const MAX_EXPLANATION_LENGTH = 5000;
 export const MAX_FOLDER_NAME_LENGTH = 255;
 export const MAX_CARDS_PER_REQUEST = 5000;
 export const MAX_SEARCH_LENGTH = 200;

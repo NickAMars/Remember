@@ -28,6 +28,7 @@ class SmallCards extends PureComponent{
       dialogTab: 'single',
       title: '',
       descriptions: '',
+      explanation: '',
       link: '',
       wrongAnswers: [],
       uploading: false,
@@ -325,15 +326,15 @@ static getDerivedStateFromProps(nextProps, prevState){
     );
   }
 
-  openDialog = () => this.setState({ dialogOpen: true, dialogTab: 'single', title: '', descriptions: '', link: '', wrongAnswers: [], uploadMsg: '' });
+  openDialog = () => this.setState({ dialogOpen: true, dialogTab: 'single', title: '', descriptions: '', explanation: '', link: '', wrongAnswers: [], uploadMsg: '' });
   closeDialog = () => this.setState({ dialogOpen: false });
 
   addSubCard = async () => {
-    const { title, descriptions, link, wrongAnswers } = this.state;
+    const { title, descriptions, explanation, link, wrongAnswers } = this.state;
     if (!title.trim()) return;
     try {
-      await axios.post(`/api/profile/MasterCard/${this.deckUuid}/subcards`, { title, descriptions, link, wrongAnswers });
-      this.setState({ title: '', descriptions: '', link: '', wrongAnswers: [], dialogOpen: false });
+      await axios.post(`/api/profile/MasterCard/${this.deckUuid}/subcards`, { title, descriptions, explanation, link, wrongAnswers });
+      this.setState({ title: '', descriptions: '', explanation: '', link: '', wrongAnswers: [], dialogOpen: false });
       this.fetchCards();
       showToast(`"${title}" added successfully`);
     } catch (error) {
@@ -467,6 +468,13 @@ static getDerivedStateFromProps(nextProps, prevState){
                     value={descriptions}
                     onChange={(event) => this.setState({ descriptions: event.target.value })}
                   />
+                  <textarea
+                    className="dialog__textarea"
+                    placeholder="Explanation (optional)"
+                    maxLength="5000"
+                    value={this.state.explanation}
+                    onChange={(event) => this.setState({ explanation: event.target.value })}
+                  />
                   <input
                     className="dialog__input"
                     type="url"
@@ -484,7 +492,7 @@ static getDerivedStateFromProps(nextProps, prevState){
                 </div>
               ) : (
                 <div className="dialog__upload">
-                  <p className="dialog__upload-hint">Upload an Excel or CSV file. Column A = question, Column B = answer, Column C = link (optional), Column D = review flag (yes/no, optional), Columns E and onward = wrong answers for the quiz (optional).</p>
+                  <p className="dialog__upload-hint">Upload an Excel or CSV file. Column A = question, Column B = answer, Column C = explanation (optional), Column D = link (optional), Column E = review flag (yes/no, optional), Columns F and onward = wrong answers for the quiz (optional).</p>
                   <input
                     ref={this.fileInput}
                     type="file"

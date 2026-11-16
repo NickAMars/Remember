@@ -1,6 +1,6 @@
 import { Readable } from 'node:stream';
 import ExcelJS from 'exceljs';
-import { MAX_ANSWER_LENGTH, MAX_CARDS_PER_REQUEST, MAX_QUESTION_LENGTH, MAX_WRONG_ANSWERS } from '../constants';
+import { MAX_ANSWER_LENGTH, MAX_CARDS_PER_REQUEST, MAX_EXPLANATION_LENGTH, MAX_QUESTION_LENGTH, MAX_WRONG_ANSWERS } from '../constants';
 import { HttpError } from '../services/errors';
 import { cleanWrongAnswers, normalizeLink } from './validation';
 
@@ -8,15 +8,16 @@ import { cleanWrongAnswers, normalizeLink } from './validation';
 export interface SpreadsheetCard {
   title: string;
   descriptions: string;
+  explanation: string;
   link: string;
-  /** Whether the card is flagged for review (column D). */
+  /** Whether the card is flagged for review (column E). */
   markedForReview: boolean;
-  /** Columns E and onward: similar but incorrect answers for Quiz mode. */
+  /** Columns F and onward: similar but incorrect answers for Quiz mode. */
   wrongAnswers: string[];
 }
 
-/** Column E is the first wrong answer. */
-export const FIRST_WRONG_ANSWER_COLUMN = 5;
+/** Column F is the first wrong answer. */
+export const FIRST_WRONG_ANSWER_COLUMN = 6;
 
 export interface SpreadsheetSheet {
   sheetName: string;
@@ -82,8 +83,9 @@ function parseBooleanCell(value: ExcelJS.CellValue): boolean {
 
 /**
  * Read every sheet of a workbook into cards.
- * Column A = question, column B = answer, column C = optional link,
- * column D = review flag (optional), columns E and onward = optional wrong answers for Quiz mode.
+ * Column A = question, column B = answer, column C = explanation (optional),
+ * column D = link (optional), column E = review flag (optional),
+ * columns F and onward = optional wrong answers for Quiz mode.
  * A header row (see isHeaderRow) is skipped.
  */
 export async function readSpreadsheet(buffer: Buffer, extension: 'xlsx' | 'csv'): Promise<SpreadsheetSheet[]> {
@@ -110,8 +112,9 @@ export async function readSpreadsheet(buffer: Buffer, extension: 'xlsx' | 'csv')
       cards.push({
         title,
         descriptions: answer,
-        link: cellLink(row.getCell(3).value),
-        markedForReview: parseBooleanCell(row.getCell(4).value),
+        explanation: cellText(row.getCell(3).value).trim().slice(0, MAX_EXPLANATION_LENGTH),
+        link: cellLink(row.getCell(4).value),
+        markedForReview: parseBooleanCell(row.getCell(5).value),
         wrongAnswers: readWrongAnswers(row, answer),
       });
     });
@@ -125,7 +128,7 @@ export async function readSpreadsheet(buffer: Buffer, extension: 'xlsx' | 'csv')
   return sheets;
 }
 
-/** Read the wrong answers from column D onward. Stops after a few extra columns so a wide sheet stays cheap. */
+/** Read the wrong answers from column F onward. Stops after a few extra columns so a wide sheet stays cheap. */
 function readWrongAnswers(row: ExcelJS.Row, rightAnswer: string): string[] {
   const lastColumn = Math.min(row.cellCount, FIRST_WRONG_ANSWER_COLUMN + MAX_WRONG_ANSWERS * 2 - 1);
   const rawAnswers: string[] = [];

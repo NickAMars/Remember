@@ -82,7 +82,7 @@ describe('SubCardService.update and delete', () => {
     cardRepository.findOne.mockResolvedValue({ id: 5, title: 'Q', masterCard: { id: 3, userId: 1, isDefault: false } });
     const updated = await service.update('card-5', 'user-1', 'Q', 'New answer', 'https://example.com/', ['Close but wrong']);
     expect(updated).toEqual({
-      id: 5, title: 'Q', descriptions: 'New answer', link: 'https://example.com/', markedForReview: false, wrongAnswers: ['Close but wrong'],
+      id: 5, title: 'Q', descriptions: 'New answer', explanation: '', link: 'https://example.com/', markedForReview: false, wrongAnswers: ['Close but wrong'],
     });
   });
 });

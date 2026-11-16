@@ -658,7 +658,7 @@ ul { list-style: none; }
 .card__svg img:hover { opacity: 1; }
 .card__title {
   color: #fff;
-  font-size: 1.8rem;
+  font-size: 1.4rem;
   font-weight: 600;
   text-align: center;
   word-wrap: break-word;
@@ -708,6 +708,16 @@ ul { list-style: none; }
   word-wrap: break-word;
   color: var(--color-text-secondary);
   line-height: 1.5;
+}
+
+.card__explanation {
+  font-size: 1.1rem;
+  padding: 0.4rem 1.4rem 0.6rem;
+  color: var(--color-text-secondary);
+  opacity: 0.85;
+  font-style: italic;
+  line-height: 1.4;
+  word-wrap: break-word;
 }
 
 .card__back-footer {
@@ -2305,7 +2315,7 @@ body.nav-open .breadcrumb {
 .quiz__bar { height: 0.5rem; margin: 0.8rem 0 1.8rem; background: var(--color-input-bg); border-radius: var(--radius-full); overflow: hidden; }
 .quiz__bar-fill { height: 100%; background: var(--color-primary); transition: width var(--transition-normal); }
 .quiz__deck { display: inline-block; font-size: 1.1rem; color: var(--color-primary-light); background: rgba(212, 146, 74, 0.1); padding: 0.2rem 0.8rem; border-radius: var(--radius-full); margin-bottom: 0.8rem; }
-.quiz__question { font-size: 1.6rem; line-height: 1.6; color: var(--color-text); white-space: pre-wrap; margin-bottom: 1.6rem; }
+.quiz__question { font-size: 1.3rem; line-height: 1.6; color: var(--color-text); white-space: pre-wrap; margin-bottom: 1.6rem; }
 .quiz__options { list-style: none; display: flex; flex-direction: column; gap: 0.7rem; }
 .quiz__option {
   width: 100%;
@@ -2360,6 +2370,8 @@ body.nav-open .breadcrumb {
 .quiz__missed-q { color: var(--color-text); margin-bottom: 0.6rem; white-space: pre-wrap; }
 .quiz__missed-given { color: var(--color-danger); }
 .quiz__missed-a { color: var(--color-success); }
+.quiz__missed-explanation { color: var(--color-text-secondary); font-style: italic; margin-top: 0.3rem; }
+.quiz__explanation { margin-top: 1rem; padding: 0.8rem 1rem; font-size: 1.2rem; color: var(--color-text-secondary); background: var(--color-bg-secondary, rgba(0,0,0,0.05)); border-radius: 0.6rem; line-height: 1.5; }
 
 @media (max-width: 600px) {
   .folders__create, .folders__create-input { width: 100%; min-width: 0; }

@@ -355,6 +355,11 @@ class Quiz extends Component {
             {picked === right ? 'Correct!' : 'Not quite. The right answer is highlighted.'}
           </p>
         )}
+        {(answered || revealed) && card.explanation && (
+          <div className="quiz__explanation">
+            <strong>Explanation:</strong> {card.explanation}
+          </div>
+        )}
         {(answered || revealed) && safeHref(card.link) && (
           <a className="quiz__link" href={safeHref(card.link)} target="_blank" rel="noopener noreferrer">Learn more</a>
         )}
@@ -408,6 +413,7 @@ class Quiz extends Component {
                 <p className="quiz__missed-q">{result.card.question}</p>
                 {result.given && <p className="quiz__missed-given"><strong>Your answer:</strong> {result.given}</p>}
                 <p className="quiz__missed-a"><strong>Correct answer:</strong> {result.card.answer}</p>
+                {result.card.explanation && <p className="quiz__missed-explanation"><strong>Explanation:</strong> {result.card.explanation}</p>}
                 {safeHref(result.card.link) && <a className="quiz__link" href={safeHref(result.card.link)} target="_blank" rel="noopener noreferrer">Learn more</a>}
               </li>
             ))}

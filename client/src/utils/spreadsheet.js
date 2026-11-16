@@ -7,6 +7,7 @@ const ANSWER_HEADERS = new Set(['answer', 'answers', 'description', 'description
 const REVIEW_TRUTHY = new Set(['true', 'yes', '1', 'x']);
 const MAX_QUESTION_LENGTH = 1000;
 const MAX_ANSWER_LENGTH = 5000;
+const MAX_EXPLANATION_LENGTH = 5000;
 const MAX_LINK_LENGTH = 2000;
 
 /** Split CSV text into rows of cells. Handles quoted cells with commas, quotes and new lines. */
@@ -33,8 +34,9 @@ export function parseCsv(text) {
 }
 
 /**
- * Turn spreadsheet rows into cards: column A question, B answer, C link,
- * D review flag, E and onward wrong answers (similar but incorrect, for multiple-choice quizzes).
+ * Turn spreadsheet rows into cards: column A question, B answer, C explanation (optional),
+ * D link (optional), E review flag (optional), F and onward wrong answers
+ * (similar but incorrect, for multiple-choice quizzes).
  * A header row is skipped, and a repeated question keeps its last answer
  * (the server refuses a deck with the same question twice).
  */
@@ -43,13 +45,14 @@ export function rowsToCards(rows) {
   rows.forEach((row, rowIndex) => {
     const question = String(row[0] ?? '').trim().slice(0, MAX_QUESTION_LENGTH);
     const answer = String(row[1] ?? '').trim().slice(0, MAX_ANSWER_LENGTH);
-    const link = String(row[2] ?? '').trim().slice(0, MAX_LINK_LENGTH);
-    const reviewCell = String(row[3] ?? '').trim().toLowerCase();
+    const explanation = String(row[2] ?? '').trim().slice(0, MAX_EXPLANATION_LENGTH);
+    const link = String(row[3] ?? '').trim().slice(0, MAX_LINK_LENGTH);
+    const reviewCell = String(row[4] ?? '').trim().toLowerCase();
     const markedForReview = REVIEW_TRUTHY.has(reviewCell);
     if (!question) return;
     if (rowIndex === 0 && (QUESTION_HEADERS.has(question.toLowerCase()) || ANSWER_HEADERS.has(answer.toLowerCase()))) return;
-    const wrongAnswers = cleanWrongAnswers(row.slice(4), answer);
-    cardsByQuestion.set(question, { title: question, description: answer, link, markedForReview, wrongAnswers });
+    const wrongAnswers = cleanWrongAnswers(row.slice(5), answer);
+    cardsByQuestion.set(question, { title: question, description: answer, explanation, link, markedForReview, wrongAnswers });
   });
   return [...cardsByQuestion.values()];
 }

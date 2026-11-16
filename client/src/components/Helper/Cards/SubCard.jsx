@@ -16,6 +16,7 @@ class SubCard extends Component {
     editTitle: this.props.title,
     editDescriptions: this.props.descriptions,
     editLink: this.props.link || '',
+    editExplanation: this.props.explanation || '',
     editMarkedForReview: this.props.markedForReview || false,
     editWrongAnswers: this.props.wrongAnswers || [],
     updateError: '',
@@ -37,10 +38,10 @@ class SubCard extends Component {
   }
 
   toggleReview = async () => {
-    const { uuid, title, descriptions, link, markedForReview, wrongAnswers } = this.props;
+    const { uuid, title, descriptions, explanation, link, markedForReview, wrongAnswers } = this.props;
     try {
       await axios.put(`/api/profile/MasterCard/subcards/${uuid}`, {
-        title, descriptions, link: link || '', markedForReview: !markedForReview, wrongAnswers: wrongAnswers || [],
+        title, descriptions, explanation: explanation || '', link: link || '', markedForReview: !markedForReview, wrongAnswers: wrongAnswers || [],
       });
       if (this.props.onChanged) this.props.onChanged();
     } catch (error) {
@@ -53,6 +54,7 @@ class SubCard extends Component {
       showUpdateModal: true,
       editTitle: this.props.title,
       editDescriptions: this.props.descriptions,
+      editExplanation: this.props.explanation || '',
       editLink: this.props.link || '',
       editMarkedForReview: this.props.markedForReview || false,
       editWrongAnswers: this.props.wrongAnswers || [],
@@ -66,10 +68,10 @@ class SubCard extends Component {
 
   onUpdate = async () => {
     const { uuid } = this.props;
-    const { editTitle, editDescriptions, editLink, editMarkedForReview, editWrongAnswers } = this.state;
+    const { editTitle, editDescriptions, editExplanation, editLink, editMarkedForReview, editWrongAnswers } = this.state;
     try {
       await axios.put(`/api/profile/MasterCard/subcards/${uuid}`, {
-        title: editTitle, descriptions: editDescriptions, link: editLink, markedForReview: editMarkedForReview, wrongAnswers: editWrongAnswers,
+        title: editTitle, descriptions: editDescriptions, explanation: editExplanation, link: editLink, markedForReview: editMarkedForReview, wrongAnswers: editWrongAnswers,
       });
     } catch (error) {
       const message = errorMessage(error, 'Update failed');
@@ -120,11 +122,13 @@ class SubCard extends Component {
 
   componentDidUpdate(prevProps) {
     if (prevProps.title !== this.props.title || prevProps.descriptions !== this.props.descriptions
+      || prevProps.explanation !== this.props.explanation
       || prevProps.link !== this.props.link || prevProps.markedForReview !== this.props.markedForReview
       || prevProps.wrongAnswers !== this.props.wrongAnswers) {
       this.setState({
         editTitle: this.props.title,
         editDescriptions: this.props.descriptions,
+        editExplanation: this.props.explanation || '',
         editLink: this.props.link || '',
         editMarkedForReview: this.props.markedForReview || false,
         editWrongAnswers: this.props.wrongAnswers || [],
@@ -183,6 +187,11 @@ class SubCard extends Component {
             <div className="card__description">
               {this.props.descriptions}
             </div>
+            {this.props.explanation && (
+              <div className="card__explanation">
+                <strong>Explanation:</strong> {this.props.explanation}
+              </div>
+            )}
             <div className="card__back-footer">
               {referenceLink && (
                 <a className="card__link" href={referenceLink} target="_blank" rel="noopener noreferrer" onClick={(event) => event.stopPropagation()}>
@@ -237,6 +246,13 @@ class SubCard extends Component {
                   maxLength="5000"
                   value={editDescriptions}
                   onChange={(event) => this.setState({ editDescriptions: event.target.value })}
+                />
+                <textarea
+                  className="dialog__textarea"
+                  placeholder="Explanation (optional)"
+                  maxLength="5000"
+                  value={this.state.editExplanation}
+                  onChange={(event) => this.setState({ editExplanation: event.target.value })}
                 />
                 <input
                   className="dialog__input"

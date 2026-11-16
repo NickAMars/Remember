@@ -111,7 +111,7 @@ describe('ReviewService.getDueCounts', () => {
 
     const result = await service.getDueCounts('user-1');
 
-    expect(totalQuery.andWhere).toHaveBeenCalledWith(expect.stringContaining('review.id IS NULL'), expect.any(Object));
+    expect(totalQuery.andWhere).toHaveBeenCalledWith('card.markedForReview = true');
     expect(result).toEqual({ total: 5, byFolder: [{ folderUuid: 'folder-1', folderName: 'AWS', count: 3 }] });
   });
 });
@@ -137,7 +137,7 @@ describe('ReviewService.getDueCards', () => {
 
     const quiz = await service.getDueCards('user-1', 'folder-1', 5);
 
-    expect(countQuery.leftJoin).toHaveBeenCalled();
+    expect(countQuery.andWhere).toHaveBeenCalledWith('card.markedForReview = true');
     expect(pickQuery.limit).toHaveBeenCalledWith(2);
     expect(quiz.folder).toEqual({ uuid: 'folder-1', name: 'AWS' });
     expect(quiz.available).toBe(2);

@@ -112,8 +112,8 @@ describe('MasterCardService.create', () => {
     expect(deckRepository.create).toHaveBeenCalledWith({ title: 'New', userId: 1 });
     expect(cardRepository.save).toHaveBeenCalledWith(
       [
-        { title: 'Q1', descriptions: 'A1', link: 'https://example.com', markedForReview: false, wrongAnswers: [], masterCardId: 10 },
-        { title: 'Q2', descriptions: 'A2', link: '', markedForReview: false, wrongAnswers: [], masterCardId: 10 },
+        { title: 'Q1', descriptions: 'A1', explanation: '', link: 'https://example.com', markedForReview: false, wrongAnswers: [], masterCardId: 10 },
+        { title: 'Q2', descriptions: 'A2', explanation: '', link: '', markedForReview: false, wrongAnswers: [], masterCardId: 10 },
       ],
       expect.objectContaining({ chunk: expect.any(Number) }),
     );

@@ -11,6 +11,7 @@ import { cleanWrongAnswers, escapeLikePattern, type Pagination } from '../utils/
 export interface NewCard {
   title: string;
   description: string;
+  explanation?: string;
   link?: string;
   markedForReview?: boolean;
   wrongAnswers?: string[];
@@ -99,6 +100,7 @@ export class MasterCardService {
         cardRepository.create({
           title: card.title,
           descriptions: card.description,
+          explanation: card.explanation || '',
           link: card.link || '',
           markedForReview: card.markedForReview ?? false,
           wrongAnswers: cleanWrongAnswers(card.wrongAnswers, card.description),

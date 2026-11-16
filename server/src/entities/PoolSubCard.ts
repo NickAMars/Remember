@@ -19,6 +19,10 @@ export class PoolSubCard {
   @Column({ type: 'varchar', length: 2000, default: '' })
   link: string;
 
+  /** Optional explanation shown after the quiz or on the card back. */
+  @Column({ type: 'text', default: '' })
+  explanation: string;
+
   /** Similar but incorrect answers, used as the wrong choices in Quiz mode. */
   @Column({ type: 'text', array: true, default: () => "'{}'" })
   wrongAnswers: string[];

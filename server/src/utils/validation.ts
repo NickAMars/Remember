@@ -2,6 +2,7 @@ import { z } from 'zod';
 import {
   DEFAULT_PAGE_SIZE,
   MAX_ANSWER_LENGTH,
+  MAX_EXPLANATION_LENGTH,
   MAX_LINK_LENGTH,
   MAX_PAGE_SIZE,
   MAX_QUESTION_LENGTH,
@@ -42,6 +43,7 @@ export const linkField = z.string().max(MAX_LINK_LENGTH).optional().default('').
 
 export const questionField = z.string().trim().min(1).max(MAX_QUESTION_LENGTH);
 export const answerField = z.string().max(MAX_ANSWER_LENGTH).optional().default('');
+export const explanationField = z.string().max(MAX_EXPLANATION_LENGTH).optional().default('');
 
 /**
  * Clean a card's list of wrong answers: trim each one, drop blanks, drop repeats

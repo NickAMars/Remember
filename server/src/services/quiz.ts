@@ -8,6 +8,7 @@ export interface QuizCard {
   uuid: string;
   question: string;
   answer: string;
+  explanation: string;
   link: string;
   deck: string;
   /** Shuffled answer options (includes the right one). Empty when there aren't enough other answers. */
@@ -109,7 +110,7 @@ export async function buildQuizCards(
   const limit = Math.min(wanted, available, MAX_QUIZ_QUESTIONS);
 
   const pickedCards = await cardQuery()
-    .select(['card.id', 'card.uuid', 'card.title', 'card.descriptions', 'card.link', 'card.wrongAnswers', 'card.masterCardId'])
+    .select(['card.id', 'card.uuid', 'card.title', 'card.descriptions', 'card.explanation', 'card.link', 'card.wrongAnswers', 'card.masterCardId'])
     .orderBy('RANDOM()')
     .limit(limit)
     .getMany();
@@ -133,6 +134,7 @@ export async function buildQuizCards(
       uuid: card.uuid,
       question: card.title,
       answer: card.descriptions || '',
+      explanation: card.explanation || '',
       link: card.link || '',
       deck: deckTitles.get(card.masterCardId) || '',
       choices: pickChoices(

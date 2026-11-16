@@ -77,7 +77,7 @@ export class PoolCardService {
 
     const cards = await this.subCards.find({
       where: { masterCardId: deck.id },
-      select: ['title', 'descriptions', 'link', 'wrongAnswers'],
+      select: ['title', 'descriptions', 'explanation', 'link', 'wrongAnswers'],
     });
     if (cards.length === 0) throw badRequest('Cannot make a card public without any subcards');
 
@@ -89,6 +89,7 @@ export class PoolCardService {
         cards.map((card) => publicCardRepository.create({
           title: card.title,
           descriptions: card.descriptions,
+          explanation: card.explanation || '',
           link: card.link || '',
           wrongAnswers: card.wrongAnswers || [],
           poolCardId: publicDeck.id,
@@ -134,6 +135,7 @@ export class PoolCardService {
         publicDeck.subCards.map((card) => cardRepository.create({
           title: card.title,
           descriptions: card.descriptions,
+          explanation: card.explanation || '',
           link: card.link || '',
           wrongAnswers: card.wrongAnswers || [],
           masterCardId: newDeck.id,

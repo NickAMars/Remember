@@ -11,6 +11,7 @@ import { cleanWrongAnswers, escapeLikePattern, type Pagination } from '../utils/
 export interface CardInput {
   title: string;
   descriptions: string;
+  explanation?: string;
   link?: string;
   /** Whether the card is flagged for review. */
   markedForReview?: boolean;
@@ -103,6 +104,7 @@ export class SubCardService {
     link = '',
     wrongAnswers: string[] = [],
     markedForReview = false,
+    explanation = '',
   ): Promise<SubCard> {
     const userId = await requireUserId(this.users, userUuid);
     const deck = await requireOwnedDeck(this.masterCards, deckUuid, userId);
@@ -112,7 +114,7 @@ export class SubCardService {
     if (existing) throw badRequest('A card with this question already exists in this deck');
 
     return this.subCards.save(this.subCards.create({
-      title, descriptions, link, markedForReview, wrongAnswers: cleanWrongAnswers(wrongAnswers, descriptions), masterCardId: deck.id,
+      title, descriptions, explanation, link, markedForReview, wrongAnswers: cleanWrongAnswers(wrongAnswers, descriptions), masterCardId: deck.id,
     }));
   }
 
@@ -124,6 +126,7 @@ export class SubCardService {
     link = '',
     wrongAnswers: string[] = [],
     markedForReview = false,
+    explanation = '',
   ): Promise<SubCard> {
     const card = await this.requireOwnedCard(cardUuid, userUuid);
     if (card.masterCard.isDefault) throw badRequest('Cannot edit cards in the default tutorial deck');
@@ -135,6 +138,7 @@ export class SubCardService {
 
     card.title = title;
     card.descriptions = descriptions;
+    card.explanation = explanation;
     card.link = link;
     card.markedForReview = markedForReview;
     card.wrongAnswers = cleanWrongAnswers(wrongAnswers, descriptions);
@@ -167,6 +171,7 @@ export class SubCardService {
       const existing = existingByQuestion.get(card.title);
       if (existing) {
         existing.descriptions = card.descriptions;
+        existing.explanation = card.explanation || '';
         existing.link = card.link || '';
         existing.markedForReview = card.markedForReview ?? false;
         const uploadedWrongAnswers = cleanWrongAnswers(card.wrongAnswers, card.descriptions);
@@ -178,6 +183,7 @@ export class SubCardService {
         cardsToCreate.push(this.subCards.create({
           title: card.title,
           descriptions: card.descriptions,
+          explanation: card.explanation || '',
           link: card.link || '',
           markedForReview: card.markedForReview ?? false,
           wrongAnswers: cleanWrongAnswers(card.wrongAnswers, card.descriptions),

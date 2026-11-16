@@ -11,7 +11,7 @@ import { TYPES } from '../types';
 import type { Controller } from '../interfaces/controller';
 import { MAX_CARDS_PER_REQUEST, MAX_DECK_TITLE_LENGTH, MAX_STUDY_SESSION_MS } from '../constants';
 import { assertSupportedSpreadsheet, dedupeByQuestion, readSpreadsheet } from '../utils/spreadsheet';
-import { answerField, linkField, wrongAnswersField, paginationQuery, questionField, resolvePagination, UUID_ROUTE_PATTERN } from '../utils/validation';
+import { answerField, explanationField, linkField, wrongAnswersField, paginationQuery, questionField, resolvePagination, UUID_ROUTE_PATTERN } from '../utils/validation';
 
 const deckTitleField = z.string().trim().min(1).max(MAX_DECK_TITLE_LENGTH);
 
@@ -20,6 +20,7 @@ const createDeckBody = z.object({
   cards: z.array(z.object({
     title: questionField,
     description: answerField,
+    explanation: explanationField,
     link: linkField,
     markedForReview: z.boolean().optional().default(false),
     wrongAnswers: wrongAnswersField,
@@ -79,7 +80,7 @@ export class MasterCardController implements Controller {
             userUuid(request),
             deckTitle,
             cards.map((card) => ({
-              title: card.title, description: card.descriptions, link: card.link, markedForReview: card.markedForReview, wrongAnswers: card.wrongAnswers,
+              title: card.title, description: card.descriptions, explanation: card.explanation, link: card.link, markedForReview: card.markedForReview, wrongAnswers: card.wrongAnswers,
             })),
           );
           imported.push({ title: deckTitle, cardCount: cards.length });
