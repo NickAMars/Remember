@@ -8,6 +8,16 @@ import { showToast } from '../../utils/toast';
 const errorText = (err, fallback) =>
   (err && err.response && err.response.data && err.response.data.error) || fallback;
 
+/** Fisher-Yates shuffle (returns a new array). */
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
 const COUNTS = [10, 20, 50, 0]; // 0 = all
 const LETTERS = ['A', 'B', 'C', 'D', 'E', 'F'];
 const TIMER_OPTIONS = [0, 45, 60, 75, 90, 120]; // 0 = off, seconds per question
@@ -19,6 +29,7 @@ const initialRun = {
   revealed: false,   // flashcard: answer shown
   results: [],       // { card, correct, given }
   timeLeft: 0,       // seconds remaining for current question
+  shuffledChoices: [], // choices re-shuffled for the current question
 };
 
 class Quiz extends Component {
@@ -185,7 +196,8 @@ class Quiz extends Component {
   };
 
   begin = (cards, folderName) => {
-    this.setState({ ...initialRun, cards, folderName: folderName || this.state.folderName, stage: 'running' }, this.startTimer);
+    const firstChoices = cards[0] && cards[0].choices ? shuffle(cards[0].choices) : [];
+    this.setState({ ...initialRun, cards, shuffledChoices: firstChoices, folderName: folderName || this.state.folderName, stage: 'running' }, this.startTimer);
     window.scrollTo({ top: 0 });
   };
 
@@ -195,7 +207,7 @@ class Quiz extends Component {
 
   // Multiple choice is used when the server could build options for this card.
   useChoices(card) {
-    return this.state.mode === 'choice' && card && card.choices && card.choices.length > 1;
+    return this.state.mode === 'choice' && card && this.state.shuffledChoices && this.state.shuffledChoices.length > 1;
   }
 
   pick = (option) => {
@@ -222,7 +234,9 @@ class Quiz extends Component {
       this.setState({ stage: 'done' }, this.submitResults);
       window.scrollTo({ top: 0 });
     } else {
-      this.setState({ index: index + 1, picked: null, revealed: false }, this.startTimer);
+      const nextCard = cards[index + 1];
+      const nextChoices = nextCard && nextCard.choices ? shuffle(nextCard.choices) : [];
+      this.setState({ index: index + 1, picked: null, revealed: false, shuffledChoices: nextChoices }, this.startTimer);
     }
   };
 
@@ -236,8 +250,9 @@ class Quiz extends Component {
     const card = this.card();
     if (!card) return;
     if (this.useChoices(card)) {
+      const choices = this.state.shuffledChoices;
       const choiceNumber = parseInt(event.key, 10);
-      if (!this.answered() && choiceNumber >= 1 && choiceNumber <= card.choices.length) this.pick(card.choices[choiceNumber - 1]);
+      if (!this.answered() && choiceNumber >= 1 && choiceNumber <= choices.length) this.pick(choices[choiceNumber - 1]);
       else if (this.answered() && (event.key === 'Enter' || event.key === ' ')) { event.preventDefault(); this.next(); }
     } else if (!this.state.revealed && (event.key === 'Enter' || event.key === ' ')) {
       event.preventDefault();
@@ -364,7 +379,7 @@ class Quiz extends Component {
   }
 
   renderRunning() {
-    const { cards, index, picked, revealed, results, folderName, timer, timeLeft } = this.state;
+    const { cards, index, picked, revealed, results, folderName, timer, timeLeft, shuffledChoices } = this.state;
     const card = this.card();
     if (!card) return null;
     const correctSoFar = results.filter(result => result.correct).length;
@@ -404,7 +419,7 @@ class Quiz extends Component {
 
         {choice ? (
           <ol className="quiz__options">
-            {card.choices.map((option, optionIndex) => {
+            {shuffledChoices.map((option, optionIndex) => {
               let optionClass = 'quiz__option';
               if (answered) {
                 if (option === right) optionClass += ' quiz__option--right';
