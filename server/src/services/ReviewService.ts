@@ -1,6 +1,6 @@
 import { inject, injectable } from 'inversify';
 import { DataSource, In, Repository } from 'typeorm';
-import { CardReview, Folder, SubCard, User } from '../entities';
+import { CardReview, Folder, QuizAttempt, SubCard, User } from '../entities';
 import { MILLISECONDS_PER_DAY } from '../constants';
 import { TYPES } from '../types';
 import { notFound, badRequest } from './errors';
@@ -44,9 +44,17 @@ export function sm2(state: SM2State, quality: number): SM2State {
   return { easeFactor, interval, repetitions };
 }
 
-/** Quality score for a quiz answer: a correct flash card is "easy", a correct multiple choice is "ok". */
-export function qualityFor(result: { correct: boolean; mode: 'choice' | 'flash' }): number {
-  if (!result.correct) return 0;
+/**
+ * Quality score for a quiz answer (SM-2 scale 0–5).
+ * When the user rates difficulty, that overrides the default:
+ *   easy = 5, medium = 3, hard = 1 (correct) or 0 (wrong).
+ * Without a rating the old defaults apply: flash correct = 4, choice correct = 3, wrong = 0.
+ */
+export function qualityFor(result: { correct: boolean; mode: 'choice' | 'flash'; difficulty?: 'easy' | 'medium' | 'hard' }): number {
+  if (!result.correct) return result.difficulty === 'hard' ? 0 : 0;
+  if (result.difficulty === 'easy') return 5;
+  if (result.difficulty === 'hard') return 1;
+  if (result.difficulty === 'medium') return 3;
   return result.mode === 'flash' ? 4 : 3;
 }
 
@@ -56,6 +64,7 @@ export interface ReviewResult {
   subCardUuid: string;
   correct: boolean;
   mode: 'choice' | 'flash';
+  difficulty?: 'easy' | 'medium' | 'hard';
 }
 
 export interface DueCounts {
@@ -73,12 +82,14 @@ export class ReviewService {
   private subCards: Repository<SubCard>;
   private folders: Repository<Folder>;
   private users: Repository<User>;
+  private attempts: Repository<QuizAttempt>;
 
   constructor(@inject(TYPES.DataSource) dataSource: DataSource) {
     this.reviews = dataSource.getRepository(CardReview);
     this.subCards = dataSource.getRepository(SubCard);
     this.folders = dataSource.getRepository(Folder);
     this.users = dataSource.getRepository(User);
+    this.attempts = dataSource.getRepository(QuizAttempt);
   }
 
   /** Save quiz answers and move each card's next review date with SM-2. */
@@ -209,4 +220,57 @@ export class ReviewService {
 
     return { folder: { uuid: folder.uuid, name: folder.name }, ...quiz };
   }
+
+  /** Save a completed quiz attempt for the history view. */
+  async saveAttempt(
+    userUuid: string,
+    data: { folderUuid: string; folderName: string; mode: string; totalQuestions: number; correctAnswers: number; durationSeconds: number },
+  ): Promise<{ uuid: string }> {
+    const userId = await requireUserId(this.users, userUuid);
+    const folder = await this.folders.findOne({ where: { uuid: data.folderUuid, userId }, select: ['id'] });
+    if (!folder) throw notFound('Folder not found');
+
+    const attempt = this.attempts.create({
+      userId,
+      folderId: folder.id,
+      folderName: data.folderName,
+      mode: data.mode,
+      totalQuestions: data.totalQuestions,
+      correctAnswers: data.correctAnswers,
+      durationSeconds: data.durationSeconds,
+    });
+    const saved = await this.attempts.save(attempt);
+    return { uuid: saved.uuid };
+  }
+
+  /** Fetch quiz history for a folder, most recent first. */
+  async getAttemptHistory(userUuid: string, folderUuid: string): Promise<QuizAttemptSummary[]> {
+    const userId = await requireUserId(this.users, userUuid);
+    const folder = await this.folders.findOne({ where: { uuid: folderUuid, userId }, select: ['id'] });
+    if (!folder) throw notFound('Folder not found');
+
+    const rows = await this.attempts.find({
+      where: { userId, folderId: folder.id },
+      order: { createdAt: 'DESC' },
+      take: 50,
+    });
+
+    return rows.map((r) => ({
+      uuid: r.uuid,
+      mode: r.mode,
+      totalQuestions: r.totalQuestions,
+      correctAnswers: r.correctAnswers,
+      durationSeconds: r.durationSeconds,
+      createdAt: r.createdAt.toISOString(),
+    }));
+  }
+}
+
+export interface QuizAttemptSummary {
+  uuid: string;
+  mode: string;
+  totalQuestions: number;
+  correctAnswers: number;
+  durationSeconds: number;
+  createdAt: string;
 }

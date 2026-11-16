@@ -18,6 +18,14 @@ function shuffle(arr) {
   return a;
 }
 
+/** Format seconds as m:ss or h:mm:ss. */
+function formatDuration(seconds) {
+  if (!seconds) return '0:00';
+  const m = Math.floor(seconds / 60);
+  const s = seconds % 60;
+  return `${m}:${s.toString().padStart(2, '0')}`;
+}
+
 const COUNTS = [10, 20, 50, 0]; // 0 = all
 const LETTERS = ['A', 'B', 'C', 'D', 'E', 'F'];
 const TIMER_OPTIONS = [0, 45, 60, 75, 90, 120]; // 0 = off, seconds per question
@@ -27,9 +35,11 @@ const initialRun = {
   index: 0,
   picked: null,      // multiple choice: the option the user chose
   revealed: false,   // flashcard: answer shown
-  results: [],       // { card, correct, given }
+  results: [],       // { card, correct, given, difficulty }
   timeLeft: 0,       // seconds remaining for current question
   shuffledChoices: [], // choices re-shuffled for the current question
+  difficulty: null,  // 'easy' | 'medium' | 'hard' for current question
+  startedAt: null,   // Date when quiz began (for duration tracking)
 };
 
 class Quiz extends Component {
@@ -44,6 +54,7 @@ class Quiz extends Component {
     loading: false,
     folderName: '',
     dueCounts: null, // { total, byFolder: [{ folderUuid, folderName, count }] }
+    history: [],     // past quiz attempts for the selected folder
     ...initialRun,
   };
 
@@ -92,7 +103,8 @@ class Quiz extends Component {
       // Auto-mark as wrong for multiple choice
       this.setState(prev => ({
         picked: '__timeout__',
-        results: [...prev.results, { card, correct: false, given: '(time ran out)' }],
+        difficulty: null,
+        results: [...prev.results, { card, correct: false, given: '(time ran out)', difficulty: null }],
       }));
     } else {
       // For flashcard, reveal and auto-grade wrong
@@ -117,20 +129,48 @@ class Quiz extends Component {
   };
 
   submitResults = async () => {
-    const { results, mode } = this.state;
+    const { results, mode, folderUuid, folderName, startedAt } = this.state;
     if (results.length === 0) return;
     const payload = results.map(result => ({
       subCardUuid: result.card.uuid,
       correct: result.correct,
       mode: mode === 'choice' ? 'choice' : 'flash',
+      ...(result.difficulty ? { difficulty: result.difficulty } : {}),
     }));
     try {
-      // Bug fix: due counts were reloaded before the results were saved, so they were stale.
       await axios.post('/api/review/results', { results: payload });
     } catch {
       // Results are a bonus for spaced repetition; the quiz itself still finished.
     }
+    // Save the attempt for history
+    if (folderUuid) {
+      const durationSeconds = startedAt ? Math.round((Date.now() - startedAt.getTime()) / 1000) : 0;
+      const correct = results.filter(r => r.correct).length;
+      try {
+        await axios.post('/api/review/attempts', {
+          folderUuid,
+          folderName: folderName || '',
+          mode: mode === 'choice' ? 'choice' : 'flash',
+          totalQuestions: results.length,
+          correctAnswers: correct,
+          durationSeconds,
+        });
+      } catch {
+        // History is supplemental.
+      }
+      this.loadHistory(folderUuid);
+    }
     this.loadDueCounts();
+  };
+
+  loadHistory = async (folderUuid) => {
+    if (!folderUuid) { this.setState({ history: [] }); return; }
+    try {
+      const response = await axios.get(`/api/review/attempts/${folderUuid}`);
+      this.setState({ history: response.data });
+    } catch {
+      this.setState({ history: [] });
+    }
   };
 
   startReview = async () => {
@@ -158,6 +198,7 @@ class Quiz extends Component {
         ? fromUrl
         : (usable[0] ? usable[0].uuid : '');
       this.setState({ folders: response.data, folderUuid });
+      if (folderUuid) this.loadHistory(folderUuid);
     } catch (err) {
       showToast(errorText(err, 'Failed to load folders'));
     }
@@ -197,7 +238,7 @@ class Quiz extends Component {
 
   begin = (cards, folderName) => {
     const firstChoices = cards[0] && cards[0].choices ? shuffle(cards[0].choices) : [];
-    this.setState({ ...initialRun, cards, shuffledChoices: firstChoices, folderName: folderName || this.state.folderName, stage: 'running' }, this.startTimer);
+    this.setState({ ...initialRun, cards, shuffledChoices: firstChoices, startedAt: new Date(), folderName: folderName || this.state.folderName, stage: 'running' }, this.startTimer);
     window.scrollTo({ top: 0 });
   };
 
@@ -217,14 +258,23 @@ class Quiz extends Component {
     const correct = option === card.answer.trim();
     this.setState(prev => ({
       picked: option,
-      results: [...prev.results, { card, correct, given: option }],
+      difficulty: null,
+      results: [...prev.results, { card, correct, given: option, difficulty: null }],
     }));
   };
 
   grade = (correct) => {
     this.clearTimer();
     const card = this.card();
-    this.setState(prev => ({ results: [...prev.results, { card, correct, given: null }] }), this.next);
+    this.setState(prev => ({ difficulty: null, results: [...prev.results, { card, correct, given: null, difficulty: null }] }), this.next);
+  };
+
+  rateDifficulty = (difficulty) => {
+    this.setState(prev => {
+      const results = [...prev.results];
+      if (results.length > 0) results[results.length - 1] = { ...results[results.length - 1], difficulty };
+      return { difficulty, results };
+    });
   };
 
   next = () => {
@@ -236,7 +286,7 @@ class Quiz extends Component {
     } else {
       const nextCard = cards[index + 1];
       const nextChoices = nextCard && nextCard.choices ? shuffle(nextCard.choices) : [];
-      this.setState({ index: index + 1, picked: null, revealed: false, shuffledChoices: nextChoices }, this.startTimer);
+      this.setState({ index: index + 1, picked: null, revealed: false, difficulty: null, shuffledChoices: nextChoices }, this.startTimer);
     }
   };
 
@@ -272,6 +322,39 @@ class Quiz extends Component {
     return entry ? entry.count : 0;
   }
 
+  renderHistory() {
+    const { history } = this.state;
+    return (
+      <div className="quiz__history">
+        <h3 className="quiz__history-title">Recent attempts</h3>
+        <table className="quiz__history-table">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Mode</th>
+              <th>Score</th>
+              <th>Time</th>
+            </tr>
+          </thead>
+          <tbody>
+            {history.map(attempt => {
+              const pct = attempt.totalQuestions ? Math.round((attempt.correctAnswers / attempt.totalQuestions) * 100) : 0;
+              const date = new Date(attempt.createdAt);
+              return (
+                <tr key={attempt.uuid}>
+                  <td>{date.toLocaleDateString()} {date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</td>
+                  <td>{attempt.mode === 'choice' ? 'Choice' : 'Flash'}</td>
+                  <td className={pct >= 72 ? 'quiz__history-pass' : ''}>{attempt.correctAnswers}/{attempt.totalQuestions} ({pct}%)</td>
+                  <td>{formatDuration(attempt.durationSeconds)}</td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    );
+  }
+
   renderSetup() {
     const { folders, folderUuid, count, mode, loading, deckFilter, dueCounts } = this.state;
     const folder = this.currentFolder();
@@ -296,7 +379,7 @@ class Quiz extends Component {
 
         <label className="quiz__label">Folder</label>
         <select className="quiz__select" value={folderUuid}
-          onChange={event => this.setState({ folderUuid: event.target.value, deckFilter: {} })}>
+          onChange={event => { this.setState({ folderUuid: event.target.value, deckFilter: {} }); this.loadHistory(event.target.value); }}>
           {folders.map(folder => {
             const due = this.folderDueCount(folder.uuid);
             return (
@@ -374,6 +457,8 @@ class Quiz extends Component {
             You have <strong>{dueCounts.total}</strong> card{dueCounts.total !== 1 ? 's' : ''} due for review across your folders.
           </p>
         )}
+
+        {this.state.history.length > 0 && this.renderHistory()}
       </div>
     );
   }
@@ -458,6 +543,17 @@ class Quiz extends Component {
           <a className="quiz__link" href={safeHref(card.link)} target="_blank" rel="noopener noreferrer">Learn more</a>
         )}
 
+        {answered && choice && (
+          <div className="quiz__difficulty">
+            <span className="quiz__difficulty-label">How hard was this?</span>
+            <div className="quiz__difficulty-btns">
+              <button className={`quiz__diff-btn quiz__diff-btn--easy ${this.state.difficulty === 'easy' ? 'quiz__diff-btn--selected' : ''}`} onClick={() => this.rateDifficulty('easy')}>Easy</button>
+              <button className={`quiz__diff-btn quiz__diff-btn--medium ${this.state.difficulty === 'medium' ? 'quiz__diff-btn--selected' : ''}`} onClick={() => this.rateDifficulty('medium')}>Medium</button>
+              <button className={`quiz__diff-btn quiz__diff-btn--hard ${this.state.difficulty === 'hard' ? 'quiz__diff-btn--selected' : ''}`} onClick={() => this.rateDifficulty('hard')}>Hard</button>
+            </div>
+          </div>
+        )}
+
         <div className="quiz__controls">
           <button className="folders__btn" onClick={this.quit}>End quiz</button>
           {choice && answered && (
@@ -514,6 +610,8 @@ class Quiz extends Component {
           </ul>
         </>}
         {folderUuid && missed.length === 0 && results.length > 0 && <p className="quiz__sub">Perfect score. Nice work!</p>}
+
+        {this.state.history.length > 0 && this.renderHistory()}
       </div>
     );
   }

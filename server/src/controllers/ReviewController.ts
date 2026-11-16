@@ -15,11 +15,21 @@ const resultsBody = z.object({
     subCardUuid: z.string().regex(UUID_REGEX, 'Invalid card id').transform((cardUuid) => cardUuid.toLowerCase()),
     correct: z.boolean(),
     mode: z.enum(['choice', 'flash']),
+    difficulty: z.enum(['easy', 'medium', 'hard']).optional(),
   })).max(MAX_REVIEW_RESULTS_PER_REQUEST),
 });
 
 const dueCardsQuery = z.object({
   count: z.coerce.number().int().min(0).max(MAX_QUIZ_QUESTIONS).optional(),
+});
+
+const saveAttemptBody = z.object({
+  folderUuid: z.string().regex(UUID_REGEX),
+  folderName: z.string().max(255),
+  mode: z.enum(['choice', 'flash']),
+  totalQuestions: z.number().int().min(0).max(MAX_QUIZ_QUESTIONS),
+  correctAnswers: z.number().int().min(0).max(MAX_QUIZ_QUESTIONS),
+  durationSeconds: z.number().int().min(0).max(86400).optional().default(0),
 });
 
 /** Spaced repetition: save quiz answers and list the cards that are due. */
@@ -47,6 +57,15 @@ export class ReviewController implements Controller {
     router.get(`/due/:uuid(${UUID_ROUTE_PATTERN})`, handle(async (request) => {
       const { count } = parse(dueCardsQuery, request.query);
       return this.service.getDueCards(userUuid(request), uuidParam(request), count);
+    }));
+
+    router.post('/attempts', handle(async (request) => {
+      const data = parse(saveAttemptBody, request.body);
+      return this.service.saveAttempt(userUuid(request), data);
+    }));
+
+    router.get(`/attempts/:uuid(${UUID_ROUTE_PATTERN})`, handle(async (request) => {
+      return this.service.getAttemptHistory(userUuid(request), uuidParam(request));
     }));
 
     return router;
