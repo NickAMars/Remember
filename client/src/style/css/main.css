@@ -1374,6 +1374,27 @@ body.nav-open .breadcrumb {
 }
 .create__preview-remove:hover { color: var(--color-danger); background: rgba(217, 83, 79, 0.1); }
 
+.create__preview-card--deck {
+  flex-wrap: wrap;
+  align-items: center;
+}
+.create__preview-deck-title {
+  flex: 1;
+  min-width: 0;
+  font-size: 1.2rem;
+  font-weight: 500;
+  padding: 0.4rem 0.6rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+.create__preview-deck-info {
+  font-size: 1.05rem;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+
 /* ==========================================================================
    TABLE
    ========================================================================== */
